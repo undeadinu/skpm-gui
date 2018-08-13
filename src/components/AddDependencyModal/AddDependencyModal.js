@@ -35,7 +35,7 @@ class AddDependencyModal extends Component<Props> {
         onDismiss={onDismiss}
       >
         <Wrapper>
-          <ModalHeader title="Add New Dependency" theme="blueish">
+          <ModalHeader title="Add New Dependency" theme="orangeish">
             <AddDependencySearchBox />
           </ModalHeader>
 

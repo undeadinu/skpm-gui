@@ -4,9 +4,9 @@ export type Field = 'projectName' | 'projectType' | 'projectIcon';
 export type BuildStep =
   | 'creatingParentDirectory'
   | 'installingCliTool'
-  | 'creatingProjectDirectory'
+  | 'downloadingTemplate'
   | 'installingDependencies'
-  | 'guppification';
+  | 'personalizingTemplate';
 
 export type Status = 'filling-in-form' | 'building-project' | 'project-created';
 

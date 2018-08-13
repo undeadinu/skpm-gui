@@ -22,7 +22,7 @@ class DependencyInstalling extends Component<Props> {
           <GuppyImage src={guppyLoaderSrc} />
           <Spacer size={50} />
           <Heading size="small">
-            Installing <span style={{ color: COLORS.purple[500] }}>{name}</span>…
+            Installing <span style={{ color: COLORS.orange[500] }}>{name}</span>…
           </Heading>
         </InnerWrapper>
       </Wrapper>

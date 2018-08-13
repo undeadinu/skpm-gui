@@ -132,7 +132,6 @@ class Sidebar extends PureComponent<Props, State> {
                           size={SIDEBAR_ICON_SIZE}
                           id={project.id}
                           name={project.name}
-                          color={project.color}
                           iconSrc={project.icon}
                           isSelected={
                             finishedOnboarding &&
@@ -174,8 +173,8 @@ const Wrapper = styled.nav.attrs({
   padding-left: ${SIDEBAR_OVERFLOW}px;
   background-image: linear-gradient(
     85deg,
-    ${COLORS.blue[900]},
-    ${COLORS.blue[700]}
+    ${COLORS.orange[900]},
+    ${COLORS.orange[700]}
   );
   transform: translateX(${props => props.offset});
   will-change: transform;

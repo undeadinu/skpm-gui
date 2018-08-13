@@ -19,32 +19,23 @@ type Props = {
 };
 
 const DevelopmentServerStatus = ({ status, port }: Props) => {
-  const isRunning = status !== 'idle';
-
-  // TODO: Gatsby allows you to customize the hostname.
-  // I should probably compile this URL from a Redux selector in the Task
-  // reducer?
-  const serverUrl = port ? `http://localhost:${port}` : null;
-
   return (
     <Wrapper>
       <LargeLED status={status} />
       <StatusTextWrapper>
         <Status>{getLabel(status)}</Status>
         <StatusCaption>
-          {isRunning && (
-            <ExternalLink
-              color={COLORS.gray[700]}
-              hoverColor={COLORS.gray[900]}
-              href={serverUrl}
-            >
-              <IconLinkContents>
-                <IconBase icon={externalLink} />
-                <Spacer inline size={5} />
-                Open App
-              </IconLinkContents>
-            </ExternalLink>
-          )}
+          <ExternalLink
+            color={COLORS.gray[700]}
+            hoverColor={COLORS.gray[900]}
+            href="sketch://"
+          >
+            <IconLinkContents>
+              <IconBase icon={externalLink} />
+              <Spacer inline size={5} />
+              Open Sketch
+            </IconLinkContents>
+          </ExternalLink>
         </StatusCaption>
       </StatusTextWrapper>
     </Wrapper>

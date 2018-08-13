@@ -202,7 +202,7 @@ const DependencyButton = styled.button`
   border: none;
   background: ${props =>
     props.isSelected
-      ? `linear-gradient(10deg, ${COLORS.blue[700]}, ${COLORS.blue[500]})`
+      ? `linear-gradient(10deg, ${COLORS.orange[700]}, ${COLORS.orange[500]})`
       : COLORS.gray[100]};
   color: ${props => (props.isSelected ? COLORS.white : COLORS.gray[900])};
   border-radius: 4px;
@@ -216,7 +216,7 @@ const DependencyButton = styled.button`
     outline: none;
     background: ${props =>
       props.isSelected
-        ? `linear-gradient(10deg, ${COLORS.blue[700]}, ${COLORS.blue[500]})`
+        ? `linear-gradient(10deg, ${COLORS.orange[700]}, ${COLORS.orange[500]})`
         : COLORS.gray[200]};
   }
 
@@ -225,7 +225,7 @@ const DependencyButton = styled.button`
     outline: none;
     background: ${props =>
       props.isSelected
-        ? `linear-gradient(10deg, ${COLORS.blue[700]}, ${COLORS.blue[500]})`
+        ? `linear-gradient(10deg, ${COLORS.orange[700]}, ${COLORS.orange[500]})`
         : COLORS.gray[300]};
   }
 

@@ -28,7 +28,7 @@ const ImportExisting = ({ isOnboarding }: Props) => {
         </IconWrapper>
       </ImportProjectButton>
       <MainText>
-        Already have a project you'd like to manage with Guppy?{' '}
+        Already have a plugin you'd like to manage with Skpm?{' '}
         <ImportProjectButton color={COLORS.white}>
           Import it instead
         </ImportProjectButton>.

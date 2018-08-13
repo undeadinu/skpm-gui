@@ -34,8 +34,8 @@ const SubmitButton = ({
       disabled={isDisabled || hasBeenSubmitted}
       type="fill"
       size="large"
-      color1={readyToBeSubmitted ? COLORS.green[700] : COLORS.blue[700]}
-      color2={readyToBeSubmitted ? COLORS.lightGreen[500] : COLORS.blue[500]}
+      color1={readyToBeSubmitted ? COLORS.green[700] : COLORS.orange[700]}
+      color2={readyToBeSubmitted ? COLORS.lightGreen[500] : COLORS.orange[500]}
       style={{ color: COLORS.pink[500], width: 200 }}
       onClick={onSubmit}
     >

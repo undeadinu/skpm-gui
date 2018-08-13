@@ -7,7 +7,6 @@ import { COLORS } from '../../constants';
 import Logo from '../Logo';
 import Paragraph from '../Paragraph';
 import ExternalLink from '../ExternalLink';
-import Swimming from '../Swimming/Swimming';
 import AlgoliaLogo from './AlgoliaLogo';
 
 type Props = {};
@@ -16,9 +15,7 @@ class AddDependencyInitialScreen extends Component<Props> {
   render() {
     return (
       <EmptyState>
-        <Swimming>
-          <Logo grayscale size="large" />
-        </Swimming>
+        <Logo grayscale size="large" />
         <Paragraph>
           You can use the input above to search the Node Package Manager (NPM)
           registry for packages that have been published.

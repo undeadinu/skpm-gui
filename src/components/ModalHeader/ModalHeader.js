@@ -10,7 +10,7 @@ import Heading from '../Heading';
 type Props = {
   title: string,
   action?: React$Node,
-  theme: 'standard' | 'blueish',
+  theme: 'standard' | 'orangeish',
   children?: React$Node,
 };
 
@@ -25,7 +25,7 @@ class ModalHeader extends Component<Props> {
     const colors =
       theme === 'standard'
         ? [COLORS.gray[100], COLORS.gray[100]]
-        : [COLORS.blue[700], COLORS.teal[500]];
+        : [COLORS.orange[700], COLORS.yellow[500]];
 
     return (
       <Wrapper colors={colors}>

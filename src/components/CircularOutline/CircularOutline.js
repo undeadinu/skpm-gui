@@ -65,8 +65,8 @@ class RoundedOutline extends Component<Props, State> {
   shapeNode: HTMLElement;
 
   static defaultProps = {
-    color1: COLORS.purple[500],
-    color2: COLORS.violet[500],
+    color1: COLORS.orange[500],
+    color2: COLORS.yellow[500],
     strokeWidth: 2,
     animateChanges: true,
   };

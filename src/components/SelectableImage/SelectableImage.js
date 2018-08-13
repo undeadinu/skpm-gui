@@ -25,9 +25,11 @@ const Image = styled.img`
   z-index: 1;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 12.5%;
   opacity: ${props => (props.status === 'faded' ? 0.55 : 1)};
   transition: opacity 300ms;
+  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.15), 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+  background: white;
 
   &:hover {
     opacity: 1;

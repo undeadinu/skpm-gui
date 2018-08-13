@@ -59,18 +59,17 @@ class DevelopmentServerPane extends PureComponent<Props> {
     // TODO: There's currently no DevelopmentServerStatus for smaller windows.
     // Create a custom component for windows <900px wide
 
-    const isRunning = task.status !== 'idle';
+    const isRunning = task.status !== 'idle' && task.status !== 'success';
 
     const description = (
       <Description>
-        Runs a local development server that updates whenever you make changes
-        to the files.
+        Build your plugin and update it whenever you make changes to the files.
       </Description>
     );
 
     const docLink = (
       <DocumentationLink>
-        <ExternalLink href={getDocumentationLink(project.type)}>
+        <ExternalLink href={getDocumentationLink()}>
           View Documentation
         </ExternalLink>
       </DocumentationLink>
@@ -78,7 +77,7 @@ class DevelopmentServerPane extends PureComponent<Props> {
 
     return (
       <Module
-        title="Development Server"
+        title="Development Mode"
         moreInfoHref="https://github.com/joshwcomeau/guppy/blob/master/docs/getting-started.md#development-server"
         primaryActionChildren={
           <Toggle isToggled={isRunning} onToggle={this.handleToggle} />
@@ -172,11 +171,7 @@ const mapStateToProps = state => {
 
   return {
     project: selectedProject,
-    task: getDevServerTaskForProjectId(
-      state,
-      selectedProject.id,
-      selectedProject.type
-    ),
+    task: getDevServerTaskForProjectId(state, selectedProject.id),
   };
 };
 

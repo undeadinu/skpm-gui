@@ -39,7 +39,7 @@ const Help = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: ${COLORS.blue[700]};
+    background: ${COLORS.orange[700]};
   }
 `;
 

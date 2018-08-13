@@ -2,7 +2,7 @@
 import uuid from 'uuid/v1';
 
 import {
-  loadGuppyProjects,
+  loadProjects,
   loadAllProjectDependencies,
 } from '../services/read-from-disk.service';
 import { getInternalProjectById } from '../reducers/projects.reducer';
@@ -62,7 +62,7 @@ export const refreshProjects = () => {
     // I wish Flow would let me use Object.values =(
     const pathValues = Object.keys(paths).map(pathKey => paths[pathKey]);
 
-    loadGuppyProjects(pathValues)
+    loadProjects(pathValues)
       .then((projects: { [id: string]: Project }) => {
         dispatch({
           type: REFRESH_PROJECTS,
@@ -93,15 +93,15 @@ export const loadDependencyInfoFromDisk = (
     // raw dependency information.
     const internalProject = getInternalProjectById(getState(), projectId);
 
-    loadAllProjectDependencies(internalProject, projectPath).then(
-      dependencies => {
+    loadAllProjectDependencies(internalProject, projectPath)
+      .then(dependencies => {
         dispatch({
           type: LOAD_DEPENDENCY_INFO_FROM_DISK,
           projectId,
           dependencies,
         });
-      }
-    );
+      })
+      .catch(console.error);
   };
 };
 

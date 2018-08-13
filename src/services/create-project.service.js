@@ -1,6 +1,8 @@
 // @flow
 import slug from 'slug';
 import random from 'random-seed';
+import * as fs from 'fs';
+import * as childProcess from 'child_process';
 
 import { COLORS } from '../constants';
 import { getDefaultParentPath } from '../reducers/paths.reducer';
@@ -8,9 +10,6 @@ import { getDefaultParentPath } from '../reducers/paths.reducer';
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
 import type { ProjectType } from '../types';
-
-const fs = window.require('fs');
-const childProcess = window.require('child_process');
 
 // Change this boolean flag to skip project creation.
 // Useful when working on the flow, to avoid having to wait for a real project
@@ -31,10 +30,7 @@ type ProjectInfo = {
  *
  *   2) Generate the project directory, if it doesn't already exist
  *
- *   3) Using create-react-app (or Gatsby) to generate a new project
- *
- *   4) Add some custom info to package.json to make it a distinct Guppy project
- *      (probably just the 'name' so that we can avoid slug-only names?)
+ *   3) Using skpm to generate a new project
  *
  * TODO: Ew callbacks. I can't just use a promise, though, since it needs to
  * fire multiple times, to handle updates mid-creation. Maybe an observable?
@@ -64,16 +60,37 @@ export default (
 
   const path = `${parentPath}/${id}`;
 
-  const [instruction, ...args] = getBuildInstructions(projectType, path);
+  const [instruction, ...args] = getBuildInstructions(projectType, {
+    id,
+    name: projectName,
+  });
 
-  const process = childProcess.spawn(instruction, args);
+  const child = childProcess.spawn(instruction, args, {
+    cwd: parentPath,
+    env: {
+      ...window.process.env,
+      CI: true,
+    },
+  });
 
-  process.stdout.on('data', onStatusUpdate);
-  process.stderr.on('data', onError);
+  let hasError = false;
+
+  child.stdout.on('data', onStatusUpdate);
+  child.stderr.on('data', onError);
+  child.on('error', err => {
+    hasError = true;
+    onError(err);
+  });
 
   // TODO: This code could be a lot nicer.
   // Maybe promisify some of these callback APIs to avoid callback hell?
-  process.on('close', () => {
+  child.on('close', () => {
+    if (hasError) {
+      return;
+    }
+
+    fs.writeFileSync(`${path}/assets/icon.png`, projectIcon, 'base64');
+
     onStatusUpdate('Dependencies installed');
 
     fs.readFile(`${path}/package.json`, 'utf8', (err, data) => {
@@ -83,26 +100,7 @@ export default (
 
       const packageJson = JSON.parse(data);
 
-      packageJson.guppy = {
-        id,
-        name: projectName,
-        type: projectType,
-        icon: projectIcon,
-        // The project color is currently unused for freshly-created projects,
-        // however it's used for imported non-guppy projects, and it seems like
-        // a good thing to be consistent about (may be useful in other ways).
-        color: getColorForProject(projectName),
-        createdAt: Date.now(),
-      };
-
-      const prettyPrintedPackageJson = JSON.stringify(packageJson, null, 2);
-
-      fs.writeFile(`${path}/package.json`, prettyPrintedPackageJson, err => {
-        if (err) {
-          return console.error(err);
-        }
-        onComplete(packageJson);
-      });
+      onComplete(packageJson);
     });
   });
 };
@@ -129,13 +127,19 @@ export const getColorForProject = (projectName: string) => {
 
 export const getBuildInstructions = (
   projectType: ProjectType,
-  path: string
+  { id, name }: { id: string, name: string }
 ) => {
   switch (projectType) {
-    case 'create-react-app':
-      return ['npx', 'create-react-app', path];
-    case 'gatsby':
-      return ['npx', 'gatsby', 'new', path];
+    case 'empty':
+      return ['npx', 'create-sketch-plugin@1.1.5', id, '--name=' + name];
+    case 'webview':
+      return [
+        'npx',
+        'create-sketch-plugin@1.1.5',
+        id,
+        '--name=' + name,
+        '--template=skpm/with-webview',
+      ];
     default:
       throw new Error('Unrecognized project type: ' + projectType);
   }

@@ -12,6 +12,20 @@ const path = window.require('path');
 const DEFAULT_PARENT_PATH = getDefaultParentPath();
 
 /**
+ * Load createdAt time
+ */
+export const loadProjectFSStat = (path: string) => {
+  return new Promise((resolve, reject) => {
+    return fs.stat(path, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    });
+  });
+};
+
+/**
  * Load a project's package.json
  */
 export const loadPackageJson = (path: string) => {
@@ -20,8 +34,42 @@ export const loadPackageJson = (path: string) => {
       if (err) {
         return reject(err);
       }
-
       return resolve(JSON.parse(data));
+    });
+  });
+};
+
+/**
+ * Load a project's manifest.json
+ */
+export const loadManifestJson = (
+  path: string,
+  packageJson: { [key: string]: any }
+) => {
+  return new Promise((resolve, reject) => {
+    return fs.readFile(
+      `${path}/${packageJson.skpm.manifest}`,
+      'utf8',
+      (err, data) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(JSON.parse(data));
+      }
+    );
+  });
+};
+
+/**
+ * Load a project's icon.png
+ */
+export const loadIcon = (path: string) => {
+  return new Promise((resolve, reject) => {
+    return fs.readFile(`${path}/assets/icon.png`, 'base64', (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
     });
   });
 };
@@ -51,7 +99,7 @@ export const writePackageJson = (projectPath: string, json: any) => {
  * Given an array of paths, load each one as a distinct Guppy project.
  * Parses the `package.json` to find Guppy's saved info.
  */
-export function loadGuppyProjects(projectPathsInput: Array<string>) {
+export function loadProjects(projectPathsInput: Array<string>) {
   const { readdirSync, statSync } = fs;
 
   // Create a clone of paths so we aren't mutating the provided array.
@@ -85,6 +133,18 @@ export function loadGuppyProjects(projectPathsInput: Array<string>) {
       projectPaths,
       function(path, callback) {
         loadPackageJson(path)
+          .then(json =>
+            Promise.all([
+              loadManifestJson(path, json).catch(console.error),
+              loadIcon(path).catch(console.error),
+              loadProjectFSStat(path).catch(console.error),
+            ]).then(([manifest, icon, stat]) => {
+              json.__skpm_manifest = manifest;
+              json.__skpm_icon = icon;
+              json.__skpm_createdAt = (stat || {}).birthtimeMs;
+              return json;
+            })
+          )
           .then(json => callback(null, json))
           .catch(err =>
             // If the package.json couldn't be loaded, this likely means the
@@ -116,7 +176,7 @@ export function loadGuppyProjects(projectPathsInput: Array<string>) {
         const projects = validProjects.reduce(
           (projectsMap, project) => ({
             ...projectsMap,
-            [project.guppy.id]: project,
+            [project.name]: project,
           }),
           {}
         );
@@ -207,9 +267,7 @@ export function loadAllProjectDependencies(
     packageJson =>
       new Promise((resolve, reject) => {
         // Check for existence of both dependencies and devDependencies
-        // We can reasonably assume all projects have dependencies
-        // but some may not have devDependencies
-        const deps = Object.keys(packageJson.dependencies);
+        const deps = Object.keys(packageJson.dependencies || []);
         const devDeps = Object.keys(packageJson.devDependencies || []);
         const dependencyNames = [...deps, ...devDeps];
 

@@ -170,7 +170,7 @@ class ProjectName extends PureComponent<Props, State> {
     return (
       <FormField
         useLabelTag
-        label="Project Name"
+        label="Plugin Name"
         isFocused={isFocused}
         hasError={isProjectNameTaken}
       >
@@ -184,7 +184,7 @@ class ProjectName extends PureComponent<Props, State> {
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyPress={this.maybeHandleSubmit}
-          placeholder="Your Amazing Project Name"
+          placeholder="Your Amazing Plugin Name"
         >
           <ButtonPositionAdjuster>
             <Tooltip
@@ -210,7 +210,7 @@ class ProjectName extends PureComponent<Props, State> {
         </TextInput>
         {isProjectNameTaken && (
           <ErrorMessage>
-            Sorry, a project with this name already exists.
+            Sorry, a plugin with this name already exists.
           </ErrorMessage>
         )}
       </FormField>

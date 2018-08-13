@@ -20,16 +20,17 @@ const BUILD_STEPS = {
   },
   installingCliTool: {
     copy: 'Installing build tool',
+    additionalCopy: 'This step can take a while...',
   },
-  creatingProjectDirectory: {
-    copy: 'Creating project directory',
+  downloadingTemplate: {
+    copy: 'Downloading plugin template',
+  },
+  personalizingTemplate: {
+    copy: 'Personalizing template',
   },
   installingDependencies: {
     copy: 'Installing dependencies.',
     additionalCopy: 'This step can take a while...',
-  },
-  guppification: {
-    copy: 'Persisting project info.',
   },
 };
 
@@ -62,7 +63,7 @@ class BuildPane extends PureComponent<Props, State> {
   }
 
   handleStatusUpdate = (output: any) => {
-    // HACK: So, I need some way of translating the raw output from CRA
+    // HACK: So, I need some way of translating the raw output from skpm
     // (and any other updates) to the `step` enums in this component.
     // It feels really gross to parse the strings in search of terms...
     // but I don't have any better ideas.
@@ -73,41 +74,28 @@ class BuildPane extends PureComponent<Props, State> {
         currentBuildStep: BUILD_STEP_KEYS[1],
         progress: 0.1,
       });
-    } else if (message.match(/Installing packages/i)) {
-      this.setState({
+    } else if (message.match(/Parsing `package.json` file/i)) {
+      this.setState(state => ({
         currentBuildStep: BUILD_STEP_KEYS[3],
-        progress: 0.4,
-      });
-      // eslint-disable-next-line no-control-regex
-    } else if (message.match(/Installing \[36mreact/i)) {
-      this.setState(state => ({
-        progress: state.progress + 0.025,
+        progress: 0.45,
       }));
-    } else if (message.match(/No lockfile found/i)) {
-      this.setState(state => ({
-        progress: state.progress + 0.025,
-      }));
-    } else if (message.match(/Resolving packages/i)) {
-      this.setState(state => ({
-        progress: state.progress + 0.05,
-      }));
-    } else if (message.match(/Fetching packages/i)) {
-      this.setState(state => ({
-        progress: state.progress + 0.05,
-      }));
-    } else if (message.match(/Linking dependencies/i)) {
-      this.setState(state => ({
-        progress: state.progress + 0.05,
-      }));
-    } else if (message.match(/Building fresh packages/i)) {
-      this.setState(state => ({
-        progress: state.progress + 0.15,
-      }));
-    } else if (message.match(/Dependencies installed/i)) {
+    } else if (message.match(/Installing dependencies/i)) {
       this.setState({
         currentBuildStep: BUILD_STEP_KEYS[4],
-        progress: 0.9,
+        progress: 0.5,
       });
+    } else if (message.match(/Extracting the template/i)) {
+      this.setState(state => ({
+        progress: 0.425,
+      }));
+    } else if (message.match(/Updating `name` within `package.json` file/i)) {
+      this.setState(state => ({
+        progress: 0.465,
+      }));
+    } else if (message.match(/Updating `title` within `manifest.json` file/i)) {
+      this.setState(state => ({
+        progress: 0.48,
+      }));
     }
   };
 

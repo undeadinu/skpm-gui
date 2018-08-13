@@ -13,7 +13,6 @@ import Button from '../Button';
 import ImportProjectButton from '../ImportProjectButton';
 import Spacer from '../Spacer';
 import Logo from '../Logo';
-import Swimming from '../Swimming';
 
 type Props = {
   shouldHideContent: boolean,
@@ -28,21 +27,19 @@ class IntroScreen extends Component<Props> {
       <Fragment>
         <Wrapper isVisible={!shouldHideContent}>
           <Header>
-            <Swimming>
-              <Logo size="medium" />
-            </Swimming>
-            <AppName>Guppy</AppName>
+            <Logo size="medium" />
+            <AppName>Skpm</AppName>
           </Header>
 
           <Actions>
             <Button size="large" onClick={() => createNewProjectStart()}>
-              Create a new web application
+              Create a new Sketch plugin
             </Button>
             <Spacer size={40} />
             <div>
               Or,{' '}
-              <ImportProjectButton color={COLORS.blue[700]}>
-                import an existing project
+              <ImportProjectButton color={COLORS.orange[700]}>
+                import an existing plugin project
               </ImportProjectButton>
             </div>
           </Actions>

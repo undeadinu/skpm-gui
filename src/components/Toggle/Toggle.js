@@ -116,8 +116,8 @@ const OnBackground = styled.div`
   bottom: 0;
   background-image: linear-gradient(
     15deg,
-    ${COLORS.blue[700]},
-    ${COLORS.teal[500]}
+    ${COLORS.orange[700]},
+    ${COLORS.yellow[500]}
   );
   opacity: ${props => (props.isVisible ? 1 : 0)};
   transition: opacity 300ms;
@@ -131,7 +131,7 @@ const Pulsing = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: ${COLORS.blue[800]};
+  background: ${COLORS.orange[800]};
   animation: ${pulse} 2000ms infinite;
   box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.2);
 `;

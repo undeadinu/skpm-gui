@@ -78,7 +78,7 @@ export default (state: State = initialState, action: Action) => {
     case IMPORT_EXISTING_PROJECT_FINISH: {
       const { project } = action;
 
-      const projectId = project.guppy.id;
+      const projectId = project.name;
 
       return produce(state, draftState => {
         Object.keys(project.scripts).forEach(name => {
@@ -182,16 +182,19 @@ export const getTaskDescription = (name: string) => {
   // in the reducer.
   switch (name) {
     case 'start': {
-      return 'Run a local development server';
+      return 'Build your plugin, update and run it on every change';
     }
     case 'build': {
-      return 'Bundle your project for production';
+      return 'Build your plugin';
     }
     case 'test': {
       return 'Run the automated tests';
     }
-    case 'eject': {
-      return 'Permanently reveal the create-react-app configuration files';
+    case 'test:watch': {
+      return 'Run the automated tests on every change';
+    }
+    case 'watch': {
+      return 'Build your plugin and update it on every change';
     }
     case 'format': {
       return 'Runs a formatter that tweaks your code to align with industry best-practices';
@@ -215,7 +218,7 @@ const getTaskType = name => {
   // For a dev server, "running" is a successful status - it means there are
   // no errors - while for a short-term task, "running" is essentially the same
   // as "loading", it's a yellow-light kind of thing.
-  const sustainedTasks = ['start', 'develop'];
+  const sustainedTasks = ['start', 'develop', 'watch', 'test:watch'];
 
   return sustainedTasks.includes(name) ? 'sustained' : 'short-term';
 };
@@ -266,21 +269,9 @@ export const getTasksInTaskListForProjectId = (
 
 export const getDevServerTaskForProjectId = (
   state: GlobalState,
-  projectId: string,
-  projectType: ProjectType
+  projectId: string
 ) => {
-  switch (projectType) {
-    case 'create-react-app': {
-      return state.tasks[buildUniqueTaskId(projectId, 'start')];
-    }
-
-    case 'gatsby': {
-      return state.tasks[buildUniqueTaskId(projectId, 'develop')];
-    }
-
-    default:
-      throw new Error('Unrecognized project type: ' + projectType);
-  }
+  return state.tasks[buildUniqueTaskId(projectId, 'watch')];
 };
 
 export const getTaskByProjectIdAndTaskName = (

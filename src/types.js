@@ -1,5 +1,5 @@
 // @flow
-export type ProjectType = 'create-react-app' | 'gatsby';
+export type ProjectType = 'empty' | 'webview';
 
 export type SubmittedProject = {
   projectName: string,
@@ -66,20 +66,27 @@ export type ProjectInternal = {
   // lowercase-and-dash only, whereas I want Guppy projects to be able to use
   // any UTF-8 characters.
   name: string,
-  dependencies: {
+  author?: string,
+  dependencies?: {
     [key: string]: string,
   },
-  scripts: {
+  devDependencies?: {
     [key: string]: string,
   },
-  guppy: {
-    id: string,
-    name: string,
-    type: ProjectType,
-    color: string,
-    icon: string,
-    createdAt: number,
+  scripts?: {
+    [key: string]: string,
   },
+  skpm?: {
+    name?: string,
+    manifest?: string,
+    main?: string,
+    assets?: string[],
+  },
+  __skpm_manifest?: {
+    [key: string]: string,
+  },
+  __skpm_icon?: string,
+  __skpm_createdAt: number,
 };
 
 export type Project = {
@@ -87,9 +94,7 @@ export type Project = {
   id: string,
   // `name` is the friendly name, with full UTF-8 character access.
   name: string,
-  type: ProjectType,
-  icon: string,
-  color: string,
+  icon?: string,
   createdAt: number,
   // `dependencies` is a "souped-up" version of the internal copy, with some
   // additional fields, like description, homepage, repository...

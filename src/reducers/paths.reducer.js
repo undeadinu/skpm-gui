@@ -29,7 +29,7 @@ export default (state: State = initialState, action: Action) => {
 
       return {
         ...state,
-        [project.guppy.id]: path || getDefaultPath(project.guppy.id),
+        [project.name]: path || getDefaultPath(project.name),
       };
     }
 
@@ -46,8 +46,8 @@ export const getDefaultParentPath = () =>
   // Noticing some weird quirks when I try to use a dev project on the compiled
   // "production" app, so separating their home paths should help.
   process.env.NODE_ENV === 'development'
-    ? `${os.homedir()}/guppy-projects-dev`
-    : `${os.homedir()}/guppy-projects`;
+    ? `${os.homedir()}/sketch-plugins-dev`
+    : `${os.homedir()}/sketch-plugins`;
 
 export const getDefaultPath = (projectId: string) =>
   `${getDefaultParentPath()}/${projectId}`;

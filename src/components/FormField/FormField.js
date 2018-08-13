@@ -35,7 +35,7 @@ const getTextColor = (props: Props) => {
   if (props.hasError) {
     return COLORS.pink[500];
   } else if (props.isFocused) {
-    return COLORS.purple[700];
+    return COLORS.orange[700];
   } else {
     return COLORS.gray[500];
   }

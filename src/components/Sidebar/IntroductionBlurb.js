@@ -24,17 +24,17 @@ class IntroductionBlurb extends PureComponent<Props> {
         </LargeIconWrapper>
 
         <Heading>
-          This is the <Em>Projects Sidebar</Em>.
+          This is the <Em>Plugins Sidebar</Em>.
         </Heading>
 
         <Paragraph>
-          Your new project was just added! As you create more projects, they'll
+          Your new plugin was just added! As you create more plugins, they'll
           show up here too.
         </Paragraph>
 
         <Spacer size={20} />
         <Paragraph>
-          <strong>Click on your first project to select it.</strong>
+          <strong>Click on your first plugin to select it.</strong>
         </Paragraph>
       </Wrapper>
     );
@@ -69,7 +69,7 @@ const Heading = styled.h2`
 
 const Em = styled.em`
   font-style: italic;
-  color: ${COLORS.purple[500]};
+  color: ${COLORS.orange[500]};
 `;
 
 export default IntroductionBlurb;

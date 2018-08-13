@@ -11,19 +11,11 @@ type Props = {
   id: string,
   size: number,
   name: string,
-  color?: string,
   iconSrc?: string,
   isSelected: boolean,
 };
 
-const SidebarProjectIcon = ({
-  id,
-  size,
-  name,
-  color,
-  iconSrc,
-  isSelected,
-}: Props) => {
+const SidebarProjectIcon = ({ id, size, name, iconSrc, isSelected }: Props) => {
   if (!iconSrc) {
     return (
       <SelectableItem
@@ -33,7 +25,9 @@ const SidebarProjectIcon = ({
         status={isSelected ? 'highlighted' : 'faded'}
       >
         {status => (
-          <ProjectNameIcon style={{ backgroundColor: color }}>
+          <ProjectNameIcon
+            style={{ opacity: status === 'highlighted' ? 1 : 0.55 }}
+          >
             {name.slice(0, 1).toUpperCase()}
           </ProjectNameIcon>
         )}
@@ -42,7 +36,7 @@ const SidebarProjectIcon = ({
   }
   return (
     <SelectableImage
-      src={iconSrc}
+      src={`data:image/png;base64, ${iconSrc}`}
       size={size}
       color1={COLORS.white}
       color2={COLORS.white}
@@ -59,8 +53,10 @@ const ProjectNameIcon = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 24px;
-  color: ${COLORS.white};
-  border-radius: 50%;
+  background: white;
+  color: ${COLORS.orange[500]};
+  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.15), 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+  border-radius: 12.5%;
 `;
 
 export default SidebarProjectIcon;

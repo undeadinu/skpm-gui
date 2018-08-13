@@ -8,7 +8,6 @@ import Paragraph from '../Paragraph';
 import FadeIn from '../FadeIn';
 import Spacer from '../Spacer';
 import Logo from '../Logo';
-import Swimming from '../Swimming';
 import ExternalLink from '../ExternalLink';
 
 import ImportExisting from './ImportExisting';
@@ -31,15 +30,11 @@ class SummaryPane extends PureComponent<Props> {
       return (
         <IntroWrapper>
           <FadeIn key="intro-t">
-            <Swimming>
-              <Logo size="large" />
-            </Swimming>
+            <Logo size="large" />
 
             <Spacer size={30} />
-            <StepTitle>Create new project</StepTitle>
-            <Paragraph>
-              Let's start by giving your new project a name.
-            </Paragraph>
+            <StepTitle>Create new plugin</StepTitle>
+            <Paragraph>Let's start by giving your new plugin a name.</Paragraph>
 
             <Spacer size={100} />
             <ImportExisting />
@@ -57,9 +52,9 @@ class SummaryPane extends PureComponent<Props> {
         return (
           <Fragment>
             <FadeIn key="s1-1">
-              <StepTitle>Project Name</StepTitle>
+              <StepTitle>Plugin Name</StepTitle>
               <Paragraph>
-                Don't stress too much about your project's name! You can always
+                Don't stress too much about your plugin's name! You can always
                 change this later.
               </Paragraph>
             </FadeIn>
@@ -74,17 +69,17 @@ class SummaryPane extends PureComponent<Props> {
           default: {
             details = (
               <Paragraph>
-                Guppy can create projects of different types. Click a type to
+                Skpm can create plugins of different types. Click a type to
                 learn more about it.
               </Paragraph>
             );
             break;
           }
-          case 'create-react-app': {
+          case 'empty': {
             details = (
               <Fragment>
                 <Paragraph>
-                  <strong>Vanilla React</strong>
+                  <strong>Empty</strong>
                 </Paragraph>
                 <Paragraph>
                   Vanilla React projects use create-react-app, an official
@@ -109,11 +104,11 @@ class SummaryPane extends PureComponent<Props> {
             );
             break;
           }
-          case 'gatsby': {
+          case 'webview': {
             details = (
               <Fragment>
                 <Paragraph>
-                  <strong>Gatsby</strong>
+                  <strong>Webview</strong>
                 </Paragraph>
                 <Paragraph>
                   Gatsby is a blazing fast static site generator for React.
@@ -151,11 +146,16 @@ class SummaryPane extends PureComponent<Props> {
         return (
           <Fragment>
             <FadeIn key="s3t">
-              <StepTitle>Project Icon</StepTitle>
+              <StepTitle>Plugin Icon</StepTitle>
 
               <Paragraph>
-                Choose an icon, to help you recognize this project from a list.
+                Choose an icon, to help you recognize this plugin from a list.
               </Paragraph>
+              <Paragraph>
+                It will used in the Plugin list and when showing an alert from
+                your plugin.
+              </Paragraph>
+              <Paragraph>It must be a 128x128 png.</Paragraph>
             </FadeIn>
           </Fragment>
         );

@@ -37,11 +37,7 @@ export default (store: any) => (next: any) => (action: any) => {
     case LAUNCH_DEV_SERVER: {
       findAvailablePort()
         .then(port => {
-          const [instruction, ...args] = getDevServerCommand(
-            task,
-            project.type,
-            port
-          );
+          const [instruction, ...args] = getDevServerCommand(task, port);
 
           /**
            * NOTE: A quirk in Electron means we can't use `env` to supply
@@ -128,9 +124,9 @@ export default (store: any) => (next: any) => (action: any) => {
       // This is bad, and I feel bad, but it's a corner that needs to be cut,
       // for now.
       const additionalArgs = [];
-      if (project.type === 'create-react-app' && name === 'test') {
-        additionalArgs.push('--', '--coverage');
-      }
+      // if (project.type === 'create-react-app' && name === 'test') {
+      //   additionalArgs.push('--', '--coverage');
+      // }
 
       const child = childProcess.spawn(
         'npm',
@@ -262,19 +258,8 @@ export default (store: any) => (next: any) => (action: any) => {
   return next(action);
 };
 
-const getDevServerCommand = (
-  task: Task,
-  projectType: ProjectType,
-  port: string
-) => {
-  switch (projectType) {
-    case 'create-react-app':
-      return [`PORT=${port} npm`, 'run', task.name];
-    case 'gatsby':
-      return ['npm', 'run', task.name, '--', `-p ${port}`];
-    default:
-      throw new Error('Unrecognized project type: ' + projectType);
-  }
+const getDevServerCommand = (task: Task, port: string) => {
+  return [`PORT=${port} npm`, 'run', task.name];
 };
 
 const sendCommandToProcess = (child: any, command: string) => {

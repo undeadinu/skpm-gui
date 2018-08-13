@@ -65,8 +65,8 @@ const Header = styled.header`
   position: relative;
   background-image: linear-gradient(
     45deg,
-    ${COLORS.blue[700]},
-    ${COLORS.violet[700]}
+    ${COLORS.orange[700]},
+    ${COLORS.yellow[700]}
   );
   border-radius: 8px 8px 0 0;
   color: ${COLORS.white};

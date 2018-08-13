@@ -41,7 +41,7 @@ const byId = (state: ById = initialState.byId, action: Action) => {
     case IMPORT_EXISTING_PROJECT_FINISH: {
       return {
         ...state,
-        [action.project.guppy.id]: action.project,
+        [action.project.name]: action.project,
       };
     }
 
@@ -49,6 +49,9 @@ const byId = (state: ById = initialState.byId, action: Action) => {
       const { projectId, dependency } = action;
 
       return produce(state, draftState => {
+        if (!draftState[projectId].dependencies) {
+          draftState[projectId].dependencies = {};
+        }
         draftState[projectId].dependencies[dependency.name] =
           dependency.version;
       });
@@ -66,7 +69,7 @@ const selectedId = (
   switch (action.type) {
     case ADD_PROJECT:
     case IMPORT_EXISTING_PROJECT_FINISH: {
-      return action.project.guppy.id;
+      return action.project.name;
     }
 
     case REFRESH_PROJECTS: {
@@ -109,21 +112,18 @@ type GlobalState = { projects: State };
 //
 //  - Combine it with the tasks in `tasks.reducer`, since this is much more
 //    useful than project.scripts
-//  - Solve the ugliness with `project.guppy.X`
 const prepareProjectForConsumption = (
   state: GlobalState,
   project: ProjectInternal
 ): Project => {
   return {
-    id: project.guppy.id,
-    name: project.guppy.name,
-    type: project.guppy.type,
-    color: project.guppy.color,
-    icon: project.guppy.icon,
-    createdAt: project.guppy.createdAt,
-    tasks: getTasksForProjectId(state, project.guppy.id),
-    dependencies: getDependenciesForProjectId(state, project.guppy.id),
-    path: getPathForProjectId(state, project.guppy.id),
+    id: project.name,
+    name: (project.skpm || {}).name || project.name,
+    tasks: getTasksForProjectId(state, project.name),
+    dependencies: getDependenciesForProjectId(state, project.name),
+    path: getPathForProjectId(state, project.name),
+    icon: project.__skpm_icon,
+    createdAt: project.__skpm_createdAt,
   };
 };
 

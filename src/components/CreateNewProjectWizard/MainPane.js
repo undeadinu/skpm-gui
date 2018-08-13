@@ -2,15 +2,16 @@
 import React, { PureComponent, Fragment } from 'react';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
-import importAll from 'import-all.macro';
+import { remote } from 'electron';
+import * as fs from 'fs';
 
-import { BREAKPOINTS } from '../../constants';
-import { sampleMany } from '../../utils';
-import reactIconSrc from '../../assets/images/react-icon.svg';
-import gatsbyIconSrc from '../../assets/images/gatsby_small.png';
+import emptyIconSrc from '../../assets/images/empty.svg';
+import webviewIconSrc from '../../assets/images/webview.svg';
+import defaultPluginIconSrc from '../../assets/images/default-plugin-icon.png';
 
 import FormField from '../FormField';
 import SelectableImage from '../SelectableImage';
+import Button from '../Button';
 import ButtonWithIcon from '../ButtonWithIcon';
 import Spacer from '../Spacer';
 import FadeIn from '../FadeIn';
@@ -20,9 +21,6 @@ import SubmitButton from './SubmitButton';
 
 import type { Field, Status } from './types';
 import type { ProjectType } from '../../types';
-
-const icons = importAll.sync('../../assets/images/icons/icon_*.*');
-const iconSrcs = Object.values(icons);
 
 type Props = {
   projectName: string,
@@ -39,8 +37,6 @@ type Props = {
 };
 
 class MainPane extends PureComponent<Props> {
-  iconSubset = sampleMany(iconSrcs, 10);
-
   handleFocusProjectName = () => this.props.focusField('projectName');
   handleBlurProjectName = () => this.props.focusField(null);
 
@@ -48,8 +44,27 @@ class MainPane extends PureComponent<Props> {
     this.props.updateFieldValue('projectName', projectName);
   updateProjectType = (projectType: ProjectType) =>
     this.props.updateFieldValue('projectType', projectType);
-  updateProjectIcon = (projectIcon: string) =>
-    this.props.updateFieldValue('projectIcon', projectIcon);
+  updateProjectIcon = () => {
+    remote.dialog.showOpenDialog(
+      {
+        title: 'Plugin Icon',
+        buttonLabel: 'Choose',
+        properties: ['openFile'],
+        filters: [{ name: 'Images', extensions: ['png'] }],
+      },
+      paths => {
+        if (paths && paths[0]) {
+          fs.readFile(paths[0], 'base64', (err, projectIcon) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            this.props.updateFieldValue('projectIcon', projectIcon);
+          });
+        }
+      }
+    );
+  };
 
   render() {
     const {
@@ -81,26 +96,24 @@ class MainPane extends PureComponent<Props> {
               {currentStepIndex > 0 && (
                 <FadeIn>
                   <FormField
-                    label="Project Type"
+                    label="Plugin Type"
                     isFocused={activeField === 'projectType'}
                   >
                     <ProjectTypeTogglesWrapper>
                       <ButtonWithIcon
-                        showOutline={projectType === 'create-react-app'}
-                        icon={<ReactIcon src={reactIconSrc} />}
-                        onClick={() =>
-                          this.updateProjectType('create-react-app')
-                        }
+                        showOutline={projectType === 'empty'}
+                        icon={<EmptyIcon src={emptyIconSrc} />}
+                        onClick={() => this.updateProjectType('empty')}
                       >
-                        Vanilla React
+                        Empty
                       </ButtonWithIcon>
                       <Spacer inline size={10} />
                       <ButtonWithIcon
-                        showOutline={projectType === 'gatsby'}
-                        icon={<GatsbyIcon src={gatsbyIconSrc} />}
-                        onClick={() => this.updateProjectType('gatsby')}
+                        showOutline={projectType === 'webview'}
+                        icon={<Icon src={webviewIconSrc} />}
+                        onClick={() => this.updateProjectType('webview')}
                       >
-                        Gatsby
+                        Webview
                       </ButtonWithIcon>
                     </ProjectTypeTogglesWrapper>
                   </FormField>
@@ -110,27 +123,24 @@ class MainPane extends PureComponent<Props> {
               {currentStepIndex > 1 && (
                 <FadeIn>
                   <FormField
-                    label="Project Icon"
+                    label="Plugin Icon"
                     focusOnClick={false}
                     isFocused={activeField === 'projectIcon'}
                   >
                     <ProjectIconWrapper>
-                      {this.iconSubset.map(src => (
-                        <SelectableImageWrapper key={src}>
-                          <SelectableImage
-                            src={src}
-                            size={60}
-                            onClick={() => this.updateProjectIcon(src)}
-                            status={
-                              projectIcon === null
-                                ? 'default'
-                                : projectIcon === src
-                                  ? 'highlighted'
-                                  : 'faded'
-                            }
-                          />
-                        </SelectableImageWrapper>
-                      ))}
+                      <SelectableImage
+                        src={
+                          projectIcon
+                            ? `data:image/png;base64, ${projectIcon}`
+                            : defaultPluginIconSrc
+                        }
+                        size={60}
+                        onClick={this.updateProjectIcon}
+                        status="default"
+                      />
+                      <ProjectIconButton onClick={this.updateProjectIcon}>
+                        Choose Another Icon
+                      </ProjectIconButton>
                     </ProjectIconWrapper>
                   </FormField>
                 </FadeIn>
@@ -143,8 +153,7 @@ class MainPane extends PureComponent<Props> {
             isDisabled={
               isProjectNameTaken ||
               !projectName ||
-              (currentStepIndex > 0 && !projectType) ||
-              (currentStepIndex > 1 && !projectIcon)
+              (currentStepIndex > 0 && !projectType)
             }
             readyToBeSubmitted={currentStepIndex >= 2}
             hasBeenSubmitted={hasBeenSubmitted}
@@ -161,14 +170,14 @@ const Wrapper = styled.div`
   will-change: transform;
 `;
 
-const ReactIcon = styled.img`
-  width: 32px;
-  height: 32px;
-`;
-
-const GatsbyIcon = styled.img`
+const Icon = styled.img`
   width: 22px;
   height: 22px;
+`;
+
+const EmptyIcon = styled.img`
+  width: 18px;
+  height: 18px;
 `;
 
 const ProjectTypeTogglesWrapper = styled.div`
@@ -180,15 +189,10 @@ const ProjectIconWrapper = styled.div`
   margin-top: 16px;
 `;
 
-const SelectableImageWrapper = styled.div`
-  display: inline-block;
-  margin: 0px 10px 10px 0px;
-
-  @media ${BREAKPOINTS.sm} {
-    &:nth-of-type(n + 9) {
-      display: none;
-    }
-  }
+const ProjectIconButton = styled(Button)`
+  position: relative;
+  margin-left: 20px;
+  top: -24px;
 `;
 
 const SubmitButtonWrapper = styled.div`
