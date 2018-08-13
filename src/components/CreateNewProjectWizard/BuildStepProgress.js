@@ -55,7 +55,9 @@ class BuildStepProgress extends PureComponent<Props, State> {
     return (
       <Wrapper isUpcoming={status === 'upcoming'}>
         <IconWrapper>
-          {status === 'in-progress' && <Spinner size={20} />}
+          {status === 'in-progress' && (
+            <Spinner size={20} color={COLORS.white} />
+          )}
           {status === 'done' && <Checkmark size={32} icon={check} />}
         </IconWrapper>
         <ChildWrapper>

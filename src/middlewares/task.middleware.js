@@ -14,7 +14,7 @@ import { getPathForProjectId } from '../reducers/paths.reducer';
 import { isDevServerTask } from '../reducers/tasks.reducer';
 import findAvailablePort from '../services/find-available-port.service';
 
-import type { Task, ProjectType } from '../types';
+import type { Task } from '../types';
 
 const { ipcRenderer } = window.require('electron');
 const childProcess = window.require('child_process');
@@ -108,9 +108,7 @@ export default (store: any) => (next: any) => (action: any) => {
     // it probably makes sense to have separate actions (eg. RUN_TESTS,
     // BUILD_FOR_PRODUCTION), and use RUN_TASK just for user-added tasks.
     case RUN_TASK: {
-      const { projectId, name } = action.task;
-
-      const project = getProjectById(store.getState(), projectId);
+      const { name } = task;
 
       // TEMPORARY HACK
       // By default, create-react-app runs tests in interactive watch mode.
@@ -181,7 +179,6 @@ export default (store: any) => (next: any) => (action: any) => {
     }
 
     case ABORT_TASK: {
-      const { task } = action;
       const { processId, name } = task;
 
       // Our child was spawned using `shell: true` to get around a quirk with
@@ -224,8 +221,6 @@ export default (store: any) => (next: any) => (action: any) => {
     }
 
     case COMPLETE_TASK: {
-      const { task } = action;
-
       // Send a message to add info to the terminal about the task being done.
       // TODO: ASCII fish art?
 

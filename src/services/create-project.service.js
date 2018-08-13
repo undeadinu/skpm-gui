@@ -6,6 +6,7 @@ import * as childProcess from 'child_process';
 
 import { COLORS } from '../constants';
 import { getDefaultParentPath } from '../reducers/paths.reducer';
+import { loadProject } from './read-from-disk.service';
 
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
@@ -89,19 +90,15 @@ export default (
       return;
     }
 
-    fs.writeFileSync(`${path}/assets/icon.png`, projectIcon, 'base64');
+    if (projectIcon) {
+      fs.writeFileSync(`${path}/assets/icon.png`, projectIcon, 'base64');
+    }
 
     onStatusUpdate('Dependencies installed');
 
-    fs.readFile(`${path}/package.json`, 'utf8', (err, data) => {
-      if (err) {
-        return console.error(err);
-      }
-
-      const packageJson = JSON.parse(data);
-
-      onComplete(packageJson);
-    });
+    loadProject(path)
+      .then(onComplete)
+      .catch(console.error);
   });
 };
 

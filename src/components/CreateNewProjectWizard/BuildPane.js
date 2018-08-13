@@ -23,7 +23,7 @@ const BUILD_STEPS = {
     additionalCopy: 'This step can take a while...',
   },
   downloadingTemplate: {
-    copy: 'Downloading plugin template',
+    copy: 'Fetching plugin template',
   },
   personalizingTemplate: {
     copy: 'Personalizing template',
@@ -185,8 +185,8 @@ const Wrapper = styled.div`
   padding: 40px;
   background-image: linear-gradient(
     45deg,
-    ${COLORS.blue[900]},
-    ${COLORS.blue[800]}
+    ${COLORS.orange[700]},
+    ${COLORS.orange[500]}
   );
   border: 4px solid ${COLORS.white};
   color: ${COLORS.white};

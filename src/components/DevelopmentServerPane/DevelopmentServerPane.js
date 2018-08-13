@@ -47,7 +47,7 @@ class DevelopmentServerPane extends PureComponent<Props> {
   };
 
   render() {
-    const { project, task } = this.props;
+    const { task } = this.props;
 
     if (!task) {
       // This can happen if the user modifies the package.json to not have a
@@ -59,7 +59,7 @@ class DevelopmentServerPane extends PureComponent<Props> {
     // TODO: There's currently no DevelopmentServerStatus for smaller windows.
     // Create a custom component for windows <900px wide
 
-    const isRunning = task.status !== 'idle' && task.status !== 'success';
+    const isRunning = task.status !== 'idle';
 
     const description = (
       <Description>

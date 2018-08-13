@@ -18,7 +18,7 @@ class ProgressBar extends Component<Props> {
     height: 8,
     stiffness: 32,
     damping: 32,
-    colors: [COLORS.blue[700], COLORS.teal[500], COLORS.lightGreen[500]],
+    colors: [COLORS.yellow[700], COLORS.yellow[500], COLORS.lightGreen[500]],
   };
 
   render() {

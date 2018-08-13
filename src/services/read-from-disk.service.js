@@ -95,6 +95,21 @@ export const writePackageJson = (projectPath: string, json: any) => {
   });
 };
 
+export const loadProject = (path: string) => {
+  return loadPackageJson(path).then(json =>
+    Promise.all([
+      loadManifestJson(path, json).catch(console.error),
+      loadIcon(path).catch(console.error),
+      loadProjectFSStat(path).catch(console.error),
+    ]).then(([manifest, icon, stat]) => {
+      json.__skpm_manifest = manifest;
+      json.__skpm_icon = icon;
+      json.__skpm_createdAt = (stat || {}).birthtimeMs;
+      return json;
+    })
+  );
+};
+
 /**
  * Given an array of paths, load each one as a distinct Guppy project.
  * Parses the `package.json` to find Guppy's saved info.
@@ -132,19 +147,7 @@ export function loadProjects(projectPathsInput: Array<string>) {
     asyncMap(
       projectPaths,
       function(path, callback) {
-        loadPackageJson(path)
-          .then(json =>
-            Promise.all([
-              loadManifestJson(path, json).catch(console.error),
-              loadIcon(path).catch(console.error),
-              loadProjectFSStat(path).catch(console.error),
-            ]).then(([manifest, icon, stat]) => {
-              json.__skpm_manifest = manifest;
-              json.__skpm_icon = icon;
-              json.__skpm_createdAt = (stat || {}).birthtimeMs;
-              return json;
-            })
-          )
+        loadProject(path)
           .then(json => callback(null, json))
           .catch(err =>
             // If the package.json couldn't be loaded, this likely means the
