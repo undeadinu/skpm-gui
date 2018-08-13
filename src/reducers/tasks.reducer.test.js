@@ -401,24 +401,16 @@ describe('Tasks reducer - helpers', () => {
   describe('getTaskDescription', () => {
     test('start', () => {
       expect(getTaskDescription('start')).toBe(
-        'Run a local development server'
+        'Build your plugin, update and run it on every change'
       );
     });
 
     test('build', () => {
-      expect(getTaskDescription('build')).toBe(
-        'Bundle your project for production'
-      );
+      expect(getTaskDescription('build')).toBe('Build your plugin');
     });
 
     test('test', () => {
       expect(getTaskDescription('test')).toBe('Run the automated tests');
-    });
-
-    test('eject', () => {
-      expect(getTaskDescription('eject')).toBe(
-        'Permanently reveal the create-react-app configuration files'
-      );
     });
 
     test('format', () => {
