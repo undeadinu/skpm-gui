@@ -20,7 +20,7 @@ const BUILD_STEPS = {
   },
   installingCliTool: {
     copy: 'Installing build tool',
-    additionalCopy: 'This step can take a while...',
+    additionalCopy: 'This step may a while...',
   },
   downloadingTemplate: {
     copy: 'Fetching plugin template',
@@ -30,7 +30,7 @@ const BUILD_STEPS = {
   },
   installingDependencies: {
     copy: 'Installing dependencies.',
-    additionalCopy: 'This step can take a while...',
+    additionalCopy: 'This step may a while...',
   },
 };
 
