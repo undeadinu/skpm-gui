@@ -7,6 +7,7 @@ import * as childProcess from 'child_process';
 import { COLORS } from '../constants';
 import { getDefaultParentPath } from '../reducers/paths.reducer';
 import { loadProject } from './read-from-disk.service';
+import { enableDevMode } from './dev-mode.service';
 
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
@@ -54,6 +55,9 @@ export default (
   if (!fs.existsSync(parentPath)) {
     fs.mkdirSync(parentPath);
   }
+
+  // do it async, don't really care
+  enableDevMode();
 
   onStatusUpdate('Created parent directory');
 
