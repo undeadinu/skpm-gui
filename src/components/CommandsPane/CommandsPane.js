@@ -7,6 +7,7 @@ import { getSelectedProject } from '../../reducers/projects.reducer';
 
 import Module from '../Module';
 import CommandRunnerPaneRow from '../CommandRunnerPaneRow';
+import Button from '../Button';
 
 import type { Project } from '../../types';
 
@@ -16,11 +17,13 @@ type Props = {
 
 type State = {
   selectedCommandId: ?string,
+  editingMenu: boolean,
 };
 
 class TaskRunnerPane extends Component<Props, State> {
   state = {
     selectedCommandId: null,
+    editingMenu: false,
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -46,14 +49,25 @@ class TaskRunnerPane extends Component<Props, State> {
     this.setState({ selectedCommandId: null });
   };
 
+  handleEditMenu = () => {
+    this.setState({ editingMenu: true });
+  };
+
+  handleDismissEditMenu = () => {
+    this.setState({ editingMenu: false });
+  };
+
   render() {
     const { project } = this.props;
-    const { selectedCommandId } = this.state;
+    const { selectedCommandId, editingMenu } = this.state;
 
     return (
       <Module
         title="Plugin Commands"
         moreInfoHref="https://github.com/joshwcomeau/guppy/blob/master/docs/getting-started.md#commands"
+        primaryActionChildren={
+          <Button onClick={this.handleEditMenu}>Edit menu</Button>
+        }
       >
         {project.commands.map(command => (
           <CommandRunnerPaneRow

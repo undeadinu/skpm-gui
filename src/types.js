@@ -73,20 +73,20 @@ export type CommandInternal = {
   },
 };
 
-export type PluginMenu<T> = {
+export type PluginMenu<T> = {|
   title: string,
   items: PluginMenuItem<T>[], // eslint-disable-line no-use-before-define
-};
+|};
 
 export type PluginMenuItem<T> = '-' | T | PluginMenu<T>;
 
-export type PluginMenuRootInternal = {
+export type PluginMenuRootInternal = {|
   title?: string,
   items: PluginMenuItem<string>[],
   isRoot?: boolean,
-};
+|};
 
-export type Command = {
+export type Command = {|
   identifier: string,
   name: string,
   script: string,
@@ -100,13 +100,13 @@ export type Command = {
   },
   timeSinceStatusChange: ?Date,
   logs: Array<Log>,
-};
+|};
 
-export type PluginMenuRoot = {
+export type PluginMenuRoot = {|
   title?: string,
   items: PluginMenuItem<Command | void>[],
   isRoot?: boolean,
-};
+|};
 
 /**
  * ProjectInternal is the behind-the-scenes type used in projects.reducer.
