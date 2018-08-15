@@ -1,5 +1,4 @@
 // @flow
-import * as fs from 'fs';
 import * as childProcess from 'child_process';
 
 function run(instruction, args) {
