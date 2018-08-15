@@ -14,6 +14,7 @@ import PixelShifter from '../PixelShifter';
 import Spacer from '../Spacer';
 import DevelopmentServerPane from '../DevelopmentServerPane';
 import TaskRunnerPane from '../TaskRunnerPane';
+import CommandsPane from '../CommandsPane';
 import DependencyManagementPane from '../DependencyManagementPane';
 
 import type { Project } from '../../types';
@@ -81,6 +82,9 @@ class ProjectPage extends Component<Props> {
 
           <Spacer size={30} />
           <DevelopmentServerPane leftSideWidth={300} />
+
+          <Spacer size={30} />
+          <CommandsPane leftSideWidth={200} />
 
           <Spacer size={30} />
           <TaskRunnerPane leftSideWidth={200} />

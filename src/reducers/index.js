@@ -7,6 +7,7 @@ import modal from './modal.reducer';
 import onboardingStatus from './onboarding-status.reducer';
 import packageJsonLocked from './package-json-locked.reducer';
 import paths from './paths.reducer';
+import commands from './commands.reducer';
 
 export default combineReducers({
   projects,
@@ -16,4 +17,5 @@ export default combineReducers({
   onboardingStatus,
   packageJsonLocked,
   paths,
+  commands,
 });

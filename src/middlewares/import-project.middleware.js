@@ -8,11 +8,7 @@ import {
   importExistingProjectError,
 } from '../actions';
 import { getInternalProjectById } from '../reducers/projects.reducer';
-import {
-  loadPackageJson,
-  writePackageJson,
-} from '../services/read-from-disk.service';
-import { getColorForProject } from '../services/create-project.service';
+import { loadProject } from '../services/read-from-disk.service';
 
 const { dialog } = remote;
 
@@ -25,7 +21,7 @@ export default (store: any) => (next: any) => (action: any) => {
     case SHOW_IMPORT_EXISTING_PROJECT_PROMPT: {
       dialog.showOpenDialog(
         {
-          message: 'Select the directory of an existing React app',
+          message: 'Select the directory of an existing Sketch plugin',
           properties: ['openDirectory'],
         },
         paths => {
@@ -51,7 +47,7 @@ export default (store: any) => (next: any) => (action: any) => {
       const state = store.getState();
 
       // Let's load the basic project info for the path specified, if possible.
-      loadPackageJson(path)
+      loadProject(path)
         .then(json => {
           const projectId = json.name;
 
@@ -62,34 +58,12 @@ export default (store: any) => (next: any) => (action: any) => {
             throw new Error('project-name-already-exists');
           }
 
-          const type = inferProjectType(json);
-          if (!type) {
-            // Guppy only supports create-react-app and Gatsby projects atm.
-            // Hopefully one day, arbitrary projects will have first-class
-            // support... but for now, I'm prioritizing an A+ experience for
-            // supported project types.
-
+          if (!json.skpm) {
             throw new Error('unsupported-project-type');
           }
 
-          // Get a random colour for the project, to be used in place of an
-          // icon.
-          // TODO: Try importing the existing project's favicon as icon instead?
-          const packageJsonWithGuppy = {
-            ...json,
-            guppy: {
-              id: json.name,
-              name: json.name,
-              type,
-              color: getColorForProject(json.name),
-              icon: null,
-              createdAt: Date.now(),
-            },
-          };
-
-          return packageJsonWithGuppy;
+          return json;
         })
-        .then(json => writePackageJson(path, json))
         .then(json => {
           next(importExistingProjectFinish(path, json));
         })
@@ -106,7 +80,7 @@ export default (store: any) => (next: any) => (action: any) => {
             case 'unsupported-project-type': {
               dialog.showErrorBox(
                 'Unsupported project type',
-                "Looks like the project you're trying to import isn't supported. Unfortunately, Guppy only supports projects created with create-react-app or Gatsby"
+                "Looks like the project you're trying to import isn't supported. Skpm only supports plugins created with skpm"
               );
               break;
             }
@@ -132,34 +106,4 @@ export default (store: any) => (next: any) => (action: any) => {
       return;
     }
   }
-};
-
-const inferProjectType = json => {
-  // Some projects only have devDependencies.
-  // If this is the case, we can bail early, since no supported project types
-  // avoid having `dependencies`.
-  if (!json.dependencies) {
-    return null;
-  }
-
-  const dependencyNames = Object.keys(json.dependencies);
-
-  if (dependencyNames.includes('gatsby')) {
-    return 'gatsby';
-  } else if (dependencyNames.includes('react-scripts')) {
-    return 'create-react-app';
-  }
-
-  // An ejected create-react-app won't have `react-scripts`.
-  // So it actually becomes kinda hard to figure out what kind of project it is!
-  // One strong clue is that it will have `eslint-config-react-app` as a
-  // dependency... this isn't foolproof since a user could easily uninstall
-  // that dependency, but it'll work for now.
-  // In the future, could also check the `config` dir for the standard React
-  // scripts
-  if (dependencyNames.includes('eslint-config-react-app')) {
-    return 'create-react-app';
-  }
-
-  return null;
 };

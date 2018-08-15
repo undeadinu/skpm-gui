@@ -7,7 +7,7 @@ import {
 } from '../services/read-from-disk.service';
 import { getInternalProjectById } from '../reducers/projects.reducer';
 
-import type { Project, Task, Dependency } from '../types';
+import type { ProjectInternal, Task, Dependency } from '../types';
 
 //
 //
@@ -45,12 +45,21 @@ export const SHOW_IMPORT_EXISTING_PROJECT_PROMPT =
 export const IMPORT_EXISTING_PROJECT_START = 'IMPORT_EXISTING_PROJECT_START';
 export const IMPORT_EXISTING_PROJECT_ERROR = 'IMPORT_EXISTING_PROJECT_ERROR';
 export const IMPORT_EXISTING_PROJECT_FINISH = 'IMPORT_EXISTING_PROJECT_FINISH';
+export const DELETE_COMMAND_START = 'DELETE_COMMAND_START';
+export const DELETE_COMMAND_ERROR = 'DELETE_COMMAND_ERROR';
+export const DELETE_COMMAND_FINISH = 'DELETE_COMMAND_FINISH';
+export const UPDATE_COMMAND_START = 'UPDATE_COMMAND_START';
+export const UPDATE_COMMAND_ERROR = 'UPDATE_COMMAND_ERROR';
+export const UPDATE_COMMAND_FINISH = 'UPDATE_COMMAND_FINISH';
+export const ADD_COMMAND_START = 'ADD_COMMAND_START';
+export const ADD_COMMAND_ERROR = 'ADD_COMMAND_ERROR';
+export const ADD_COMMAND_FINISH = 'ADD_COMMAND_FINISH';
 
 //
 //
 // Action Creators
 //
-export const addProject = (project: Project) => ({
+export const addProject = (project: ProjectInternal) => ({
   type: ADD_PROJECT,
   project,
 });
@@ -63,14 +72,14 @@ export const refreshProjects = () => {
     const pathValues = Object.keys(paths).map(pathKey => paths[pathKey]);
 
     loadProjects(pathValues)
-      .then((projects: { [id: string]: Project }) => {
+      .then((projects: { [id: string]: ProjectInternal }) => {
         dispatch({
           type: REFRESH_PROJECTS,
           projects,
         });
       })
       .catch(err => {
-        console.error('Could not load guppy projects', err);
+        console.error('Could not load sketch plugins', err);
       });
   };
 };
@@ -280,7 +289,7 @@ export const importExistingProjectError = () => ({
 
 export const importExistingProjectFinish = (
   path: string,
-  project: Project
+  project: ProjectInternal
 ) => ({
   type: IMPORT_EXISTING_PROJECT_FINISH,
   path,

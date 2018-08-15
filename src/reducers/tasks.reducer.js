@@ -209,6 +209,9 @@ export const isDevServerTask = (name: string) =>
   // Gatsby and create-react-app use different names for the same task.
   name === 'start' || name === 'develop';
 
+export const isLifeCycleHook = (name: string) =>
+  name.startsWith('pre') || name.startsWith('post');
+
 const getTaskType = name => {
   // We have two kinds of tasks:
   // - long-running tasks, like the dev server
@@ -264,7 +267,7 @@ export const getTasksInTaskListForProjectId = (
   projectId: string
 ) =>
   getTasksForProjectId(state, projectId).filter(
-    task => !isDevServerTask(task.name)
+    task => !isDevServerTask(task.name) && !isLifeCycleHook(task.name)
   );
 
 export const getDevServerTaskForProjectId = (

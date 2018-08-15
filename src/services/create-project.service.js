@@ -11,7 +11,7 @@ import { enableDevMode } from './dev-mode.service';
 
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
-import type { ProjectType } from '../types';
+import type { ProjectType, ProjectInternal } from '../types';
 
 // Change this boolean flag to skip project creation.
 // Useful when working on the flow, to avoid having to wait for a real project
@@ -41,7 +41,7 @@ export default (
   { projectName, projectType, projectIcon }: ProjectInfo,
   onStatusUpdate: (update: string) => void,
   onError: (err: string) => void,
-  onComplete: (packageJson: any) => void
+  onComplete: (packageJson: ProjectInternal) => void
 ) => {
   if (DISABLE) {
     onComplete(FAKE_CRA_PROJECT);

@@ -94,7 +94,7 @@ export const writePackageJson = (projectPath: string, json: any) => {
   });
 };
 
-export const loadProject = (path: string) => {
+export const loadProject = (path: string): Promise<ProjectInternal> => {
   return loadPackageJson(path).then(json =>
     Promise.all([
       loadManifestJson(path, json).catch(console.error),

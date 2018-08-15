@@ -18,6 +18,14 @@ export type TaskType = 'short-term' | 'sustained';
 export type TaskStatus = 'idle' | 'pending' | 'success' | 'failed';
 export type DependencyStatus = 'idle' | 'installing' | 'updating' | 'deleting';
 export type DependencyLocation = 'dependencies' | 'devDependencies';
+export type CommandStatus =
+  | 'idle'
+  | 'pending'
+  | 'success'
+  | 'failed'
+  | 'installing'
+  | 'updating'
+  | 'deleting';
 
 export type Task = {
   id: string,
@@ -54,6 +62,52 @@ export type Dependency = {
   location: DependencyLocation,
 };
 
+export type CommandInternal = {
+  name: string,
+  identifier: string,
+  shortcut?: string,
+  script: string,
+  handler?: string,
+  handlers?: {
+    [action: string]: string,
+  },
+};
+
+export type PluginMenu<T> = {
+  title: string,
+  items: PluginMenuItem<T>[], // eslint-disable-line no-use-before-define
+};
+
+export type PluginMenuItem<T> = '-' | T | PluginMenu<T>;
+
+export type PluginMenuRootInternal = {
+  title?: string,
+  items: PluginMenuItem<string>[],
+  isRoot?: boolean,
+};
+
+export type Command = {
+  identifier: string,
+  name: string,
+  script: string,
+  status: CommandStatus,
+  shortcut?: string,
+  status: CommandStatus,
+  processId?: number,
+  handler?: string,
+  handlers?: {
+    [action: string]: string,
+  },
+  timeSinceStatusChange: ?Date,
+  logs: Array<Log>,
+};
+
+export type PluginMenuRoot = {
+  title?: string,
+  items: PluginMenuItem<Command | void>[],
+  isRoot?: boolean,
+};
+
 /**
  * ProjectInternal is the behind-the-scenes type used in projects.reducer.
  * This is a copy of the project's package.json (which means it may have many
@@ -67,6 +121,9 @@ export type ProjectInternal = {
   // any UTF-8 characters.
   name: string,
   author?: string,
+  description?: string,
+  homepage?: string,
+  version: string,
   dependencies?: {
     [key: string]: string,
   },
@@ -83,7 +140,12 @@ export type ProjectInternal = {
     assets?: string[],
   },
   __skpm_manifest?: {
-    [key: string]: string,
+    name?: string,
+    appcast?: string,
+    bundleVersion: 1,
+    disableCocoaScriptPreprocessor?: boolean,
+    commands: CommandInternal[],
+    menu?: PluginMenuRootInternal,
   },
   __skpm_icon?: string,
   __skpm_createdAt: number,
@@ -106,4 +168,7 @@ export type Project = {
   tasks: Array<Task>,
   // `path` is the project's on-disk location.
   path: string,
+  manifestPath: string,
+  commands: Array<Command>,
+  pluginMenu: PluginMenuRoot,
 };

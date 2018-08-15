@@ -1,4 +1,5 @@
 // @flow
+import * as path from 'path';
 import { combineReducers } from 'redux';
 import produce from 'immer';
 
@@ -14,7 +15,13 @@ import { getDependenciesForProjectId } from './dependencies.reducer';
 import { getPathForProjectId } from './paths.reducer';
 
 import type { Action } from 'redux';
-import type { ProjectInternal, Project } from '../types';
+import { getCommandsForProjectId } from './commands.reducer';
+import type {
+  ProjectInternal,
+  Project,
+  PluginMenuItem,
+  Command,
+} from '../types';
 
 type ById = {
   [key: string]: ProjectInternal,
@@ -104,6 +111,24 @@ export default combineReducers({ byId, selectedId });
 // Selectors
 type GlobalState = { projects: State };
 
+function menuToMenu(
+  menuItem: PluginMenuItem<string>,
+  commands: Array<Command>
+): PluginMenuItem<Command | void> {
+  if (menuItem === '-') {
+    return '-';
+  }
+  if (typeof menuItem === 'string') {
+    return commands.find(c => c.identifier === menuItem);
+  }
+  return {
+    items: menuItem.items
+      .map(i => menuToMenu(i, commands))
+      .filter(i => typeof i !== 'undefined'),
+    title: menuItem.title,
+  };
+}
+
 // Our projects in-reducer are essentially database items that represent the
 // package.json on disk.
 //
@@ -116,14 +141,26 @@ const prepareProjectForConsumption = (
   state: GlobalState,
   project: ProjectInternal
 ): Project => {
+  const projectPath = getPathForProjectId(state, project.name);
+  const menu = (project.__skpm_manifest || {}).menu || {};
+  const commands = getCommandsForProjectId(state, project.name);
   return {
     id: project.name,
     name: (project.skpm || {}).name || project.name,
     tasks: getTasksForProjectId(state, project.name),
     dependencies: getDependenciesForProjectId(state, project.name),
-    path: getPathForProjectId(state, project.name),
+    path: projectPath,
+    manifestPath: path.join(projectPath, (project.skpm || {}).manifest || ''),
     icon: project.__skpm_icon,
     createdAt: project.__skpm_createdAt,
+    commands,
+    pluginMenu: {
+      title: menu.title,
+      isRoot: menu.isRoot,
+      items: menu.items
+        .map(i => menuToMenu(i, commands))
+        .filter(i => typeof i !== 'undefined'),
+    },
   };
 };
 
