@@ -29,7 +29,7 @@ const BUILD_STEPS = {
     copy: 'Personalizing template',
   },
   installingDependencies: {
-    copy: 'Installing dependencies.',
+    copy: 'Installing dependencies',
     additionalCopy: 'This step may a while...',
   },
 };

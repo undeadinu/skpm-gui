@@ -9,8 +9,10 @@
  * to be tied to a specific project (the same project might exist at different
  * paths on different computers!).
  */
+import * as path from 'path';
 import * as os from 'os';
 import { ADD_PROJECT, IMPORT_EXISTING_PROJECT_FINISH } from '../actions';
+import { windowsHomeDir, isWin } from '../services/platform.service';
 
 import type { Action } from 'redux';
 
@@ -41,15 +43,16 @@ export default (state: State = initialState, action: Action) => {
 //
 //
 // Helpers
-export const getDefaultParentPath = () =>
-  // Noticing some weird quirks when I try to use a dev project on the compiled
-  // "production" app, so separating their home paths should help.
+const homedir = isWin ? windowsHomeDir : os.homedir();
+// Noticing some weird quirks when I try to use a dev project on the compiled
+// "production" app, so separating their home paths should help.
+export const defaultParentPath =
   process.env.NODE_ENV === 'development'
-    ? `${os.homedir()}/sketch-plugins-dev`
-    : `${os.homedir()}/sketch-plugins`;
+    ? path.join(homedir, '/sketch-plugins-dev')
+    : path.join(homedir, '/sketch-plugins');
 
 export const getDefaultPath = (projectId: string) =>
-  `${getDefaultParentPath()}/${projectId}`;
+  `${defaultParentPath}/${projectId}`;
 
 //
 //

@@ -1,13 +1,16 @@
 // @flow
 import slug from 'slug';
 import random from 'random-seed';
-import * as fs from 'fs';
 import * as childProcess from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { COLORS } from '../constants';
-import { getDefaultParentPath } from '../reducers/paths.reducer';
+import { defaultParentPath } from '../reducers/paths.reducer';
 import { loadProject } from './read-from-disk.service';
 import { enableDevMode } from './dev-mode.service';
+
+import { formatCommandForPlatform } from './platform.service';
 
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
@@ -48,7 +51,7 @@ export default (
     return;
   }
 
-  const parentPath = getDefaultParentPath();
+  const parentPath = defaultParentPath;
 
   // Create the projects directory, if this is the first time creating a
   // project.
@@ -63,7 +66,9 @@ export default (
 
   const id = slug(projectName).toLowerCase();
 
-  const path = `${parentPath}/${id}`;
+  // For Windows Support
+  // To support cross platform with slashes and escapes
+  const projectPath = path.join(parentPath, id);
 
   const [instruction, ...args] = getBuildInstructions(projectType, {
     id,
@@ -95,12 +100,16 @@ export default (
     }
 
     if (projectIcon) {
-      fs.writeFileSync(`${path}/assets/icon.png`, projectIcon, 'base64');
+      fs.writeFileSync(
+        path.join(projectPath, 'assets', 'icon.png'),
+        projectIcon,
+        'base64'
+      );
     }
 
     onStatusUpdate('Dependencies installed');
 
-    loadProject(path)
+    loadProject(projectPath)
       .then(onComplete)
       .catch(console.error);
   });
@@ -130,12 +139,16 @@ export const getBuildInstructions = (
   projectType: ProjectType,
   { id, name }: { id: string, name: string }
 ) => {
+  // For Windows Support
+  // Windows tries to run command as a script rather than on a cmd
+  // To force it we add *.cmd to the commands
+  const command = formatCommandForPlatform('npx');
   switch (projectType) {
     case 'empty':
-      return ['npx', 'create-sketch-plugin@1.1.5', id, '--name=' + name];
+      return [command, 'create-sketch-plugin@1.1.5', id, '--name=' + name];
     case 'webview':
       return [
-        'npx',
+        command,
         'create-sketch-plugin@1.1.5',
         id,
         '--name=' + name,

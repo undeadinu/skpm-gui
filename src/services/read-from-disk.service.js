@@ -4,18 +4,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { pick } from '../utils';
-import { getDefaultParentPath } from '../reducers/paths.reducer';
+import { defaultParentPath } from '../reducers/paths.reducer';
 
 import type { DependencyLocation, ProjectInternal } from '../types';
-
-const DEFAULT_PARENT_PATH = getDefaultParentPath();
 
 /**
  * Load createdAt time
  */
-export const loadProjectFSStat = (path: string) => {
+export const loadProjectFSStat = (projectPath: string) => {
   return new Promise((resolve, reject) => {
-    return fs.stat(path, (err, data) => {
+    return fs.stat(projectPath, (err, data) => {
       if (err) {
         return reject(err);
       }
@@ -27,14 +25,18 @@ export const loadProjectFSStat = (path: string) => {
 /**
  * Load a project's package.json
  */
-export const loadPackageJson = (path: string) => {
+export const loadPackageJson = (projectPath: string) => {
   return new Promise((resolve, reject) => {
-    return fs.readFile(`${path}/package.json`, 'utf8', (err, data) => {
-      if (err) {
-        return reject(err);
+    return fs.readFile(
+      path.join(projectPath, 'package.json'),
+      'utf8',
+      (err, data) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(JSON.parse(data));
       }
-      return resolve(JSON.parse(data));
-    });
+    );
   });
 };
 
@@ -42,12 +44,12 @@ export const loadPackageJson = (path: string) => {
  * Load a project's manifest.json
  */
 export const loadManifestJson = (
-  path: string,
+  projectPath: string,
   packageJson: { [key: string]: any }
 ) => {
   return new Promise((resolve, reject) => {
     return fs.readFile(
-      `${path}/${packageJson.skpm.manifest}`,
+      path.join(projectPath, packageJson.skpm.manifest),
       'utf8',
       (err, data) => {
         if (err) {
@@ -62,14 +64,18 @@ export const loadManifestJson = (
 /**
  * Load a project's icon.png
  */
-export const loadIcon = (path: string) => {
+export const loadIcon = (projectPath: string) => {
   return new Promise((resolve, reject) => {
-    return fs.readFile(`${path}/assets/icon.png`, 'base64', (err, data) => {
-      if (err) {
-        return reject(err);
+    return fs.readFile(
+      path.join(projectPath, 'assets', 'icon.png'),
+      'base64',
+      (err, data) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(data);
       }
-      return resolve(data);
-    });
+    );
   });
 };
 
@@ -81,7 +87,7 @@ export const writePackageJson = (projectPath: string, json: any) => {
 
   return new Promise((resolve, reject) => {
     fs.writeFile(
-      `${projectPath}/package.json`,
+      path.join(projectPath, 'package.json'),
       prettyPrintedPackageJson,
       err => {
         if (err) {
@@ -94,12 +100,12 @@ export const writePackageJson = (projectPath: string, json: any) => {
   });
 };
 
-export const loadProject = (path: string): Promise<ProjectInternal> => {
-  return loadPackageJson(path).then(json =>
+export const loadProject = (projectPath: string): Promise<ProjectInternal> => {
+  return loadPackageJson(projectPath).then(json =>
     Promise.all([
-      loadManifestJson(path, json).catch(console.error),
-      loadIcon(path).catch(console.error),
-      loadProjectFSStat(path).catch(console.error),
+      loadManifestJson(projectPath, json).catch(console.error),
+      loadIcon(projectPath).catch(console.error),
+      loadProjectFSStat(projectPath).catch(console.error),
     ]).then(([manifest, icon, stat]) => {
       json.__skpm_manifest = manifest;
       json.__skpm_icon = icon;
@@ -126,8 +132,8 @@ export function loadProjects(projectPathsInput: Array<string>) {
   // emulate a clean slate, but might also be useful for users who want to
   // create projects outside of Guppy but have them managed internally)
   try {
-    readdirSync(DEFAULT_PARENT_PATH).forEach(f => {
-      const projectPath = path.join(DEFAULT_PARENT_PATH, f);
+    readdirSync(defaultParentPath).forEach(f => {
+      const projectPath = path.join(defaultParentPath, f);
       const isDirectory = statSync(projectPath).isDirectory();
 
       if (isDirectory && !projectPaths.includes(projectPath)) {
@@ -145,8 +151,8 @@ export function loadProjects(projectPathsInput: Array<string>) {
     // TODO: Maybe use asyncReduce to handle the output format in 1 neat step?
     asyncMap(
       projectPaths,
-      function(path, callback) {
-        loadProject(path)
+      function(projectPath, callback) {
+        loadProject(projectPath)
           .then(json => callback(null, json))
           .catch(err =>
             // If the package.json couldn't be loaded, this likely means the
@@ -210,8 +216,7 @@ export function loadProjectDependency(
   dependencyLocation: DependencyLocation = 'dependencies'
 ) {
   // prettier-ignore
-  const dependencyPath =
-    `${projectPath}/node_modules/${dependencyName}/package.json`;
+  const dependencyPath = path.join(projectPath, 'node_modules', dependencyName, 'package.json');
 
   return new Promise((resolve, reject) => {
     fs.readFile(dependencyPath, 'utf8', (err, data) => {

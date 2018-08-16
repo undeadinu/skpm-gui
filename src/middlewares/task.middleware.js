@@ -1,7 +1,7 @@
 // @flow
 import { ipcRenderer } from 'electron';
 import * as childProcess from 'child_process';
-import psTree from 'ps-tree';
+import * as path from 'path';
 import {
   RUN_TASK,
   ABORT_TASK,
@@ -16,6 +16,8 @@ import { getProjectById } from '../reducers/projects.reducer';
 import { getPathForProjectId } from '../reducers/paths.reducer';
 import { isDevServerTask } from '../reducers/tasks.reducer';
 import findAvailablePort from '../services/find-available-port.service';
+import killProcessId from '../services/kill-process-id.service';
+import { isWin, PACKAGE_MANAGER_CMD } from '../services/platform.service';
 
 import type { Task } from '../types';
 
@@ -36,33 +38,14 @@ export default (store: any) => (next: any) => (action: any) => {
     case LAUNCH_DEV_SERVER: {
       findAvailablePort()
         .then(port => {
-          const [instruction, ...args] = getDevServerCommand(task, port);
+          const { args, env } = getDevServerCommand(task, port);
 
-          /**
-           * NOTE: A quirk in Electron means we can't use `env` to supply
-           * environment variables, as you would traditionally:
-           *
-              childProcess.spawn(
-                `npm`,
-                ['run', name],
-                {
-                  cwd: projectPath,
-                  env: { PORT: port },
-                }
-              );
-           *
-           * If I try to run this, I get a bunch of nonsensical errors about
-           * no commands (not even built-in ones like `ls`) existing.
-           * I added a comment here:
-           * https://github.com/electron/electron/issues/3627
-           *
-           * As a workaround, I'm using "shell mode" to avoid having to
-           * specify environment variables:
-           */
-
-          const child = childProcess.spawn(instruction, args, {
+          const child = childProcess.spawn(PACKAGE_MANAGER_CMD, args, {
             cwd: projectPath,
-            shell: true,
+            env: {
+              ...getBaseProjectEnvironment(projectPath),
+              ...env,
+            },
           });
 
           // Now that we have a port/processId for the server, attach it to
@@ -88,7 +71,10 @@ export default (store: any) => (next: any) => (action: any) => {
           });
 
           child.on('exit', code => {
-            const wasSuccessful = code === 0 || code === null;
+            // For Windows Support
+            // Windows sends code 1 (I guess its because we foce kill??)
+            const successfulCode = isWin ? 1 : 0;
+            const wasSuccessful = code === successfulCode || code === null;
             const timestamp = new Date();
 
             store.dispatch(completeTask(task, timestamp, wasSuccessful));
@@ -109,30 +95,10 @@ export default (store: any) => (next: any) => (action: any) => {
     case RUN_TASK: {
       const { name } = task;
 
-      // TEMPORARY HACK
-      // By default, create-react-app runs tests in interactive watch mode.
-      // This is a brilliant way to do it, but it's interactive, which won't
-      // work as-is.
-      // In the future, I expect "Tests" to get its own module on the project
-      // page, in which case we can support the interactive mode, except with
-      // descriptive buttons instead of cryptic letters!
-      // Alas, this would be mucho work, and this is an MVP. So for now, I'm
-      // disabling watch mode, and doing "just run all the tests once" mode.
-      // This is bad, and I feel bad, but it's a corner that needs to be cut,
-      // for now.
-      const additionalArgs = [];
-      // if (project.type === 'create-react-app' && name === 'test') {
-      //   additionalArgs.push('--', '--coverage');
-      // }
-
-      const child = childProcess.spawn(
-        'npm',
-        ['run', name, ...additionalArgs],
-        {
-          cwd: projectPath,
-          shell: true,
-        }
-      );
+      const child = childProcess.spawn(PACKAGE_MANAGER_CMD, ['run', name], {
+        cwd: projectPath,
+        env: getBaseProjectEnvironment(projectPath),
+      });
 
       // When this application exits, we want to kill this process.
       // Send it up to the main process.
@@ -143,20 +109,6 @@ export default (store: any) => (next: any) => (action: any) => {
       next(attachTaskMetadata(task, child.pid));
 
       child.stdout.on('data', data => {
-        // The 'eject' task prompts the user, to ask if they're sure.
-        // We can bypass this prompt, as our UI already has an alert that
-        // confirms this action.
-        // TODO: Eject deserves its own Redux action, to avoid cluttering up
-        // this generic "RUN_TASK" action.
-        // TODO: Is there a way to "future-proof" this, in case the CRA
-        // confirmation copy changes?
-        const isEjectPrompt = data
-          .toString()
-          .includes('Are you sure you want to eject? This action is permanent');
-
-        if (isEjectPrompt) {
-          sendCommandToProcess(child, 'y');
-        }
         next(receiveDataFromTaskExecution(task, data.toString()));
       });
 
@@ -180,41 +132,25 @@ export default (store: any) => (next: any) => (action: any) => {
     case ABORT_TASK: {
       const { processId, name } = task;
 
-      // Our child was spawned using `shell: true` to get around a quirk with
-      // electron not working when specifying environment variables the
-      // "correct" way (see comment above).
-      //
-      // Because of that, `child.pid` refers to the `sh` command that spawned
-      // the actual Node process, and so we need to use `psTree` to build a
-      // tree of descendent children and kill them that way.
-      psTree(processId, (err, children) => {
-        if (err) {
-          console.error('Could not gather process children:', err);
-        }
+      killProcessId(processId);
+      ipcRenderer.send('removeProcessId', processId);
 
-        const childrenPIDs = children.map(child => child.PID);
+      // Once the task is killed, we should dispatch a notification
+      // so that the terminal shows something about this update.
+      // My initial thought was that all tasks would have the same message,
+      // but given that we're treating `start` as its own special thing,
+      // I'm realizing that it should vary depending on the task type.
+      // TODO: Find a better place for this to live.
+      const abortMessage = isDevServerTask(name)
+        ? 'Server stopped'
+        : 'Task aborted';
 
-        childProcess.spawn('kill', ['-9', ...childrenPIDs]);
-
-        ipcRenderer.send('removeProcessId', processId);
-
-        // Once the children are killed, we should dispatch a notification
-        // so that the terminal shows something about this update.
-        // My initial thought was that all tasks would have the same message,
-        // but given that we're treating `start` as its own special thing,
-        // I'm realizing that it should vary depending on the task type.
-        // TODO: Find a better place for this to live.
-        const abortMessage = isDevServerTask(name)
-          ? 'Server stopped'
-          : 'Task aborted';
-
-        next(
-          receiveDataFromTaskExecution(
-            task,
-            `\u001b[31;1m${abortMessage}\u001b[0m`
-          )
-        );
-      });
+      next(
+        receiveDataFromTaskExecution(
+          task,
+          `\u001b[31;1m${abortMessage}\u001b[0m`
+        )
+      );
 
       break;
     }
@@ -252,8 +188,24 @@ export default (store: any) => (next: any) => (action: any) => {
   return next(action);
 };
 
+const getBaseProjectEnvironment = (projectPath: string) => ({
+  // Forward the host env, and append the
+  // project's .bin directory to PATH to allow
+  // package scripts to function properly.
+  ...window.process.env,
+  PATH:
+    window.process.env.PATH +
+    path.delimiter +
+    path.join(projectPath, 'node_modules', '.bin'),
+});
+
 const getDevServerCommand = (task: Task, port: string) => {
-  return [`PORT=${port} npm`, 'run', task.name];
+  return {
+    args: ['run', task.name],
+    env: {
+      PORT: port,
+    },
+  };
 };
 
 const sendCommandToProcess = (child: any, command: string) => {
