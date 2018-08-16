@@ -155,7 +155,7 @@ const prepareProjectForConsumption = (
     createdAt: project.__skpm_createdAt,
     commands,
     pluginMenu: {
-      title: menu.title,
+      title: menu.title || (project.skpm || {}).name || project.name,
       isRoot: menu.isRoot,
       items: menu.items
         .map(i => menuToMenu(i, commands))

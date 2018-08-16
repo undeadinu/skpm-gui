@@ -103,7 +103,7 @@ export type Command = {|
 |};
 
 export type PluginMenuRoot = {|
-  title?: string,
+  title: string,
   items: PluginMenuItem<Command | void>[],
   isRoot?: boolean,
 |};

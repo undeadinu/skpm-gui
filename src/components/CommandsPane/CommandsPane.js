@@ -8,6 +8,7 @@ import { getSelectedProject } from '../../reducers/projects.reducer';
 import Module from '../Module';
 import CommandRunnerPaneRow from '../CommandRunnerPaneRow';
 import Button from '../Button';
+import EditMenuModal from '../EditMenuModal';
 
 import type { Project } from '../../types';
 
@@ -20,7 +21,7 @@ type State = {
   editingMenu: boolean,
 };
 
-class TaskRunnerPane extends Component<Props, State> {
+class CommandsPane extends Component<Props, State> {
   state = {
     selectedCommandId: null,
     editingMenu: false,
@@ -79,6 +80,13 @@ class TaskRunnerPane extends Component<Props, State> {
             onViewDetails={this.handleViewDetails}
           />
         ))}
+
+        <EditMenuModal
+          menu={project.pluginMenu}
+          commands={project.commands}
+          isVisible={!!editingMenu}
+          onDismiss={this.handleDismissEditMenu}
+        />
       </Module>
     );
   }
@@ -91,4 +99,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   { runTask, abortTask }
-)(TaskRunnerPane);
+)(CommandsPane);

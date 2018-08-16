@@ -2,19 +2,16 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import moment from 'moment';
 
-import { savePluginMenu } from '../../actions';
-import { COLORS } from '../../constants';
-import { capitalize } from '../../utils';
+import SortableTree from 'react-sortable-tree';
+import 'react-sortable-tree/style.css';
+import FileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
+
+// import { savePluginMenu } from '../../actions';
 
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
 import Toggle from '../Toggle';
-import LargeLED from '../LargeLED';
-import EjectButton from '../EjectButton';
-import TerminalOutput from '../TerminalOutput';
-import Spacer from '../Spacer';
 
 import type { PluginMenuRoot, PluginMenuItem, Command } from '../../types';
 
@@ -29,24 +26,30 @@ type Props = {
 
 type Tree = {
   title: '-' | string,
+  expanded: true,
   children?: Tree[],
 };
 
 type State = {
-  tree: Tree,
+  isVisible: boolean,
+  tree: Tree[],
   isRoot?: boolean,
 };
 
-function menuToTree(item: PluginMenuItem<Command>): Tree {
-  if (item === '-') {
-    return { title: '-- Separator --' };
+function menuToTree(item: PluginMenuItem<Command | void>): Tree {
+  if (!item) {
+    return { expanded: true, title: '-- Separator --' };
+  } else if (item === '-') {
+    return { expanded: true, title: '-- Separator --' };
   } else if (item.title) {
     return {
+      expanded: true,
       title: item.title,
       children: item.items.map(i => menuToTree(i)),
     };
   } else if (item.identifier) {
     return {
+      expanded: true,
       title: item.name,
     };
   } else {
@@ -55,131 +58,85 @@ function menuToTree(item: PluginMenuItem<Command>): Tree {
 }
 
 class EditMenuModal extends PureComponent<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      tree: {
-        title: props.menu.title,
-        children: props.menu.items.map(i => menuToTree(i)),
-      },
+      isVisible: props.isVisible,
+      tree: props.menu.isRoot
+        ? props.menu.items.map(i => menuToTree(i))
+        : [
+            {
+              expanded: true,
+              title: props.menu.title,
+              children: props.menu.items.map(i => menuToTree(i)),
+            },
+          ],
       isRoot: props.menu.isRoot,
     };
   }
 
-  handleToggle = () => {
-    const { task, runTask, abortTask } = this.props;
-
-    const isRunning = !!task.processId;
-
-    const timestamp = new Date();
-
-    isRunning ? abortTask(task, timestamp) : runTask(task, timestamp);
-  };
-
-  getStatusText = () => {
-    const { status, timeSinceStatusChange } = this.props.task;
-
-    switch (status) {
-      case 'idle': {
-        return (
-          <span>
-            Task is <strong>idle</strong>.
-            {timeSinceStatusChange && (
-              <LastRunText>
-                Last run:{' '}
-                {moment(timeSinceStatusChange).format(
-                  'MMMM Do, YYYY [at] h:mm a'
-                )}
-              </LastRunText>
-            )}
-          </span>
-        );
-      }
-      case 'pending': {
-        return (
-          <span>
-            Task is{' '}
-            <strong style={{ color: COLORS.orange[500] }}>running</strong>...
-          </span>
-        );
-      }
-
-      case 'success': {
-        return (
-          <span>
-            Task{' '}
-            <strong style={{ color: COLORS.green[700] }}>
-              completed successfully
-            </strong>.
-            <LastRunText>
-              {moment(timeSinceStatusChange).calendar()}
-            </LastRunText>
-          </span>
-        );
-      }
-
-      case 'failed': {
-        return (
-          <span>
-            Task <strong>failed</strong>.
-            <LastRunText>
-              {moment(timeSinceStatusChange).calendar()}
-            </LastRunText>
-          </span>
-        );
-      }
-
-      default: {
-        throw new Error('Unrecognized status in TaskDetailsModal');
-      }
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (props.isVisible !== state.isVisible) {
+      return {
+        isVisible: props.isVisible,
+        tree: props.menu.isRoot
+          ? props.menu.items.map(i => menuToTree(i))
+          : [
+              {
+                expanded: true,
+                title: props.menu.title,
+                children: props.menu.items.map(i => menuToTree(i)),
+              },
+            ],
+        isRoot: props.menu.isRoot,
+      };
     }
-  };
+
+    return null;
+  }
+
+  handleToggleRoot = (isRoot: boolean) =>
+    this.setState(state => ({
+      isRoot,
+      tree: isRoot
+        ? state.tree[0].children
+        : [
+            {
+              expanded: true,
+              title: this.props.menu.title,
+              children: state.tree,
+            },
+          ],
+    }));
+  handleTreeChange = tree => this.setState({ tree });
 
   renderContents() {
-    const { task, isVisible } = this.props;
+    const { isVisible } = this.props;
+    const { isRoot, tree } = this.state;
 
     if (!isVisible) {
       return null;
     }
 
-    const { name, description, status, processId, logs } = task;
-
-    const isRunning = !!processId;
-
     return (
       <Fragment>
         <ModalHeader
-          title={capitalize(name)}
+          title="Plugin Menu"
           action={
-            name === 'eject' ? (
-              <EjectButton
-                width={40}
-                height={34}
-                isRunning={isRunning}
-                onClick={this.handleToggle}
-              />
-            ) : (
-              <Toggle
-                size={32}
-                isToggled={isRunning}
-                onToggle={this.handleToggle}
-              />
-            )
+            <Toggle
+              size={32}
+              isToggled={isRoot}
+              onToggle={this.handleToggleRoot}
+            />
           }
-        >
-          <Description>{description}</Description>
-        </ModalHeader>
-
+        />
         <MainContent>
-          <Status>
-            <LargeLED size={32} status={status} />
-            <StatusLabel>{this.getStatusText()}</StatusLabel>
-          </Status>
-
-          <Spacer size={25} />
-
-          <TerminalOutput height={425} logs={logs} />
+          <SortableTree
+            treeData={tree}
+            onChange={this.handleTreeChange}
+            theme={FileExplorerTheme}
+          />
         </MainContent>
       </Fragment>
     );
@@ -198,29 +155,10 @@ class EditMenuModal extends PureComponent<Props, State> {
 
 const MainContent = styled.section`
   padding: 25px;
-`;
-
-const Description = styled.div`
-  font-size: 24px;
-  color: ${COLORS.gray[600]};
-`;
-
-const Status = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 20px;
-`;
-
-const StatusLabel = styled.div`
-  margin-left: 10px;
-`;
-
-const LastRunText = styled.span`
-  margin-left: 10px;
-  color: ${COLORS.gray[400]};
+  height: 400px;
 `;
 
 export default connect(
-  null,
-  { savePluginMenu }
+  null
+  // { savePluginMenu }
 )(EditMenuModal);
