@@ -26,6 +26,7 @@ import type {
 type ById = {
   [key: string]: ProjectInternal,
 };
+
 type SelectedId = ?string;
 
 type State = {
@@ -33,7 +34,7 @@ type State = {
   selectedId: SelectedId,
 };
 
-const initialState = {
+export const initialState = {
   byId: {},
   selectedId: null,
 };

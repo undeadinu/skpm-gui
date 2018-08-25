@@ -27,7 +27,8 @@ class IntroScreen extends Component<Props> {
       <Fragment>
         <Wrapper isVisible={!shouldHideContent}>
           <Header>
-            <Logo size="medium" />
+            <Logo size="large" />
+
             <AppName>Skpm</AppName>
           </Header>
 
@@ -70,7 +71,6 @@ const Header = styled.div`
 
 const AppName = styled.div`
   font-size: 42px;
-  transform: translateY(-10px);
 `;
 
 const Actions = styled.div`
