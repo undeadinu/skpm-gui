@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 
+import appLoaded from './app-loaded.reducer';
 import projects from './projects.reducer';
 import tasks from './tasks.reducer';
 import dependencies from './dependencies.reducer';
@@ -10,6 +11,7 @@ import paths from './paths.reducer';
 import commands from './commands.reducer';
 
 export default combineReducers({
+  appLoaded,
   projects,
   tasks,
   dependencies,

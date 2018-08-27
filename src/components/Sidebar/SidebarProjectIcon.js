@@ -13,35 +13,43 @@ type Props = {
   name: string,
   iconSrc?: string,
   isSelected: boolean,
+  handleSelect: () => void,
 };
 
-const SidebarProjectIcon = ({ id, size, name, iconSrc, isSelected }: Props) => {
-  if (!iconSrc) {
-    return (
-      <SelectableItem
-        size={size}
-        color1={COLORS.white}
-        color2={COLORS.white}
-        status={isSelected ? 'highlighted' : 'faded'}
-      >
-        {status => (
-          <ProjectNameIcon
-            style={{ opacity: status === 'highlighted' ? 1 : 0.55 }}
-          >
-            {name.slice(0, 1).toUpperCase()}
-          </ProjectNameIcon>
-        )}
-      </SelectableItem>
-    );
-  }
-  return (
+const SidebarProjectIcon = ({
+  id,
+  size,
+  name,
+  iconSrc,
+  isSelected,
+  handleSelect,
+}: Props) => {
+  const sharedProps = {
+    size,
+    color1: COLORS.white,
+    color2: COLORS.white,
+    status: isSelected ? 'highlighted' : 'faded',
+    onClick: handleSelect,
+  };
+
+  // For projects with an icon, we want to render a selectable image, with
+  // that icon. For imported projects with no icon, we instead want to render
+  // a circle with the first letter of that project name.
+  return iconSrc ? (
     <SelectableImage
       src={`data:image/png;base64, ${iconSrc}`}
-      size={size}
-      color1={COLORS.white}
-      color2={COLORS.white}
-      status={isSelected ? 'highlighted' : 'faded'}
+      {...sharedProps}
     />
+  ) : (
+    <SelectableItem {...sharedProps}>
+      {status => (
+        <ProjectNameIcon
+          style={{ opacity: status === 'highlighted' ? 1 : 0.55 }}
+        >
+          {name.slice(0, 1).toUpperCase()}
+        </ProjectNameIcon>
+      )}
+    </SelectableItem>
   );
 };
 

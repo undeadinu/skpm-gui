@@ -1,13 +1,16 @@
 // @flow
 import uuid from 'uuid/v1';
 
-import {
-  loadProjects,
-  loadAllProjectDependencies,
-} from '../services/read-from-disk.service';
+import { loadAllProjectDependencies } from '../services/read-from-disk.service';
 import { getInternalProjectById } from '../reducers/projects.reducer';
 
-import type { ProjectInternal, Task, Dependency } from '../types';
+import type {
+  Project,
+  ProjectInternal,
+  ProjectsMap,
+  Task,
+  Dependency,
+} from '../types';
 
 //
 //
@@ -15,7 +18,9 @@ import type { ProjectInternal, Task, Dependency } from '../types';
 // TODO: Do this with Flow
 // https://flow.org/en/docs/react/redux/
 //
-export const REFRESH_PROJECTS = 'REFRESH_PROJECTS';
+export const REFRESH_PROJECTS_START = 'REFRESH_PROJECTS_START';
+export const REFRESH_PROJECTS_ERROR = 'REFRESH_PROJECTS_ERROR';
+export const REFRESH_PROJECTS_FINISH = 'REFRESH_PROJECTS_FINISH';
 export const CREATE_NEW_PROJECT_START = 'CREATE_NEW_PROJECT_START';
 export const CREATE_NEW_PROJECT_CANCEL = 'CREATE_NEW_PROJECT_CANCEL';
 export const CREATE_NEW_PROJECT_FINISH = 'CREATE_NEW_PROJECT_FINISH';
@@ -46,6 +51,9 @@ export const SHOW_IMPORT_EXISTING_PROJECT_PROMPT =
 export const IMPORT_EXISTING_PROJECT_START = 'IMPORT_EXISTING_PROJECT_START';
 export const IMPORT_EXISTING_PROJECT_ERROR = 'IMPORT_EXISTING_PROJECT_ERROR';
 export const IMPORT_EXISTING_PROJECT_FINISH = 'IMPORT_EXISTING_PROJECT_FINISH';
+export const SHOW_DELETE_PROJECT_PROMPT = 'SHOW_DELETE_PROJECT_PROMPT';
+export const FINISH_DELETING_PROJECT_FROM_DISK =
+  'FINISH_DELETING_PROJECT_FROM_DISK';
 export const DELETE_COMMAND_START = 'DELETE_COMMAND_START';
 export const DELETE_COMMAND_ERROR = 'DELETE_COMMAND_ERROR';
 export const DELETE_COMMAND_FINISH = 'DELETE_COMMAND_FINISH';
@@ -65,25 +73,29 @@ export const addProject = (project: ProjectInternal) => ({
   project,
 });
 
-export const refreshProjects = () => {
-  return (dispatch: any, getState: any) => {
-    const { paths } = getState();
+export const showDeleteProjectPrompt = (project: Project) => ({
+  type: SHOW_DELETE_PROJECT_PROMPT,
+  project,
+});
 
-    // I wish Flow would let me use Object.values =(
-    const pathValues = Object.keys(paths).map(pathKey => paths[pathKey]);
+export const finishDeletingProjectFromDisk = (projectId: string) => ({
+  type: FINISH_DELETING_PROJECT_FROM_DISK,
+  projectId,
+});
 
-    loadProjects(pathValues)
-      .then((projects: { [id: string]: ProjectInternal }) => {
-        dispatch({
-          type: REFRESH_PROJECTS,
-          projects,
-        });
-      })
-      .catch(err => {
-        console.error('Could not load sketch plugins', err);
-      });
-  };
-};
+export const refreshProjectsStart = () => ({
+  type: REFRESH_PROJECTS_START,
+});
+
+export const refreshProjectsError = (error: string) => ({
+  type: REFRESH_PROJECTS_ERROR,
+  error,
+});
+
+export const refreshProjectsFinish = (projects: ProjectsMap) => ({
+  type: REFRESH_PROJECTS_FINISH,
+  projects,
+});
 
 /**
  * This action figures out what dependencies are installed for a given
@@ -91,6 +103,9 @@ export const refreshProjects = () => {
  *
  * TODO: This should really have a "START" and "COMPLETE" action pair, so that
  * we can show some loading UI while it works.
+ *
+ * TODO: This is our last thunk! We should convert it to a saga, so we can
+ * be rid of thunks altogether.
  */
 
 export const loadDependencyInfoFromDisk = (
@@ -301,21 +316,3 @@ export const importExistingProjectFinish = (
   path,
   project,
 });
-
-// export const ejectProjectStart = (task: Task, timestamp: Date) => ({
-//   type: EJECT_PROJECT_START,
-//   task,
-//   timestamp,
-// });
-
-// export const ejectProjectError = (task: Task, timestamp: Date) => ({
-//   type: EJECT_PROJECT_ERROR,
-//   task,
-//   timestamp,
-// });
-
-// export const ejectProjectFinish = (task: Task, timestamp: Date) => ({
-//   type: EJECT_PROJECT_START,
-//   task,
-//   timestamp,
-// });

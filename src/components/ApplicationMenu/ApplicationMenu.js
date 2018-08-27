@@ -10,6 +10,7 @@ import {
   createNewProjectStart,
   showImportExistingProjectPrompt,
   clearConsole,
+  showDeleteProjectPrompt,
 } from '../../actions';
 import { SKPM_REPO_URL } from '../../constants';
 import { isMac } from '../../services/platform.service';
@@ -21,38 +22,38 @@ import type { Task } from '../../types';
 const { app, process, Menu } = remote;
 
 type Props = {
+  selectedProject: ?string,
   selectedProjectId: ?string,
   devServerTask: ?Task,
   createNewProjectStart: () => any,
   showImportExistingProjectPrompt: () => any,
   clearConsole: (task: Task) => any,
+  showDeleteProjectPrompt: (project: any) => any,
 };
 
 class ApplicationMenu extends Component<Props> {
   menu: any;
 
   componentDidMount() {
-    this.buildMenu();
+    this.buildMenu(this.props);
   }
 
-  shouldComponentUpdate(nextProps) {
-    // We currently only need to rebuild the menu whenever the selected project
-    // changes (so that we can clear the right project's console)
-    return this.props.selectedProjectId !== nextProps.selectedProjectId;
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.selectedProjectId !== nextProps.selectedProjectId) {
+      this.buildMenu(nextProps);
+    }
   }
 
-  componentDidUpdate() {
-    this.buildMenu();
-  }
-
-  buildMenu = () => {
+  buildMenu = (props: Props) => {
     const {
+      selectedProject,
       selectedProjectId,
       devServerTask,
       createNewProjectStart,
       showImportExistingProjectPrompt,
       clearConsole,
-    } = this.props;
+      showDeleteProjectPrompt,
+    } = props;
 
     const template = [
       {
@@ -154,21 +155,31 @@ class ApplicationMenu extends Component<Props> {
     // During onboarding, there is no selected project (because none exists
     // yet). Therefore, we only want to show the 'Project' menu when a project
     // is selected.
-    if (selectedProjectId && devServerTask) {
+    if (selectedProjectId) {
       // The `Project` menu should be inserted right after `Edit`, which will
       // have a different index depending on the platform.
       const editMenuIndex = template.findIndex(menu => menu.id === 'edit');
 
+      // Only include clear console menu item if devServerTask exists
+      let submenu = [];
+
+      if (devServerTask) {
+        submenu.push({
+          label: isMac ? 'Clear Server Logs' : 'Clear server logs',
+          click: () => clearConsole(devServerTask),
+          accelerator: 'CmdOrCtrl+K',
+        });
+      }
+
+      submenu.push({
+        label: isMac ? 'Delete Project' : 'Delete project',
+        click: () => showDeleteProjectPrompt(selectedProject),
+      });
+
       template.splice(editMenuIndex, 0, {
         id: 'project',
         label: isMac ? 'Project' : '&Project',
-        submenu: [
-          {
-            label: isMac ? 'Clear Server Logs' : 'Clear server logs',
-            click: () => clearConsole(devServerTask),
-            accelerator: 'CmdOrCtrl+K',
-          },
-        ],
+        submenu,
       });
     }
 
@@ -198,13 +209,14 @@ const mapStateToProps = state => {
     ? getDevServerTaskForProjectId(state, selectedProject.id)
     : null;
 
-  return { selectedProjectId, devServerTask };
+  return { selectedProject, selectedProjectId, devServerTask };
 };
 
 const mapDispatchToProps = {
   createNewProjectStart,
   showImportExistingProjectPrompt,
   clearConsole,
+  showDeleteProjectPrompt,
 };
 
 export default connect(

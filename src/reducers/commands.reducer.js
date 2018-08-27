@@ -1,7 +1,7 @@
 // @flow
 import produce from 'immer';
 import {
-  REFRESH_PROJECTS,
+  REFRESH_PROJECTS_FINISH,
   ADD_PROJECT,
   IMPORT_EXISTING_PROJECT_FINISH,
   DELETE_COMMAND_START,
@@ -28,7 +28,7 @@ const initialState = {};
 
 export default (state: State = initialState, action: Action) => {
   switch (action.type) {
-    case REFRESH_PROJECTS: {
+    case REFRESH_PROJECTS_FINISH: {
       return produce(state, draftState => {
         // remove the projects that don't exist anymore
         Object.keys(draftState).forEach(projectId => {

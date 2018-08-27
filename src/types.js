@@ -172,3 +172,5 @@ export type Project = {
   commands: Array<Command>,
   pluginMenu: PluginMenuRoot,
 };
+
+export type ProjectsMap = { [id: string]: Project };
