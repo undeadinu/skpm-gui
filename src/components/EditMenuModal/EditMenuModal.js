@@ -3,17 +3,23 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import SortableTree from 'react-sortable-tree';
+import SortableTree, {
+  removeNodeAtPath,
+  changeNodeAtPath,
+} from 'react-sortable-tree';
 import 'react-sortable-tree/style.css';
-import FileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
+import fileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
 
 // import { savePluginMenu } from '../../actions';
 
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
 import Toggle from '../Toggle';
+import Button from '../Button';
 
 import type { PluginMenuRoot, PluginMenuItem, Command } from '../../types';
+
+const getNodeKey = ({ treeIndex }) => treeIndex;
 
 type Props = {
   menu: PluginMenuRoot,
@@ -28,29 +34,32 @@ type Tree = {
   title: '-' | string,
   expanded: true,
   children?: Tree[],
+  type: 'separator' | 'submenu' | 'root' | 'command',
 };
 
 type State = {
   isVisible: boolean,
   tree: Tree[],
-  isRoot?: boolean,
+  isRoot: boolean,
 };
 
 function menuToTree(item: PluginMenuItem<Command | void>): Tree {
   if (!item) {
-    return { expanded: true, title: '-- Separator --' };
+    return { expanded: true, title: '-- Separator --', type: 'separator' };
   } else if (item === '-') {
-    return { expanded: true, title: '-- Separator --' };
+    return { expanded: true, title: '-- Separator --', type: 'separator' };
   } else if (item.title) {
     return {
       expanded: true,
       title: item.title,
       children: item.items.map(i => menuToTree(i)),
+      type: 'submenu',
     };
   } else if (item.identifier) {
     return {
       expanded: true,
       title: item.name,
+      type: 'command',
     };
   } else {
     throw new Error('impossible');
@@ -70,9 +79,10 @@ class EditMenuModal extends PureComponent<Props, State> {
               expanded: true,
               title: props.menu.title,
               children: props.menu.items.map(i => menuToTree(i)),
+              type: 'root',
             },
           ],
-      isRoot: props.menu.isRoot,
+      isRoot: !!props.menu.isRoot,
     };
   }
 
@@ -87,9 +97,10 @@ class EditMenuModal extends PureComponent<Props, State> {
                 expanded: true,
                 title: props.menu.title,
                 children: props.menu.items.map(i => menuToTree(i)),
+                type: 'root',
               },
             ],
-        isRoot: props.menu.isRoot,
+        isRoot: !!props.menu.isRoot,
       };
     }
 
@@ -106,10 +117,93 @@ class EditMenuModal extends PureComponent<Props, State> {
               expanded: true,
               title: this.props.menu.title,
               children: state.tree,
+              type: 'root',
             },
           ],
     }));
+
   handleTreeChange = tree => this.setState({ tree });
+
+  addSubmenu = () =>
+    this.setState(state => ({
+      tree: state.isRoot
+        ? [
+            ...state.tree,
+            {
+              expanded: true,
+              title: 'Click to rename me',
+              children: [],
+              type: 'submenu',
+            },
+          ]
+        : [
+            {
+              ...state.tree[0],
+              children: [
+                ...(state.tree[0].children || []),
+                {
+                  expanded: true,
+                  title: 'Click to rename me',
+                  children: [],
+                  type: 'submenu',
+                },
+              ],
+            },
+          ],
+    }));
+
+  addSeparator = () =>
+    this.setState(state => ({
+      tree: state.isRoot
+        ? [
+            ...state.tree,
+            { expanded: true, title: '-- Separator --', type: 'separator' },
+          ]
+        : [
+            {
+              ...state.tree[0],
+              children: [
+                ...(state.tree[0].children || []),
+                { expanded: true, title: '-- Separator --', type: 'separator' },
+              ],
+            },
+          ],
+    }));
+
+  addCommand = () =>
+    this.setState(state => ({
+      tree: state.isRoot
+        ? [
+            ...state.tree,
+            {
+              expanded: true,
+              title: 'Click to rename me',
+              children: [],
+              type: 'submenu',
+            },
+          ]
+        : [
+            {
+              ...state.tree[0],
+              children: [
+                ...(state.tree[0].children || []),
+                {
+                  expanded: true,
+                  title: 'Click to rename me',
+                  children: [],
+                  type: 'submenu',
+                },
+              ],
+            },
+          ],
+    }));
+
+  canDrag = e => e.node.type !== 'root';
+
+  canDrop = e =>
+    (this.state.isRoot && !e.nextParent && e.node.type !== 'separator') ||
+    (!!e.nextParent &&
+      (e.nextParent.type === 'root' || e.nextParent.type === 'submenu'));
 
   renderContents() {
     const { isVisible } = this.props;
@@ -135,8 +229,53 @@ class EditMenuModal extends PureComponent<Props, State> {
           <SortableTree
             treeData={tree}
             onChange={this.handleTreeChange}
-            theme={FileExplorerTheme}
+            theme={fileExplorerTheme}
+            canDrag={this.canDrag}
+            canDrop={this.canDrop}
+            generateNodeProps={({ node, path }) => ({
+              buttons: [
+                node.type === 'submenu' ? (
+                  <Button
+                    size="xsmall"
+                    onClick={() =>
+                      this.setState(state => ({
+                        tree: changeNodeAtPath({
+                          treeData: state.tree,
+                          path,
+                          getNodeKey,
+                          newNode: {
+                            ...node,
+                            title: 'updated',
+                          },
+                        }),
+                      }))
+                    }
+                  >
+                    Edit
+                  </Button>
+                ) : null,
+                node.type !== 'root' ? (
+                  <Button
+                    size="xsmall"
+                    onClick={() =>
+                      this.setState(state => ({
+                        tree: removeNodeAtPath({
+                          treeData: state.tree,
+                          path,
+                          getNodeKey,
+                        }),
+                      }))
+                    }
+                  >
+                    Remove
+                  </Button>
+                ) : null,
+              ],
+            })}
           />
+          <Button onClick={this.addSubmenu}>Add a submenu</Button>
+          <Button onClick={this.addSeparator}>Add a separator</Button>
+          <Button onClick={this.addCommand}>Add a command</Button>
         </MainContent>
       </Fragment>
     );

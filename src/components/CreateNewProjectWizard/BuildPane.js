@@ -130,7 +130,7 @@ class BuildPane extends PureComponent<Props, State> {
           <FinishedInnerWrapper>
             <IconBase size={128} icon={check} />
             <Spacer size={20} />
-            Project Created!
+            Plugin Created!
           </FinishedInnerWrapper>
         </Finished>
 
@@ -141,7 +141,7 @@ class BuildPane extends PureComponent<Props, State> {
             damping={progress === 1 ? 22 : 32}
           />
         </ProgressBarWrapper>
-        <Title>Building Project...</Title>
+        <Title>Building Plugin...</Title>
 
         <BuildSteps>
           {BUILD_STEP_KEYS.map(stepKey => {

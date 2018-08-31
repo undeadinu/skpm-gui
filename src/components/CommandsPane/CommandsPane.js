@@ -9,6 +9,7 @@ import Module from '../Module';
 import CommandRunnerPaneRow from '../CommandRunnerPaneRow';
 import Button from '../Button';
 import EditMenuModal from '../EditMenuModal';
+import { SKPM_REPO_URL } from '../../constants';
 
 import type { Project } from '../../types';
 
@@ -65,7 +66,7 @@ class CommandsPane extends Component<Props, State> {
     return (
       <Module
         title="Plugin Commands"
-        moreInfoHref="https://github.com/joshwcomeau/guppy/blob/master/docs/getting-started.md#commands"
+        moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#commands`}
         primaryActionChildren={
           <Button onClick={this.handleEditMenu}>Edit menu</Button>
         }
