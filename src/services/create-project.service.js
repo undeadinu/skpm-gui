@@ -1,11 +1,9 @@
 // @flow
 import slug from 'slug';
-import random from 'random-seed';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { COLORS } from '../constants';
 import { defaultParentPath } from '../reducers/paths.reducer';
 import { loadProject } from './read-from-disk.service';
 import { enableDevMode } from './dev-mode.service';
@@ -113,26 +111,6 @@ export default (
       .then(onComplete)
       .catch(console.error);
   });
-};
-
-// Exported so that getColorForProject can be tested
-export const possibleProjectColors = [
-  COLORS.hotPink[700],
-  COLORS.pink[700],
-  COLORS.red[700],
-  COLORS.orange[700],
-  COLORS.green[700],
-  COLORS.teal[700],
-  COLORS.violet[700],
-  COLORS.purple[700],
-];
-
-export const getColorForProject = (projectName: string) => {
-  const projectColorIndex = random
-    .create(projectName)
-    .range(possibleProjectColors.length);
-
-  return possibleProjectColors[projectColorIndex];
 };
 
 export const getBuildInstructions = (

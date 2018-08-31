@@ -40,7 +40,7 @@ export const initialState = {
   selectedId: null,
 };
 
-const byId = (state: ById = initialState.byId, action: Action) => {
+const byIdReducer = (state: ById = initialState.byId, action: Action) => {
   switch (action.type) {
     case REFRESH_PROJECTS_FINISH: {
       return action.projects;
@@ -79,14 +79,22 @@ const byId = (state: ById = initialState.byId, action: Action) => {
   }
 };
 
-const selectedId = (
+const selectedIdReducer = (
   state: SelectedId = initialState.selectedId,
   action: Action
 ) => {
   switch (action.type) {
     case ADD_PROJECT:
     case IMPORT_EXISTING_PROJECT_FINISH: {
-      return action.project.name;
+      // When a new project is created/imported, we generally want to select
+      // it! The only exception is during onboarding. We want the user to
+      // manually click the icon, to teach them what these icons are.
+      //
+      // NOTE: This is knowable because after onboarding, a project will
+      // _always_ be selected. This is a fundamental truth about how Guppy
+      // works. In the future, though, we may want to have non-project screens,
+      // and so this will have to be rethought.
+      return state ? action.project.name : null;
     }
 
     case REFRESH_PROJECTS_FINISH: {
@@ -113,7 +121,10 @@ const selectedId = (
   }
 };
 
-export default combineReducers({ byId, selectedId });
+export default combineReducers({
+  byId: byIdReducer,
+  selectedId: selectedIdReducer,
+});
 
 //
 //

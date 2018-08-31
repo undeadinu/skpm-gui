@@ -6,12 +6,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import { shell, remote } from 'electron';
 
-import {
-  createNewProjectStart,
-  showImportExistingProjectPrompt,
-  clearConsole,
-  showDeleteProjectPrompt,
-} from '../../actions';
+import * as actions from '../../actions';
 import { SKPM_REPO_URL } from '../../constants';
 import { isMac } from '../../services/platform.service';
 import { getSelectedProject } from '../../reducers/projects.reducer';
@@ -160,9 +155,9 @@ class ApplicationMenu extends Component<Props> {
       // have a different index depending on the platform.
       const editMenuIndex = template.findIndex(menu => menu.id === 'edit');
 
-      // Only include clear console menu item if devServerTask exists
       let submenu = [];
 
+      // If this project has no devServerTask, there are no logs to clear.
       if (devServerTask) {
         submenu.push({
           label: isMac ? 'Clear Server Logs' : 'Clear server logs',
@@ -177,8 +172,8 @@ class ApplicationMenu extends Component<Props> {
       });
 
       template.splice(editMenuIndex, 0, {
-        id: 'project',
-        label: isMac ? 'Project' : '&Project',
+        id: 'current-project',
+        label: isMac ? 'Current Project' : 'Current &project',
         submenu,
       });
     }
@@ -213,10 +208,10 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
-  createNewProjectStart,
-  showImportExistingProjectPrompt,
-  clearConsole,
-  showDeleteProjectPrompt,
+  createNewProjectStart: actions.createNewProjectStart,
+  showImportExistingProjectPrompt: actions.showImportExistingProjectPrompt,
+  clearConsole: actions.clearConsole,
+  showDeleteProjectPrompt: actions.showDeleteProjectPrompt,
 };
 
 export default connect(

@@ -5,7 +5,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
-const childProcess = require('child_process');
 const killProcessId = require('./services/kill-process-id.service');
 
 const fixPath = require('fix-path');
@@ -58,7 +57,7 @@ function createWindow() {
     try {
       installExtension(extension);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
@@ -117,6 +116,10 @@ ipcMain.on('addProcessId', (event, processId) => {
 
 ipcMain.on('removeProcessId', (event, processId) => {
   processIds = processIds.filter(id => id !== processId);
+});
+
+ipcMain.on('killAllRunningProcesses', event => {
+  killAllRunningProcesses();
 });
 
 const killAllRunningProcesses = () => {

@@ -73,16 +73,6 @@ export const addProject = (project: ProjectInternal) => ({
   project,
 });
 
-export const showDeleteProjectPrompt = (project: Project) => ({
-  type: SHOW_DELETE_PROJECT_PROMPT,
-  project,
-});
-
-export const finishDeletingProjectFromDisk = (projectId: string) => ({
-  type: FINISH_DELETING_PROJECT_FROM_DISK,
-  projectId,
-});
-
 export const refreshProjectsStart = () => ({
   type: REFRESH_PROJECTS_START,
 });
@@ -157,15 +147,10 @@ export const runTask = (task: Task, timestamp: Date) => ({
   timestamp,
 });
 
-export const attachTaskMetadata = (
-  task: Task,
-  processId: number,
-  port?: number
-) => ({
+export const attachTaskMetadata = (task: Task, processId: number) => ({
   type: ATTACH_TASK_METADATA,
   task,
   processId,
-  port,
 });
 
 export const abortTask = (task: Task, timestamp: Date) => ({
@@ -309,10 +294,20 @@ export const importExistingProjectError = () => ({
 });
 
 export const importExistingProjectFinish = (
-  path: string,
+  projectPath: string,
   project: ProjectInternal
 ) => ({
   type: IMPORT_EXISTING_PROJECT_FINISH,
-  path,
+  projectPath,
   project,
+});
+
+export const showDeleteProjectPrompt = (project: Project) => ({
+  type: SHOW_DELETE_PROJECT_PROMPT,
+  project,
+});
+
+export const finishDeletingProjectFromDisk = (projectId: string) => ({
+  type: FINISH_DELETING_PROJECT_FROM_DISK,
+  projectId,
 });

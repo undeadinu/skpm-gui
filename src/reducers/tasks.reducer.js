@@ -155,14 +155,10 @@ export default (state: State = initialState, action: Action) => {
     }
 
     case ATTACH_TASK_METADATA: {
-      const { task, processId, port } = action;
+      const { task, processId } = action;
 
       return produce(state, draftState => {
         draftState[task.id].processId = processId;
-
-        if (port) {
-          draftState[task.id].port = port;
-        }
       });
     }
 

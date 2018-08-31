@@ -2,13 +2,10 @@ import {
   REFRESH_PROJECTS_FINISH,
   ADD_PROJECT,
   RUN_TASK,
-  ABORT_TASK,
   COMPLETE_TASK,
 } from '../actions';
 
 import reducer, { getTaskDescription } from './tasks.reducer';
-
-jest.mock('electron');
 
 describe('Tasks reducer', () => {
   describe(REFRESH_PROJECTS_FINISH, () => {

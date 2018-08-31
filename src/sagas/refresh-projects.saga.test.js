@@ -1,4 +1,4 @@
-import { call, put, cancel, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import rootSaga, { refreshProjects } from './refresh-projects.saga';
 
@@ -8,7 +8,7 @@ import {
   refreshProjectsFinish,
 } from '../actions';
 import { getPathsArray } from '../reducers/paths.reducer';
-import { loadGuppyProjects } from '../services/read-from-disk.service';
+import { loadProjects } from '../services/read-from-disk.service';
 
 describe('refresh-projects saga', () => {
   describe('root import-project saga', () => {
@@ -30,7 +30,7 @@ describe('refresh-projects saga', () => {
       // load the guppy projects from the paths specified.
       const pathsArray = ['/path/to/project', 'another/path/to/project'];
       expect(saga.next(pathsArray).value).toEqual(
-        call(loadGuppyProjects, pathsArray)
+        call(loadProjects, pathsArray)
       );
 
       const guppyProjects = {
@@ -73,7 +73,7 @@ describe('refresh-projects saga', () => {
       // load the guppy projects from the paths specified.
       const pathsArray = ['/path/to/project', 'another/path/to/project'];
       expect(saga.next(pathsArray).value).toEqual(
-        call(loadGuppyProjects, pathsArray)
+        call(loadProjects, pathsArray)
       );
 
       // dispatch the 'finish' call with this data

@@ -1,11 +1,7 @@
 // @flow
 import React, { Fragment, Component } from 'react';
-import styled from 'styled-components';
-import IconBase from 'react-icons-kit';
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { check, settings } from 'react-icons-kit/feather';
 
 import { COLORS } from '../../constants';
 

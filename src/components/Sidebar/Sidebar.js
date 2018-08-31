@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Tooltip } from 'react-tippy';
 
 import { COLORS, Z_INDICES } from '../../constants';
-import { selectProject, createNewProjectStart } from '../../actions';
+import * as actions from '../../actions';
 import {
   getProjectsArray,
   getSelectedProjectId,
@@ -201,8 +201,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = {
-  createNewProjectStart,
-  selectProject,
+  createNewProjectStart: actions.createNewProjectStart,
+  selectProject: actions.selectProject,
 };
 
 export default connect(

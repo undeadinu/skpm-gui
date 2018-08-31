@@ -26,11 +26,11 @@ export default (state: State = initialState, action: Action) => {
   switch (action.type) {
     case ADD_PROJECT:
     case IMPORT_EXISTING_PROJECT_FINISH: {
-      const { path, project } = action;
+      const { projectPath, project } = action;
 
       return {
         ...state,
-        [project.name]: path || getDefaultPath(project.name),
+        [project.name]: projectPath || getDefaultPath(project.name),
       };
     }
 
@@ -59,5 +59,8 @@ export const getDefaultPath = (projectId: string) =>
 //
 // Selectors
 export const getPathsArray = (state: any) => Object.values(state.paths);
-export const getPathForProjectId = (state: any, projectId: string) =>
-  state.paths[projectId] || getDefaultPath(projectId);
+export const getPathForProjectId = (state: any, projectId: string) => {
+  console.log(state);
+  console.log(projectId);
+  return state.paths[projectId] || getDefaultPath(projectId);
+};

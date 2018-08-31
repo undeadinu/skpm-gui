@@ -5,12 +5,11 @@ import IconBase from 'react-icons-kit';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { check, settings } from 'react-icons-kit/feather';
+import { settings } from 'react-icons-kit/feather';
 
 import webviewIconSrc from '../../assets/images/webview.svg';
 
 import Showcase from '../../../.storybook/components/Showcase';
-import Paragraph from '../Paragraph';
 import ButtonWithIcon from './ButtonWithIcon';
 
 storiesOf('ButtonWithIcon', module).add(
