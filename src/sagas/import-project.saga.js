@@ -1,6 +1,7 @@
 // @flow
 import electron from 'electron';
 import { call, put, cancel, select, takeEvery } from 'redux-saga/effects';
+
 import {
   importExistingProjectStart,
   importExistingProjectFinish,
@@ -10,6 +11,7 @@ import {
 } from '../actions';
 import { loadProject } from '../services/read-from-disk.service';
 import { getInternalProjectById } from '../reducers/projects.reducer';
+import { getOnboardingCompleted } from '../reducers/onboarding-status.reducer';
 
 import type { Action } from 'redux';
 import type { Saga } from 'redux-saga';
@@ -83,7 +85,9 @@ export function* importProject({ path }: Action): Saga<void> {
       throw new Error('unsupported-project-type');
     }
 
-    yield put(importExistingProjectFinish(path, json));
+    const isOnboardingCompleted = yield select(getOnboardingCompleted);
+
+    yield put(importExistingProjectFinish(path, json, isOnboardingCompleted));
   } catch (err) {
     yield call(handleImportError, err);
     yield put(importExistingProjectError());

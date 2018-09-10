@@ -11,28 +11,88 @@
  */
 import * as path from 'path';
 import * as os from 'os';
-import { ADD_PROJECT, IMPORT_EXISTING_PROJECT_FINISH } from '../actions';
+import produce from 'immer';
+
+import {
+  ADD_PROJECT,
+  IMPORT_EXISTING_PROJECT_FINISH,
+  FINISH_DELETING_PROJECT,
+  SAVE_PROJECT_SETTINGS_FINISH,
+  RESET_ALL_STATE,
+  CHANGE_PROJECT_HOME_PATH,
+} from '../actions';
 import { windowsHomeDir, isWin } from '../services/platform.service';
+import { getProjectNameSlug } from '../services/create-project.service';
 
 import type { Action } from 'redux';
 
 type State = {
-  [projectId: string]: string,
+  homePath: string,
+  byId: {
+    [projectId: string]: string,
+  },
 };
 
-const initialState = {};
+const homedir = isWin ? windowsHomeDir : os.homedir();
+// Noticing some weird quirks when I try to use a dev project on the compiled
+// "production" app, so separating their home paths should help.
+
+const initialState = {
+  homePath:
+    process.env.NODE_ENV === 'development'
+      ? path.join(homedir, 'sketch-projects-dev')
+      : path.join(homedir, 'sketch-projects'),
+  byId: {},
+};
 
 export default (state: State = initialState, action: Action) => {
   switch (action.type) {
-    case ADD_PROJECT:
+    case ADD_PROJECT: {
+      const { project } = action;
+
+      const projectNameSlug = getProjectNameSlug(project.guppy.name);
+
+      return produce(state, draftState => {
+        draftState.byId[project.name] = formatProjectPath(
+          state.homePath,
+          projectNameSlug
+        );
+      });
+    }
+
     case IMPORT_EXISTING_PROJECT_FINISH: {
       const { projectPath, project } = action;
 
-      return {
-        ...state,
-        [project.name]: projectPath || getDefaultPath(project.name),
-      };
+      return produce(state, draftState => {
+        draftState.byId[project.name] = projectPath;
+      });
     }
+
+    case SAVE_PROJECT_SETTINGS_FINISH: {
+      const { project, projectPath } = action;
+
+      return produce(state, draftState => {
+        draftState.byId[project.name] = projectPath;
+      });
+    }
+
+    case CHANGE_PROJECT_HOME_PATH: {
+      const { homePath } = action;
+      return produce(state, draftState => {
+        draftState.homePath = homePath;
+      });
+    }
+
+    case FINISH_DELETING_PROJECT: {
+      const { projectId } = action;
+
+      return produce(state, draftState => {
+        delete draftState[projectId];
+      });
+    }
+
+    case RESET_ALL_STATE:
+      return initialState;
 
     default:
       return state;
@@ -43,24 +103,14 @@ export default (state: State = initialState, action: Action) => {
 //
 //
 // Helpers
-const homedir = isWin ? windowsHomeDir : os.homedir();
-// Noticing some weird quirks when I try to use a dev project on the compiled
-// "production" app, so separating their home paths should help.
-export const defaultParentPath =
-  process.env.NODE_ENV === 'development'
-    ? path.join(homedir, '/sketch-plugins-dev')
-    : path.join(homedir, '/sketch-plugins');
-
-export const getDefaultPath = (projectId: string) =>
-  `${defaultParentPath}/${projectId}`;
-
+const formatProjectPath = (homePath, projectId) =>
+  path.join(homePath, projectId);
 //
 //
 //
 // Selectors
-export const getPathsArray = (state: any) => Object.values(state.paths);
-export const getPathForProjectId = (state: any, projectId: string) => {
-  console.log(state);
-  console.log(projectId);
-  return state.paths[projectId] || getDefaultPath(projectId);
-};
+export const getProjectHomePath = (state: State = initialState) =>
+  state.homePath;
+export const getPathsArray = (state: any) => Object.values(state.paths.byId);
+export const getPathForProjectId = (state: any, projectId: string) =>
+  state.paths.byId[projectId];

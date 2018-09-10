@@ -12,7 +12,7 @@ import Spacer from '../Spacer';
 import BuildStepProgress from './BuildStepProgress';
 
 import type { BuildStep } from './types';
-import type { SubmittedProject, ProjectInternal } from '../../types';
+import type { SubmittedProject, Project } from '../../types';
 
 const BUILD_STEPS = {
   creatingParentDirectory: {
@@ -38,7 +38,8 @@ const BUILD_STEP_KEYS: Array<BuildStep> = Object.keys(BUILD_STEPS);
 
 type Props = {
   project: SubmittedProject,
-  handleCompleteBuild: (project: ProjectInternal) => void,
+  projectHomePath: string,
+  handleCompleteBuild: (project: Project) => void,
 };
 
 type State = {
@@ -56,6 +57,7 @@ class BuildPane extends PureComponent<Props, State> {
   componentDidMount() {
     createProject(
       this.props.project,
+      this.props.projectHomePath,
       this.handleStatusUpdate,
       this.handleError,
       this.handleComplete
@@ -113,7 +115,7 @@ class BuildPane extends PureComponent<Props, State> {
     }
   };
 
-  handleComplete = (project: ProjectInternal) => {
+  handleComplete = (project: Project) => {
     this.setState({ progress: 1 });
 
     window.setTimeout(() => {

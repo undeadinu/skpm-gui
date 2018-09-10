@@ -5,10 +5,6 @@ jest.mock('os', () => ({
   platform: () => process.platform,
 }));
 
-jest.mock('../reducers/paths.reducer.js', () => ({
-  defaultParentPath: 'test',
-}));
-
 jest.mock('../services/platform.service', () => ({
   formatCommandForPlatform: cmd => cmd,
 }));

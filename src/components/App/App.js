@@ -1,11 +1,11 @@
 // @flow
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import styled, { keyframes } from 'styled-components';
 
 import { COLORS } from '../../constants';
-import { getSelectedProject } from '../../reducers/projects.reducer';
+import { getSelectedProjectId } from '../../reducers/projects.reducer';
 import { getAppLoaded } from '../../reducers/app-loaded.reducer';
 
 import IntroScreen from '../IntroScreen';
@@ -14,15 +14,16 @@ import Titlebar from '../Titlebar';
 import ApplicationMenu from '../ApplicationMenu';
 import ProjectPage from '../ProjectPage';
 import CreateNewProjectWizard from '../CreateNewProjectWizard';
+import ProjectConfigurationModal from '../ProjectConfigurationModal';
 
 import type { Project } from '../../types';
 
 type Props = {
   isAppLoaded: boolean,
-  selectedProject: ?Project,
+  selectedProjectId: ?Project,
 };
 
-class App extends Component<Props> {
+class App extends PureComponent<Props> {
   componentDidMount() {
     window.addEventListener('beforeunload', this.killAllRunningProcesses);
   }
@@ -36,7 +37,7 @@ class App extends Component<Props> {
   };
 
   render() {
-    const { isAppLoaded, selectedProject } = this.props;
+    const { isAppLoaded, selectedProjectId } = this.props;
 
     return (
       <Fragment>
@@ -49,12 +50,13 @@ class App extends Component<Props> {
             <Sidebar />
 
             <MainContent>
-              {selectedProject ? <ProjectPage /> : <IntroScreen />}
+              {selectedProjectId ? <ProjectPage /> : <IntroScreen />}
             </MainContent>
           </Wrapper>
         )}
 
         <CreateNewProjectWizard />
+        <ProjectConfigurationModal />
       </Fragment>
     );
   }
@@ -81,7 +83,7 @@ const MainContent = styled.div`
 `;
 
 const mapStateToProps = state => ({
-  selectedProject: getSelectedProject(state),
+  selectedProjectId: getSelectedProjectId(state),
   isAppLoaded: getAppLoaded(state),
 });
 

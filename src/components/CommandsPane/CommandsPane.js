@@ -7,7 +7,7 @@ import { getSelectedProject } from '../../reducers/projects.reducer';
 
 import Module from '../Module';
 import CommandRunnerPaneRow from '../CommandRunnerPaneRow';
-import Button from '../Button';
+import { FillButton } from '../Button';
 import EditMenuModal from '../EditMenuModal';
 import { SKPM_REPO_URL } from '../../constants';
 
@@ -68,7 +68,7 @@ class CommandsPane extends Component<Props, State> {
         title="Plugin Commands"
         moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#commands`}
         primaryActionChildren={
-          <Button onClick={this.handleEditMenu}>Edit menu</Button>
+          <FillButton onClick={this.handleEditMenu}>Edit menu</FillButton>
         }
       >
         {project.commands.map(command => (

@@ -5,21 +5,24 @@ import { remote } from 'electron';
 
 import * as actions from '../../actions';
 import { COLORS } from '../../constants';
-import { getPackageJsonLockedForProjectId } from '../../reducers/package-json-locked.reducer';
 
-import Button from '../Button';
+import { FillButton } from '../Button';
 import Spinner from '../Spinner';
 import PixelShifter from '../PixelShifter';
 
 const { dialog } = remote;
 
+const DEPENDENCY_DELETE_COPY = {
+  idle: 'Delete',
+  'queued-delete': 'Queued for Delete…',
+};
+
 type Props = {
   projectId: string,
   dependencyName: string,
-  isBeingDeleted?: boolean,
+  dependencyStatus: string,
   // From redux:
-  isPackageJsonLocked: boolean,
-  deleteDependencyStart: (projectId: string, dependencyName: string) => any,
+  deleteDependency: (projectId: string, dependencyName: string) => any,
 };
 
 // TODO: Wouldn't it be neat if it parsed your project to see if it was being
@@ -27,13 +30,23 @@ type Props = {
 // an actively-used dependency?
 class DeleteDependencyButton extends PureComponent<Props> {
   handleClick = () => {
-    const { projectId, dependencyName, deleteDependencyStart } = this.props;
+    const {
+      projectId,
+      dependencyName,
+      deleteDependency,
+      dependencyStatus,
+    } = this.props;
+
+    // if the dependency is currently changing/queued for change,
+    // this button shouldn't do anything
+    if (dependencyStatus !== 'idle') return;
 
     dialog.showMessageBox(
       {
         type: 'warning',
         buttons: ['Yeah', 'Nope'],
         defaultId: 1,
+        cancelId: 1,
         title: 'Are you sure?',
         message: 'Are you sure you want to delete this dependency?',
       },
@@ -43,25 +56,22 @@ class DeleteDependencyButton extends PureComponent<Props> {
         const isConfirmed = response === 0;
 
         if (isConfirmed) {
-          deleteDependencyStart(projectId, dependencyName);
+          deleteDependency(projectId, dependencyName);
         }
       }
     );
   };
 
   render() {
-    const { isBeingDeleted, isPackageJsonLocked } = this.props;
+    const { dependencyStatus } = this.props;
+
     return (
-      <Button
+      <FillButton
         size="small"
-        type="fill"
-        color1={COLORS.pink[300]}
-        color2={COLORS.red[500]}
+        colors={[COLORS.pink[300], COLORS.red[500]]}
         onClick={this.handleClick}
-        disabled={isPackageJsonLocked}
-        style={{ width: 75 }}
       >
-        {isBeingDeleted ? (
+        {dependencyStatus === 'deleting' ? (
           <PixelShifter
             y={2}
             reason="visually center the spinner within the button"
@@ -69,21 +79,14 @@ class DeleteDependencyButton extends PureComponent<Props> {
             <Spinner size={18} color={COLORS.white} />
           </PixelShifter>
         ) : (
-          'Delete'
+          DEPENDENCY_DELETE_COPY[dependencyStatus]
         )}
-      </Button>
+      </FillButton>
     );
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  isPackageJsonLocked: getPackageJsonLockedForProjectId(
-    state,
-    ownProps.projectId
-  ),
-});
-
 export default connect(
-  mapStateToProps,
-  { deleteDependencyStart: actions.deleteDependencyStart }
+  null,
+  { deleteDependency: actions.deleteDependency }
 )(DeleteDependencyButton);

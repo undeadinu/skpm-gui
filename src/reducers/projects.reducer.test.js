@@ -1,13 +1,15 @@
 import {
   IMPORT_EXISTING_PROJECT_FINISH,
-  ADD_DEPENDENCY_FINISH,
+  INSTALL_DEPENDENCIES_FINISH,
   REFRESH_PROJECTS_FINISH,
+  SAVE_PROJECT_SETTINGS_FINISH,
   SELECT_PROJECT,
   ADD_PROJECT,
+  RESET_ALL_STATE,
 } from '../actions';
 
 import reducer, {
-  initialState as projectsInitialState,
+  initialState,
   getById,
   getSelectedProjectId,
   getInternalProjectById,
@@ -16,18 +18,21 @@ import reducer, {
 describe('Projects Reducer', () => {
   [ADD_PROJECT, IMPORT_EXISTING_PROJECT_FINISH].forEach(ACTION => {
     describe(ACTION, () => {
-      it('adds the project to the state', () => {
+      const testProject = {
+        name: 'testing',
+        guppy: { id: 'best-id' },
+        scripts: {
+          start: 'react-scripts start',
+        },
+      };
+
+      it("adds the project to the state when still onboarding and doesn't select it", () => {
         const action = {
           type: ACTION, // ADD_PROJECT or IMPORT_EXISTING_PROJECT_FINISH
-          project: {
-            name: 'testing',
-            guppy: { id: 'best-id' },
-            scripts: {
-              start: 'react-scripts start',
-            },
-          },
+          project: testProject,
+          isOnboardingCompleted: false,
         };
-        const actualState = reducer(projectsInitialState, action);
+        const actualState = reducer(initialState, action);
 
         const { name, guppy, scripts } = action.project;
 
@@ -43,8 +48,30 @@ describe('Projects Reducer', () => {
         });
       });
 
+      it('adds the project to the state when onboarding is finished and selects it', () => {
+        const action = {
+          type: ACTION, // ADD_PROJECT or IMPORT_EXISTING_PROJECT_FINISH
+          project: testProject,
+          isOnboardingCompleted: true,
+        };
+        const actualState = reducer(initialState, action);
+
+        const { name, guppy, scripts } = action.project;
+
+        expect(actualState).toEqual({
+          byId: {
+            [guppy.id]: {
+              name,
+              guppy,
+              scripts,
+            },
+          },
+          selectedId: guppy.id,
+        });
+      });
+
       it("selects it, when it isn't the first one", () => {
-        const initialState = {
+        const prevState = {
           byId: {
             preexisting: {
               name: 'I pre-exist!',
@@ -66,8 +93,9 @@ describe('Projects Reducer', () => {
               start: 'react-scripts start',
             },
           },
+          isOnboardingCompleted: true,
         };
-        const actualState = reducer(initialState, action);
+        const actualState = reducer(prevState, action);
 
         const { name, guppy, scripts } = action.project;
 
@@ -92,24 +120,26 @@ describe('Projects Reducer', () => {
     });
   });
 
-  describe(ADD_DEPENDENCY_FINISH, () => {
+  describe(INSTALL_DEPENDENCIES_FINISH, () => {
     it('adds dependency to project dependencies', () => {
       const action = {
-        type: ADD_DEPENDENCY_FINISH,
+        type: INSTALL_DEPENDENCIES_FINISH,
         projectId: 'foo',
-        dependency: {
-          description: 'Package',
-          homepage: 'http://example.com/',
-          keywords: [],
-          license: 'MIT',
-          name: 'package',
-          repository: {},
-          status: 'idle',
-          version: '4.0.0',
-        },
+        dependencies: [
+          {
+            description: 'Package',
+            homepage: 'http://example.com/',
+            keywords: [],
+            license: 'MIT',
+            name: 'package',
+            repository: {},
+            status: 'idle',
+            version: '4.0.0',
+          },
+        ],
       };
 
-      const initialState = {
+      const prevState = {
         byId: {
           foo: {
             dependencies: {},
@@ -125,14 +155,14 @@ describe('Projects Reducer', () => {
         },
       };
 
-      const actualState = reducer(initialState, action);
+      const actualState = reducer(prevState, action);
 
       expect(actualState).toEqual({
         byId: {
           foo: {
-            ...initialState.byId.foo,
+            ...prevState.byId.foo,
             dependencies: {
-              [action.dependency.name]: action.dependency.version,
+              [action.dependencies[0].name]: action.dependencies[0].version,
             },
           },
         },
@@ -143,8 +173,8 @@ describe('Projects Reducer', () => {
 
   describe(REFRESH_PROJECTS_FINISH, () => {
     it('returns a null selectedId if selected project does not exist in the list of projects', () => {
-      const initialState = {
-        ...projectsInitialState,
+      const prevState = {
+        ...initialState,
         selectedId: 'hello',
       };
 
@@ -153,17 +183,17 @@ describe('Projects Reducer', () => {
         projects: {},
       };
 
-      const actualState = reducer(initialState, action);
+      const actualState = reducer(prevState, action);
 
       expect(actualState).toEqual({
-        ...projectsInitialState,
+        ...initialState,
         selectedId: null,
       });
     });
 
     it('returns a null selectedId if initial selectedId is null', () => {
-      const initialState = {
-        ...projectsInitialState,
+      const prevState = {
+        ...initialState,
         selectedId: null,
       };
 
@@ -172,16 +202,16 @@ describe('Projects Reducer', () => {
         projects: {},
       };
 
-      const actualState = reducer(initialState, action);
+      const actualState = reducer(prevState, action);
 
       expect(actualState).toEqual({
-        ...initialState,
+        ...prevState,
         selectedId: null,
       });
     });
 
     it('returns selectedId if selectedId is found in projects', () => {
-      const initialState = {
+      const prevState = {
         byId: {
           foo: {
             name: 'foo',
@@ -196,24 +226,20 @@ describe('Projects Reducer', () => {
 
       const action = {
         type: REFRESH_PROJECTS_FINISH,
-        projects: initialState.byId,
+        projects: prevState.byId,
       };
 
-      const actualState = reducer(initialState, action);
+      const actualState = reducer(prevState, action);
 
       expect(actualState).toEqual({
-        ...initialState,
-        selectedId: initialState.selectedId,
+        ...prevState,
+        selectedId: prevState.selectedId,
       });
     });
   });
 
   describe(SELECT_PROJECT, () => {
     it('selects the projectId as the selectedId', () => {
-      const initialState = {
-        ...projectsInitialState,
-      };
-
       const action = {
         type: SELECT_PROJECT,
         projectId: 'foobar',
@@ -227,9 +253,63 @@ describe('Projects Reducer', () => {
       });
     });
   });
+
+  describe(RESET_ALL_STATE, () => {
+    it('resets to initialState', () => {
+      const prevState = {
+        byId: {
+          foo: {
+            name: 'foo',
+            guppy: { id: 'foo' },
+            scripts: {
+              start: 'command it',
+            },
+          },
+        },
+        selectedId: 'foo',
+      };
+      const action = { type: RESET_ALL_STATE };
+      const actualState = reducer(prevState, action);
+
+      expect(actualState).toEqual(initialState);
+    });
+  });
+
+  describe(SAVE_PROJECT_SETTINGS_FINISH, () => {
+    it('should update state', () => {
+      const prevState = {
+        byId: {
+          'uuidv1-id': {
+            name: 'foo',
+            guppy: { id: 'uuidv1-id', icon: null },
+            scripts: { start: 'command it' },
+          },
+        },
+        selectedId: null,
+      };
+
+      const newProject = {
+        name: 'new foo',
+        guppy: { id: 'uuidv1-id', icon: 'new-icon' },
+        scripts: { start: 'command it' },
+      };
+      const action = {
+        type: SAVE_PROJECT_SETTINGS_FINISH,
+        project: newProject,
+      };
+      const actualState = reducer(prevState, action);
+
+      expect(actualState).toEqual({
+        byId: {
+          'uuidv1-id': newProject,
+        },
+        selectedId: 'uuidv1-id',
+      });
+    });
+  });
 });
 
-describe('Project Reducer // Helpers', () => {
+describe('helpers', () => {
   describe('getById', () => {
     it('gets projects by id', () => {
       const state = { projects: { byId: 'great object' } };

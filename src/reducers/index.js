@@ -6,9 +6,9 @@ import tasks from './tasks.reducer';
 import dependencies from './dependencies.reducer';
 import modal from './modal.reducer';
 import onboardingStatus from './onboarding-status.reducer';
-import packageJsonLocked from './package-json-locked.reducer';
 import paths from './paths.reducer';
 import commands from './commands.reducer';
+import queue from './queue.reducer';
 
 export default combineReducers({
   appLoaded,
@@ -17,7 +17,7 @@ export default combineReducers({
   dependencies,
   modal,
   onboardingStatus,
-  packageJsonLocked,
   paths,
   commands,
+  queue,
 });

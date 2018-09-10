@@ -11,12 +11,13 @@ import defaultPluginIconSrc from '../../assets/images/default-plugin-icon.png';
 
 import FormField from '../FormField';
 import SelectableImage from '../SelectableImage';
-import Button from '../Button';
+import { FillButton } from '../Button';
 import ButtonWithIcon from '../ButtonWithIcon';
 import Spacer from '../Spacer';
 import FadeIn from '../FadeIn';
 
 import ProjectName from './ProjectName';
+import ProjectPath from './ProjectPath';
 import SubmitButton from './SubmitButton';
 
 import type { Field, Status } from './types';
@@ -92,6 +93,7 @@ class MainPane extends PureComponent<Props> {
                 handleSubmit={handleSubmit}
                 isProjectNameTaken={isProjectNameTaken}
               />
+              <ProjectPath projectName={projectName} />
 
               {currentStepIndex > 0 && (
                 <FadeIn>
@@ -101,7 +103,7 @@ class MainPane extends PureComponent<Props> {
                   >
                     <ProjectTypeTogglesWrapper>
                       <ButtonWithIcon
-                        showOutline={projectType === 'empty'}
+                        showStroke={projectType === 'empty'}
                         icon={<EmptyIcon src={emptyIconSrc} />}
                         onClick={() => this.updateProjectType('empty')}
                       >
@@ -109,7 +111,7 @@ class MainPane extends PureComponent<Props> {
                       </ButtonWithIcon>
                       <Spacer inline size={10} />
                       <ButtonWithIcon
-                        showOutline={projectType === 'webview'}
+                        showStroke={projectType === 'webview'}
                         icon={<Icon src={webviewIconSrc} />}
                         onClick={() => this.updateProjectType('webview')}
                       >
@@ -189,7 +191,7 @@ const ProjectIconWrapper = styled.div`
   margin-top: 16px;
 `;
 
-const ProjectIconButton = styled(Button)`
+const ProjectIconButton = styled(FillButton)`
   position: relative;
   margin-left: 20px;
   top: -24px;

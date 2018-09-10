@@ -14,7 +14,10 @@ import {
   IMPORT_EXISTING_PROJECT_START,
 } from '../actions';
 import { loadProject } from '../services/read-from-disk.service';
+import { getOnboardingCompleted } from '../reducers/onboarding-status.reducer';
 import { getInternalProjectById } from '../reducers/projects.reducer';
+
+jest.mock('uuid/v1', () => () => 'mocked-uuid-v1');
 
 describe('import-project saga', () => {
   const { showOpenDialog, showErrorBox } = electron.remote.dialog;
@@ -123,7 +126,7 @@ describe('import-project saga', () => {
       const expectedError = new Error('project-name-already-exists');
       expect(saga.next().value).toEqual(call(loadProject, 'path/to/project'));
       expect(saga.next(json).value).toEqual(
-        select(getInternalProjectById, 'example')
+        select(getInternalProjectById, 'mocked-uuid-v1')
       );
       expect(saga.next({ name: 'example' }).value).toEqual(
         call(handleImportError, expectedError)
@@ -137,7 +140,7 @@ describe('import-project saga', () => {
       const expectedError = new Error('unsupported-project-type');
       expect(saga.next().value).toEqual(call(loadProject, 'path/to/project'));
       expect(saga.next(json).value).toEqual(
-        select(getInternalProjectById, 'example')
+        select(getInternalProjectById, 'mocked-uuid-v1')
       );
       expect(saga.next(null).value).toEqual(
         call(handleImportError, expectedError)
@@ -153,11 +156,11 @@ describe('import-project saga', () => {
 
       expect(saga.next().value).toEqual(call(loadProject, 'path/to/project'));
       expect(saga.next(json).value).toEqual(
-        select(getInternalProjectById, 'example')
+        select(getInternalProjectById, 'mocked-uuid-v1')
       );
-
+      expect(saga.next(json).value).toEqual(select(getOnboardingCompleted));
       expect(saga.next(json).value).toEqual(
-        put(importExistingProjectFinish('path/to/project', json))
+        put(importExistingProjectFinish('path/to/project', json, true))
       );
       expect(saga.next().done).toBe(true);
       spyOnDate.mockRestore();

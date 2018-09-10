@@ -6,10 +6,12 @@ import produce from 'immer';
 import {
   ADD_PROJECT,
   IMPORT_EXISTING_PROJECT_FINISH,
-  FINISH_DELETING_PROJECT_FROM_DISK,
-  ADD_DEPENDENCY_FINISH,
+  FINISH_DELETING_PROJECT,
+  INSTALL_DEPENDENCIES_FINISH,
   REFRESH_PROJECTS_FINISH,
+  SAVE_PROJECT_SETTINGS_FINISH,
   SELECT_PROJECT,
+  RESET_ALL_STATE,
 } from '../actions';
 import { getTasksForProjectId } from './tasks.reducer';
 import { getDependenciesForProjectId } from './dependencies.reducer';
@@ -54,25 +56,41 @@ const byIdReducer = (state: ById = initialState.byId, action: Action) => {
       };
     }
 
-    case ADD_DEPENDENCY_FINISH: {
-      const { projectId, dependency } = action;
+    case INSTALL_DEPENDENCIES_FINISH: {
+      const { projectId, dependencies } = action;
 
       return produce(state, draftState => {
         if (!draftState[projectId].dependencies) {
           draftState[projectId].dependencies = {};
         }
-        draftState[projectId].dependencies[dependency.name] =
-          dependency.version;
+        dependencies.forEach(dependency => {
+          draftState[projectId].dependencies[dependency.name] =
+            dependency.version;
+        });
       });
     }
 
-    case FINISH_DELETING_PROJECT_FROM_DISK: {
+    case FINISH_DELETING_PROJECT: {
       const { projectId } = action;
 
       return produce(state, draftState => {
         delete draftState[projectId];
       });
     }
+
+    case SAVE_PROJECT_SETTINGS_FINISH: {
+      const { project } = action;
+      const {
+        guppy: { id },
+      } = project;
+
+      return produce(state, draftState => {
+        draftState[id] = project;
+      });
+    }
+
+    case RESET_ALL_STATE:
+      return initialState.byId;
 
     default:
       return state;
@@ -94,7 +112,7 @@ const selectedIdReducer = (
       // _always_ be selected. This is a fundamental truth about how Guppy
       // works. In the future, though, we may want to have non-project screens,
       // and so this will have to be rethought.
-      return state ? action.project.name : null;
+      return action.isOnboardingCompleted ? action.project.name : null;
     }
 
     case REFRESH_PROJECTS_FINISH: {
@@ -112,9 +130,16 @@ const selectedIdReducer = (
       return selectedProjectExists ? state : null;
     }
 
+    case SAVE_PROJECT_SETTINGS_FINISH: {
+      return action.project.guppy.id;
+    }
+
     case SELECT_PROJECT: {
       return action.projectId;
     }
+
+    case RESET_ALL_STATE:
+      return initialState.selectedId;
 
     default:
       return state;
@@ -158,6 +183,10 @@ function menuToMenu(
 //
 //  - Combine it with the tasks in `tasks.reducer`, since this is much more
 //    useful than project.scripts
+//  - Combine it with the dependencies in `dependencies.reducer`
+//  - Fetch the project's on-disk path from `paths.reducer`
+//  - Serve a minimal subset of the `project` fields, avoiding the weirdness
+//    with multiple names, and all the raw unnecessary package.json data.
 const prepareProjectForConsumption = (
   state: GlobalState,
   project: ProjectInternal

@@ -7,9 +7,8 @@ import { check } from 'react-icons-kit/feather/check';
 
 import * as actions from '../../actions';
 import { COLORS } from '../../constants';
-import { getPackageJsonLockedForProjectId } from '../../reducers/package-json-locked.reducer';
 
-import Button from '../Button';
+import { FillButton } from '../Button';
 import Label from '../Label';
 import Spinner from '../Spinner';
 import Spacer from '../Spacer';
@@ -23,8 +22,7 @@ type Props = {
   isLoadingNpmInfo: boolean,
   latestVersion: ?string,
   // From redux:
-  isPackageJsonLocked: boolean,
-  updateDependencyStart: (
+  updateDependency: (
     projectId: string,
     dependencyName: string,
     latestVersion: string
@@ -38,8 +36,7 @@ class DependencyUpdateRow extends Component<Props> {
       dependency,
       isLoadingNpmInfo,
       latestVersion,
-      updateDependencyStart,
-      isPackageJsonLocked,
+      updateDependency,
     } = this.props;
 
     if (isLoadingNpmInfo || !latestVersion) {
@@ -60,19 +57,16 @@ class DependencyUpdateRow extends Component<Props> {
         Up-to-date
       </UpToDate>
     ) : (
-      <Button
+      <FillButton
         size="small"
-        type="fill"
-        color1={COLORS.green[700]}
-        color2={COLORS.lightGreen[500]}
+        colors={[COLORS.green[700], COLORS.lightGreen[500]]}
         style={{ width: 80 }}
-        disabled={isPackageJsonLocked}
         onClick={() =>
-          updateDependencyStart(projectId, dependency.name, latestVersion)
+          updateDependency(projectId, dependency.name, latestVersion)
         }
       >
         {isUpdating ? <Spinner size={16} color={COLORS.white} /> : 'Update'}
-      </Button>
+      </FillButton>
     );
   }
 
@@ -129,14 +123,7 @@ const UpToDate = styled.div`
   font-weight: 500;
 `;
 
-const mapStateToProps = (state, ownProps) => ({
-  isPackageJsonLocked: getPackageJsonLockedForProjectId(
-    state,
-    ownProps.projectId
-  ),
-});
-
 export default connect(
-  mapStateToProps,
-  { updateDependencyStart: actions.updateDependencyStart }
+  null,
+  { updateDependency: actions.updateDependency }
 )(DependencyUpdateRow);

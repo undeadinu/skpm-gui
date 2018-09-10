@@ -15,7 +15,7 @@ import fileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
 import Toggle from '../Toggle';
-import Button from '../Button';
+import { FillButton } from '../Button';
 
 import type { PluginMenuRoot, PluginMenuItem, Command } from '../../types';
 
@@ -235,7 +235,7 @@ class EditMenuModal extends PureComponent<Props, State> {
             generateNodeProps={({ node, path }) => ({
               buttons: [
                 node.type === 'submenu' ? (
-                  <Button
+                  <FillButton
                     size="xsmall"
                     onClick={() =>
                       this.setState(state => ({
@@ -252,10 +252,10 @@ class EditMenuModal extends PureComponent<Props, State> {
                     }
                   >
                     Edit
-                  </Button>
+                  </FillButton>
                 ) : null,
                 node.type !== 'root' ? (
-                  <Button
+                  <FillButton
                     size="xsmall"
                     onClick={() =>
                       this.setState(state => ({
@@ -268,14 +268,14 @@ class EditMenuModal extends PureComponent<Props, State> {
                     }
                   >
                     Remove
-                  </Button>
+                  </FillButton>
                 ) : null,
               ],
             })}
           />
-          <Button onClick={this.addSubmenu}>Add a submenu</Button>
-          <Button onClick={this.addSeparator}>Add a separator</Button>
-          <Button onClick={this.addCommand}>Add a command</Button>
+          <FillButton onClick={this.addSubmenu}>Add a submenu</FillButton>
+          <FillButton onClick={this.addSeparator}>Add a separator</FillButton>
+          <FillButton onClick={this.addCommand}>Add a command</FillButton>
         </MainContent>
       </Fragment>
     );

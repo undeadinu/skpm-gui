@@ -2,28 +2,32 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import Transition from 'react-transition-group/Transition';
-import slug from 'slug';
 
 import * as actions from '../../actions';
 import { getById } from '../../reducers/projects.reducer';
+import { getProjectHomePath } from '../../reducers/paths.reducer';
+import { getOnboardingCompleted } from '../../reducers/onboarding-status.reducer';
+import { getProjectNameSlug } from '../../services/create-project.service';
 
 import TwoPaneModal from '../TwoPaneModal';
+import Debounced from '../Debounced';
 
 import MainPane from './MainPane';
 import SummaryPane from './SummaryPane';
 import BuildPane from './BuildPane';
-import Debounced from '../Debounced';
 
 import type { Field, Status, Step } from './types';
 
-import type { ProjectType, ProjectInternal } from '../../types';
+import type { ProjectType, ProjectInternal, Project } from '../../types';
 
 const FORM_STEPS: Array<Field> = ['projectName', 'projectType', 'projectIcon'];
 
 type Props = {
   projects: { [projectId: string]: ProjectInternal },
+  projectHomePath: string,
   isVisible: boolean,
-  addProject: (project: ProjectInternal) => void,
+  isOnboardingCompleted: boolean,
+  addProject: (project: Project, isOnboardingCompleted: boolean) => void,
   createNewProjectCancel: () => void,
   createNewProjectFinish: () => void,
 };
@@ -69,9 +73,13 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
   };
 
   verifyProjectNameUniqueness = (name: string) => {
+    const { projects } = this.props;
+
     // Check to see if this name is already taken
-    const id = slug(name).toLowerCase();
-    const isAlreadyTaken = !!this.props.projects[id];
+    const slug = getProjectNameSlug(name);
+    const isAlreadyTaken = !!Object.keys(this.props.projects).some(
+      id => projects[id].name === slug
+    );
 
     if (isAlreadyTaken) {
       this.setState({ isProjectNameTaken: true });
@@ -102,11 +110,13 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
     });
   };
 
-  finishBuilding = (project: ProjectInternal) => {
+  finishBuilding = (project: Project) => {
+    const { isOnboardingCompleted } = this.props;
+
     this.props.createNewProjectFinish();
 
     this.timeoutId = window.setTimeout(() => {
-      this.props.addProject(project);
+      this.props.addProject(project, isOnboardingCompleted);
 
       this.timeoutId = window.setTimeout(this.reinitialize, 500);
     }, 500);
@@ -117,7 +127,7 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
   };
 
   render() {
-    const { isVisible, createNewProjectCancel } = this.props;
+    const { isVisible, createNewProjectCancel, projectHomePath } = this.props;
     const {
       projectName,
       projectType,
@@ -170,6 +180,7 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
                   // like it.
                   // $FlowFixMe
                   project={project}
+                  projectHomePath={projectHomePath}
                   handleCompleteBuild={this.finishBuilding}
                 />
               )
@@ -183,7 +194,9 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
 
 const mapStateToProps = state => ({
   projects: getById(state),
+  projectHomePath: getProjectHomePath(state.paths),
   isVisible: state.modal === 'new-project-wizard',
+  isOnboardingCompleted: getOnboardingCompleted(state),
 });
 
 const mapDispatchToProps = {

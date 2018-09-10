@@ -26,7 +26,9 @@ import {
   ATTACH_TASK_METADATA,
   RECEIVE_DATA_FROM_TASK_EXECUTION,
   IMPORT_EXISTING_PROJECT_FINISH,
+  SAVE_PROJECT_SETTINGS_FINISH,
   CLEAR_CONSOLE,
+  RESET_ALL_STATE,
 } from '../actions';
 
 import type { Action } from 'redux';
@@ -36,7 +38,7 @@ type State = {
   [uniqueTaskId: string]: Task,
 };
 
-const initialState = {};
+export const initialState = {};
 
 export default (state: State = initialState, action: Action) => {
   switch (action.type) {
@@ -80,6 +82,27 @@ export default (state: State = initialState, action: Action) => {
       const { project } = action;
 
       const projectId = project.name;
+
+      return produce(state, draftState => {
+        Object.keys(project.scripts).forEach(name => {
+          const command = project.scripts[name];
+
+          const uniqueTaskId = buildUniqueTaskId(projectId, name);
+
+          draftState[uniqueTaskId] = buildNewTask(
+            uniqueTaskId,
+            projectId,
+            name,
+            command
+          );
+        });
+      });
+    }
+
+    case SAVE_PROJECT_SETTINGS_FINISH: {
+      const { project } = action;
+
+      const projectId = project.guppy.id;
 
       return produce(state, draftState => {
         Object.keys(project.scripts).forEach(name => {
@@ -186,6 +209,9 @@ export default (state: State = initialState, action: Action) => {
         draftState[task.id].status = nextStatus;
       });
     }
+
+    case RESET_ALL_STATE:
+      return initialState;
 
     default:
       return state;

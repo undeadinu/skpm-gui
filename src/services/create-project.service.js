@@ -4,7 +4,6 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { defaultParentPath } from '../reducers/paths.reducer';
 import { loadProject } from './read-from-disk.service';
 import { enableDevMode } from './dev-mode.service';
 
@@ -40,6 +39,7 @@ type ProjectInfo = {
  */
 export default (
   { projectName, projectType, projectIcon }: ProjectInfo,
+  projectHomePath: string,
   onStatusUpdate: (update: string) => void,
   onError: (err: string) => void,
   onComplete: (packageJson: ProjectInternal) => void
@@ -49,12 +49,10 @@ export default (
     return;
   }
 
-  const parentPath = defaultParentPath;
-
   // Create the projects directory, if this is the first time creating a
   // project.
-  if (!fs.existsSync(parentPath)) {
-    fs.mkdirSync(parentPath);
+  if (!fs.existsSync(projectHomePath)) {
+    fs.mkdirSync(projectHomePath);
   }
 
   // do it async, don't really care
@@ -62,19 +60,19 @@ export default (
 
   onStatusUpdate('Created parent directory');
 
-  const id = slug(projectName).toLowerCase();
+  const projectDirectoryName = getProjectNameSlug(projectName);
 
   // For Windows Support
   // To support cross platform with slashes and escapes
-  const projectPath = path.join(parentPath, id);
+  const projectPath = path.join(projectHomePath, projectDirectoryName);
 
   const [instruction, ...args] = getBuildInstructions(projectType, {
-    id,
+    id: projectDirectoryName,
     name: projectName,
   });
 
   const child = childProcess.spawn(instruction, args, {
-    cwd: parentPath,
+    cwd: projectHomePath,
     env: {
       ...window.process.env,
       CI: true,
@@ -112,6 +110,14 @@ export default (
       .catch(console.error);
   });
 };
+
+//
+//
+// Helpers
+//
+
+export const getProjectNameSlug = (projectName: string) =>
+  slug(projectName).toLowerCase();
 
 export const getBuildInstructions = (
   projectType: ProjectType,

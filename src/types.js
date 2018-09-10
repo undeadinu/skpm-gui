@@ -16,7 +16,14 @@ export type Log = {
 export type TaskType = 'short-term' | 'sustained';
 
 export type TaskStatus = 'idle' | 'pending' | 'success' | 'failed';
-export type DependencyStatus = 'idle' | 'installing' | 'updating' | 'deleting';
+export type DependencyStatus =
+  | 'idle'
+  | 'queued-install'
+  | 'queued-update'
+  | 'queued-delete'
+  | 'installing'
+  | 'updating'
+  | 'deleting';
 export type DependencyLocation = 'dependencies' | 'devDependencies';
 export type CommandStatus =
   | 'idle'
@@ -26,6 +33,12 @@ export type CommandStatus =
   | 'installing'
   | 'updating'
   | 'deleting';
+export type QueueAction = 'install' | 'uninstall';
+export type QueuedDependency = {
+  name: string,
+  version?: string,
+  updating?: boolean,
+};
 
 export type Task = {
   id: string,
@@ -114,11 +127,7 @@ export type PluginMenuRoot = {|
  * more fields, but these are the only ones I care about).
  */
 export type ProjectInternal = {
-  // NOTE: this `name` is the same as `guppy.id`. It's the actual name of the
-  // project, in package.json.
-  // The reason for this confusing discrepancy is that NPM package names are
-  // lowercase-and-dash only, whereas I want Guppy projects to be able to use
-  // any UTF-8 characters.
+  // This is the project's lowercase, slugified name. Eg. "hello-world"
   name: string,
   author?: string,
   description?: string,
@@ -151,6 +160,19 @@ export type ProjectInternal = {
   __skpm_createdAt: number,
 };
 
+/**
+ * While the `ProjectInternal` type above is just a representation of the
+ * project's package.json, we also have a `Project` type. This type is meant
+ * to be used within the React app, and wraps up a number of reducers:
+ *
+ * - tasks from tasks.reducer
+ * - dependencies from dependencies.reducer
+ * - project path on disk from path.reducer
+ *
+ * It also provides a limited subset of the `ProjectInternal` type, to abstract
+ * away some of the peculiarities (such as the difference between project.name
+ * and project.skpm.name).
+ */
 export type Project = {
   // `id` here is equal to `name` in `ProjectInternal`
   id: string,
