@@ -60,10 +60,10 @@ const byIdReducer = (state: ById = initialState.byId, action: Action) => {
       const { projectId, dependencies } = action;
 
       return produce(state, draftState => {
-        if (!draftState[projectId].dependencies) {
-          draftState[projectId].dependencies = {};
-        }
         dependencies.forEach(dependency => {
+          if (!draftState[projectId].dependencies) {
+            draftState[projectId].dependencies = {};
+          }
           draftState[projectId].dependencies[dependency.name] =
             dependency.version;
         });
@@ -131,7 +131,7 @@ const selectedIdReducer = (
     }
 
     case SAVE_PROJECT_SETTINGS_FINISH: {
-      return action.project.guppy.id;
+      return action.project.name;
     }
 
     case SELECT_PROJECT: {

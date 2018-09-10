@@ -102,7 +102,7 @@ export default (state: State = initialState, action: Action) => {
     case SAVE_PROJECT_SETTINGS_FINISH: {
       const { project } = action;
 
-      const projectId = project.guppy.id;
+      const projectId = project.name;
 
       return produce(state, draftState => {
         Object.keys(project.scripts).forEach(name => {

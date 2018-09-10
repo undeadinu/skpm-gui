@@ -11,7 +11,7 @@ import { capitalize } from '../../utils';
 
 import Card from '../Card';
 import Spinner from '../Spinner';
-import { FillButton } from '../Button';
+import { StrokeButton } from '../Button';
 import Toggle from '../Toggle';
 
 import type { CommandStatus } from '../../types';
@@ -48,9 +48,9 @@ class CommandRunnerPaneRow extends PureComponent<Props> {
         </StatusColumn>
 
         <LinkColumn>
-          <FillButton size="small" onClick={() => onViewDetails(identifier)}>
+          <StrokeButton size="small" onClick={() => onViewDetails(identifier)}>
             View Details
-          </FillButton>
+          </StrokeButton>
         </LinkColumn>
 
         <ActionsColumn>

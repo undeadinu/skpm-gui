@@ -69,8 +69,8 @@ export function migrateToSupportProjectHomePath(state: any) {
     paths: {
       homePath:
         process.env.NODE_ENV === 'development'
-          ? path.join(homedir, 'sketch-projects-dev')
-          : path.join(homedir, 'sketch-projects'),
+          ? path.join(homedir, 'sketch-plugins-dev')
+          : path.join(homedir, 'sketch-plugins'),
       byId: state.paths || {},
     },
   };

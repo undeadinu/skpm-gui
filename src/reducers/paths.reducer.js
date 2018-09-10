@@ -40,8 +40,8 @@ const homedir = isWin ? windowsHomeDir : os.homedir();
 const initialState = {
   homePath:
     process.env.NODE_ENV === 'development'
-      ? path.join(homedir, 'sketch-projects-dev')
-      : path.join(homedir, 'sketch-projects'),
+      ? path.join(homedir, 'sketch-plugins-dev')
+      : path.join(homedir, 'sketch-plugins'),
   byId: {},
 };
 
@@ -50,7 +50,7 @@ export default (state: State = initialState, action: Action) => {
     case ADD_PROJECT: {
       const { project } = action;
 
-      const projectNameSlug = getProjectNameSlug(project.guppy.name);
+      const projectNameSlug = getProjectNameSlug(project.name);
 
       return produce(state, draftState => {
         draftState.byId[project.name] = formatProjectPath(
