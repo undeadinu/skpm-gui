@@ -15,7 +15,7 @@ import fileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
 import Toggle from '../Toggle';
-import { FillButton } from '../Button';
+import { StrokeButton } from '../Button';
 
 import type { PluginMenuRoot, PluginMenuItem, Command } from '../../types';
 
@@ -205,6 +205,34 @@ class EditMenuModal extends PureComponent<Props, State> {
     (!!e.nextParent &&
       (e.nextParent.type === 'root' || e.nextParent.type === 'submenu'));
 
+  renameSubmenu = ({ node, path }) => {
+    const title = window.prompt('Rename the submenu', node.title);
+    if (!title) {
+      return;
+    }
+    this.setState(state => ({
+      tree: changeNodeAtPath({
+        treeData: state.tree,
+        path,
+        getNodeKey,
+        newNode: {
+          ...node,
+          title,
+        },
+      }),
+    }));
+  };
+
+  removeItem = ({ node, path }) => {
+    this.setState(state => ({
+      tree: removeNodeAtPath({
+        treeData: state.tree,
+        path,
+        getNodeKey,
+      }),
+    }));
+  };
+
   renderContents() {
     const { isVisible } = this.props;
     const { isRoot, tree } = this.state;
@@ -235,47 +263,29 @@ class EditMenuModal extends PureComponent<Props, State> {
             generateNodeProps={({ node, path }) => ({
               buttons: [
                 node.type === 'submenu' ? (
-                  <FillButton
+                  <StrokeButton
                     size="xsmall"
-                    onClick={() =>
-                      this.setState(state => ({
-                        tree: changeNodeAtPath({
-                          treeData: state.tree,
-                          path,
-                          getNodeKey,
-                          newNode: {
-                            ...node,
-                            title: 'updated',
-                          },
-                        }),
-                      }))
-                    }
+                    onClick={() => this.renameSubmenu({ node, path })}
                   >
                     Edit
-                  </FillButton>
+                  </StrokeButton>
                 ) : null,
                 node.type !== 'root' ? (
-                  <FillButton
+                  <StrokeButton
                     size="xsmall"
-                    onClick={() =>
-                      this.setState(state => ({
-                        tree: removeNodeAtPath({
-                          treeData: state.tree,
-                          path,
-                          getNodeKey,
-                        }),
-                      }))
-                    }
+                    onClick={() => this.removeItem({ node, path })}
                   >
                     Remove
-                  </FillButton>
+                  </StrokeButton>
                 ) : null,
               ],
             })}
           />
-          <FillButton onClick={this.addSubmenu}>Add a submenu</FillButton>
-          <FillButton onClick={this.addSeparator}>Add a separator</FillButton>
-          <FillButton onClick={this.addCommand}>Add a command</FillButton>
+          <StrokeButton onClick={this.addSubmenu}>Add a submenu</StrokeButton>
+          <StrokeButton onClick={this.addSeparator}>
+            Add a separator
+          </StrokeButton>
+          <StrokeButton onClick={this.addCommand}>Add a command</StrokeButton>
         </MainContent>
       </Fragment>
     );
