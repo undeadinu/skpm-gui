@@ -24,7 +24,7 @@ import defaultPluginIconSrc from '../../assets/images/default-plugin-icon.png';
 import type { Project } from '../../types';
 
 type Props = {
-  project: Project,
+  project: Project | null,
   isVisible: boolean,
   dependenciesChangingForProject: boolean,
   hideModal: () => void,
@@ -58,6 +58,9 @@ class ProjectConfigurationModal extends PureComponent<Props, State> {
     ev.preventDefault();
 
     const { saveProjectSettings, project } = this.props;
+    if (!project) {
+      return;
+    }
     const { newName, projectIcon } = this.state;
 
     saveProjectSettings(newName, projectIcon, project);

@@ -42,7 +42,7 @@ export const initialState = {
   selectedId: null,
 };
 
-const byIdReducer = (state: ById = initialState.byId, action: Action) => {
+const byIdReducer = (state: ById = initialState.byId, action: Action = {}) => {
   switch (action.type) {
     case REFRESH_PROJECTS_FINISH: {
       return action.projects;
@@ -99,7 +99,7 @@ const byIdReducer = (state: ById = initialState.byId, action: Action) => {
 
 const selectedIdReducer = (
   state: SelectedId = initialState.selectedId,
-  action: Action
+  action: Action = {}
 ) => {
   switch (action.type) {
     case ADD_PROJECT:
@@ -138,8 +138,18 @@ const selectedIdReducer = (
       return action.projectId;
     }
 
-    case RESET_ALL_STATE:
+    case FINISH_DELETING_PROJECT: {
+      // Right now, it is only possible to delete the currently-selected
+      // project, so this condition will always be true. This is a guard against
+      // future changes.
+      const justDeletedSelectedProject = action.projectId === state;
+
+      return justDeletedSelectedProject ? null : state;
+    }
+
+    case RESET_ALL_STATE: {
       return initialState.selectedId;
+    }
 
     default:
       return state;
