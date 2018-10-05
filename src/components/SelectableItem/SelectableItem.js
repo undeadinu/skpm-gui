@@ -2,9 +2,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
-import CircularOutline from '../CircularOutline';
-import DetectActive from '../DetectActive';
-
 type Status = 'default' | 'highlighted' | 'faded';
 
 type Props = {
@@ -19,22 +16,9 @@ class SelectableItem extends Component<Props> {
     const { size, colors, status, children, ...delegated } = this.props;
 
     return (
-      <DetectActive>
-        {isActive => (
-          <ButtonElem size={size} {...delegated}>
-            <OutlineWrapper size={size}>
-              <CircularOutline
-                colors={colors}
-                size={size + 6}
-                strokeWidth={isActive ? 4 : 2}
-                isShown={status === 'highlighted'}
-              />
-            </OutlineWrapper>
-
-            {children(status)}
-          </ButtonElem>
-        )}
-      </DetectActive>
+      <ButtonElem size={size} {...delegated}>
+        {children(status)}
+      </ButtonElem>
     );
   }
 }
@@ -51,16 +35,6 @@ const ButtonElem = styled.button`
   &:active rect {
     stroke-width: 4;
   }
-`;
-
-const OutlineWrapper = styled.div`
-  position: absolute;
-  z-index: 3;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  bottom: -3px;
-  pointer-events: none;
 `;
 
 export default SelectableItem;

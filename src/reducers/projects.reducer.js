@@ -1,4 +1,5 @@
 // @flow
+import * as path from 'path';
 import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
 import produce from 'immer';
@@ -208,21 +209,22 @@ const prepareProjectForConsumption = (
   project,
   tasks,
   dependencies,
-  path,
-  commands
+  projectPath,
+  commandsMap
 ): Project => {
   const menu = (project.__skpm_manifest || {}).menu || {};
+  const commands = mapObjectToArray(commandsMap);
   return {
     id: project.name,
     name: (project.skpm || {}).name || project.name,
     // prettier-ignore
     tasks: mapObjectToArray(tasks),
     dependencies: mapObjectToArray(dependencies),
-    path,
-    manifestPath: path.join(path, (project.skpm || {}).manifest || ''),
+    path: projectPath,
+    manifestPath: path.join(projectPath, (project.skpm || {}).manifest || ''),
     icon: project.__skpm_icon,
     createdAt: project.__skpm_createdAt,
-    commands: mapObjectToArray(commands),
+    commands,
     pluginMenu: {
       title: menu.title || (project.skpm || {}).name || project.name,
       isRoot: menu.isRoot,
@@ -269,7 +271,7 @@ export const getProjectById = createSelector(
     getPathForProjectId,
     getCommandsForProjectId,
   ],
-  (internalProject, tasks, dependencies, path, commands) => {
+  (internalProject, tasks, dependencies, projectPath, commands) => {
     if (!internalProject) {
       return null;
     }
@@ -278,7 +280,7 @@ export const getProjectById = createSelector(
       internalProject,
       tasks,
       dependencies,
-      path,
+      projectPath,
       commands
     );
   }

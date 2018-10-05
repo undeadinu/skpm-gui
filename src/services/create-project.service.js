@@ -21,7 +21,7 @@ const DISABLE = false;
 type ProjectInfo = {
   projectName: string,
   projectType: ProjectType,
-  projectIcon: string,
+  projectIcon?: string | null,
 };
 
 export const checkIfProjectExists = (dir: string, projectName: string) =>

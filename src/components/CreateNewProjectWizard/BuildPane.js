@@ -82,11 +82,10 @@ class BuildPane extends PureComponent<Props, State> {
   buildProject = () => {
     const { projectName, projectType, projectIcon } = this.props;
 
-    if (!projectName || !projectType || !projectIcon) {
+    if (!projectName || !projectType) {
       console.error('Missing one of:', {
         projectName,
         projectType,
-        projectIcon,
       });
       throw new Error(
         'Tried to build project with insufficient data. See console for more info'
@@ -109,17 +108,13 @@ class BuildPane extends PureComponent<Props, State> {
     // but I don't have any better ideas.
     const message = output.toString();
 
-    if (message.match(/Installing packages/i)) {
-      this.setState({
-        currentBuildStep: BUILD_STEP_KEYS[1],
-      });
-    } else if (message.match(/Parsing `package.json` file/i)) {
+    if (message.match(/Parsing `package.json` file/i)) {
       this.setState(state => ({
-        currentBuildStep: BUILD_STEP_KEYS[3],
+        currentBuildStep: BUILD_STEP_KEYS[2],
       }));
     } else if (message.match(/Installing dependencies/i)) {
       this.setState({
-        currentBuildStep: BUILD_STEP_KEYS[4],
+        currentBuildStep: BUILD_STEP_KEYS[3],
       });
     }
   };
