@@ -2,16 +2,12 @@
 import React, { PureComponent, Fragment } from 'react';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
-import { remote } from 'electron';
-import * as fs from 'fs';
 
 import emptyIconSrc from '../../assets/images/empty.svg';
 import webviewIconSrc from '../../assets/images/webview.svg';
-import defaultPluginIconSrc from '../../assets/images/default-plugin-icon.png';
 
 import FormField from '../FormField';
-import SelectableImage from '../SelectableImage';
-import { FillButton } from '../Button';
+import ProjectIconSelection from '../ProjectIconSelection';
 import ButtonWithIcon from '../ButtonWithIcon';
 import Spacer from '../Spacer';
 import FadeIn from '../FadeIn';
@@ -34,7 +30,7 @@ type Props = {
   isProjectNameTaken: boolean,
   updateFieldValue: (field: Field, value: any) => void,
   focusField: (field: ?Field) => void,
-  handleSubmit: () => void,
+  handleSubmit: () => Promise<any> | void,
 };
 
 class MainPane extends PureComponent<Props> {
@@ -45,27 +41,8 @@ class MainPane extends PureComponent<Props> {
     this.props.updateFieldValue('projectName', projectName);
   updateProjectType = (projectType: ProjectType) =>
     this.props.updateFieldValue('projectType', projectType);
-  updateProjectIcon = () => {
-    remote.dialog.showOpenDialog(
-      {
-        title: 'Plugin Icon',
-        buttonLabel: 'Choose',
-        properties: ['openFile'],
-        filters: [{ name: 'Images', extensions: ['png'] }],
-      },
-      paths => {
-        if (paths && paths[0]) {
-          fs.readFile(paths[0], 'base64', (err, projectIcon) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
-            this.props.updateFieldValue('projectIcon', projectIcon);
-          });
-        }
-      }
-    );
-  };
+  updateProjectIcon = (projectIcon: string) =>
+    this.props.updateFieldValue('projectIcon', projectIcon);
 
   render() {
     const {
@@ -129,21 +106,10 @@ class MainPane extends PureComponent<Props> {
                     focusOnClick={false}
                     isFocused={activeField === 'projectIcon'}
                   >
-                    <ProjectIconWrapper>
-                      <SelectableImage
-                        src={
-                          projectIcon
-                            ? `data:image/png;base64, ${projectIcon}`
-                            : defaultPluginIconSrc
-                        }
-                        size={60}
-                        onClick={this.updateProjectIcon}
-                        status="default"
-                      />
-                      <ProjectIconButton onClick={this.updateProjectIcon}>
-                        Choose Another Icon
-                      </ProjectIconButton>
-                    </ProjectIconWrapper>
+                    <ProjectIconSelection
+                      icon={projectIcon}
+                      onSelectIcon={this.updateProjectIcon}
+                    />
                   </FormField>
                 </FadeIn>
               )}
@@ -168,7 +134,7 @@ class MainPane extends PureComponent<Props> {
 }
 
 const Wrapper = styled.div`
-  height: 470px;
+  height: 500px;
   will-change: transform;
 `;
 
@@ -185,16 +151,6 @@ const EmptyIcon = styled.img`
 const ProjectTypeTogglesWrapper = styled.div`
   margin-top: 8px;
   margin-left: -8px;
-`;
-
-const ProjectIconWrapper = styled.div`
-  margin-top: 16px;
-`;
-
-const ProjectIconButton = styled(FillButton)`
-  position: relative;
-  margin-left: 20px;
-  top: -24px;
 `;
 
 const SubmitButtonWrapper = styled.div`

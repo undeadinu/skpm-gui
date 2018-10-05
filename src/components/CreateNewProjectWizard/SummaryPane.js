@@ -36,7 +36,7 @@ class SummaryPane extends PureComponent<Props> {
             <StepTitle>Create new plugin</StepTitle>
             <Paragraph>Let's start by giving your new plugin a name.</Paragraph>
 
-            <Spacer size={100} />
+            <Spacer size={130} />
             <ImportExisting />
           </FadeIn>
         </IntroWrapper>

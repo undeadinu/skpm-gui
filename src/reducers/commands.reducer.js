@@ -229,6 +229,7 @@ export default (state: State = initialState, action: Action) => {
 //
 //
 // Selectors
+export const getCommands = (state: any) => state.commands;
 export const getCommandsForProjectId = (
   state: any,
   projectId: string

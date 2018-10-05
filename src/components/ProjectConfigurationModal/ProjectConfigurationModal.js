@@ -2,24 +2,20 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { remote } from 'electron';
-import * as fs from 'fs';
 
 import * as actions from '../../actions';
 
 import { COLORS } from '../../constants';
 import { getSelectedProject } from '../../reducers/projects.reducer';
-import { isQueueEmpty } from '../../reducers/queue.reducer';
+import { getIsQueueEmpty } from '../../reducers/queue.reducer';
 
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
 import Spacer from '../Spacer';
 import { FillButton } from '../Button';
 import FormField from '../FormField';
-import SelectableImage from '../SelectableImage';
+import ProjectIconSelection from '../ProjectIconSelection';
 import TextInput from '../TextInput';
-
-import defaultPluginIconSrc from '../../assets/images/default-plugin-icon.png';
 
 import type { Project } from '../../types';
 
@@ -83,29 +79,11 @@ class ProjectConfigurationModal extends PureComponent<Props, State> {
     }
   };
 
-  updateProjectIcon = ev => {
+  updateProjectIcon = (src: string, ev) => {
     ev.preventDefault();
-    remote.dialog.showOpenDialog(
-      {
-        title: 'Plugin Icon',
-        buttonLabel: 'Choose',
-        properties: ['openFile'],
-        filters: [{ name: 'Images', extensions: ['png'] }],
-      },
-      paths => {
-        if (paths && paths[0]) {
-          fs.readFile(paths[0], 'base64', (err, projectIcon) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
-            this.setState(prevState => ({
-              projectIcon: projectIcon,
-            }));
-          });
-        }
-      }
-    );
+    this.setState(prevState => ({
+      projectIcon: src,
+    }));
   };
 
   setActive = (name: string) => {
@@ -143,21 +121,10 @@ class ProjectConfigurationModal extends PureComponent<Props, State> {
               focusOnClick={false}
               isFocused={activeField === 'projectIcon'}
             >
-              <ProjectIconWrapper>
-                <SelectableImage
-                  src={
-                    projectIcon
-                      ? `data:image/png;base64, ${projectIcon}`
-                      : defaultPluginIconSrc
-                  }
-                  size={60}
-                  onClick={this.updateProjectIcon}
-                  status="default"
-                />
-                <ProjectIconButton onClick={this.updateProjectIcon}>
-                  Choose Another Icon
-                </ProjectIconButton>
-              </ProjectIconWrapper>
+              <ProjectIconSelection
+                icon={projectIcon}
+                onSelectIcon={this.updateProjectIcon}
+              />
             </FormField>
 
             <Actions>
@@ -186,16 +153,6 @@ const MainContent = styled.section`
   padding: 25px;
 `;
 
-const ProjectIconWrapper = styled.div`
-  margin-top: 16px;
-`;
-
-const ProjectIconButton = styled(FillButton)`
-  position: relative;
-  margin-left: 20px;
-  top: -24px;
-`;
-
 const Actions = styled.div`
   text-align: center;
   padding-bottom: 16px;
@@ -206,14 +163,16 @@ const DisabledText = styled.div`
   color: ${COLORS.gray[500]};
 `;
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   const project = getSelectedProject(state);
   const projectId = project && project.id;
+
+  const dependenciesChangingForProject = !getIsQueueEmpty(state, { projectId });
 
   return {
     project,
     isVisible: state.modal === 'project-settings',
-    dependenciesChangingForProject: !isQueueEmpty(state, projectId || ''),
+    dependenciesChangingForProject,
   };
 };
 

@@ -6,6 +6,7 @@ import { loadAllProjectDependencies } from '../services/read-from-disk.service';
 import type {
   Project,
   ProjectInternal,
+  ProjectType,
   ProjectsMap,
   Task,
   Dependency,
@@ -83,6 +84,7 @@ export const SAVE_PROJECT_SETTINGS_FINISH = 'SAVE_PROJECT_SETTINGS_FINISH';
 //
 export const addProject = (
   project: ProjectInternal,
+  projectType: ProjectType,
   isOnboardingCompleted: boolean
 ) => ({
   type: ADD_PROJECT,

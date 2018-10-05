@@ -1,6 +1,6 @@
 // @flow
-import * as path from 'path';
 import { combineReducers } from 'redux';
+import { createSelector } from 'reselect';
 import produce from 'immer';
 
 import {
@@ -13,12 +13,15 @@ import {
   SELECT_PROJECT,
   RESET_ALL_STATE,
 } from '../actions';
-import { getTasksForProjectId } from './tasks.reducer';
-import { getDependenciesForProjectId } from './dependencies.reducer';
-import { getPathForProjectId } from './paths.reducer';
+import { getTasks, getTasksForProjectId } from './tasks.reducer';
+import {
+  getDependencies,
+  getDependenciesForProjectId,
+} from './dependencies.reducer';
+import { getPaths, getPathForProjectId } from './paths.reducer';
 
 import type { Action } from 'redux';
-import { getCommandsForProjectId } from './commands.reducer';
+import { getCommands, getCommandsForProjectId } from './commands.reducer';
 import type {
   ProjectInternal,
   Project,
@@ -185,6 +188,10 @@ function menuToMenu(
   };
 }
 
+const mapObjectToArray = <T>(obj: { [string]: T }): Array<T> => {
+  return obj ? Object.keys(obj).map(key => obj[key]) : [];
+};
+
 // Our projects in-reducer are essentially database items that represent the
 // package.json on disk.
 //
@@ -198,22 +205,24 @@ function menuToMenu(
 //  - Serve a minimal subset of the `project` fields, avoiding the weirdness
 //    with multiple names, and all the raw unnecessary package.json data.
 const prepareProjectForConsumption = (
-  state: GlobalState,
-  project: ProjectInternal
+  project,
+  tasks,
+  dependencies,
+  path,
+  commands
 ): Project => {
-  const projectPath = getPathForProjectId(state, project.name);
   const menu = (project.__skpm_manifest || {}).menu || {};
-  const commands = getCommandsForProjectId(state, project.name);
   return {
     id: project.name,
     name: (project.skpm || {}).name || project.name,
-    tasks: getTasksForProjectId(state, project.name),
-    dependencies: getDependenciesForProjectId(state, project.name),
-    path: projectPath,
-    manifestPath: path.join(projectPath, (project.skpm || {}).manifest || ''),
+    // prettier-ignore
+    tasks: mapObjectToArray(tasks),
+    dependencies: mapObjectToArray(dependencies),
+    path,
+    manifestPath: path.join(path, (project.skpm || {}).manifest || ''),
     icon: project.__skpm_icon,
     createdAt: project.__skpm_createdAt,
-    commands,
+    commands: mapObjectToArray(commands),
     pluginMenu: {
       title: menu.title || (project.skpm || {}).name || project.name,
       isRoot: menu.isRoot,
@@ -228,23 +237,53 @@ export const getById = (state: GlobalState) => state.projects.byId;
 export const getSelectedProjectId = (state: GlobalState) =>
   state.projects.selectedId;
 
-export const getInternalProjectById = (state: GlobalState, id: string) =>
-  getById(state)[id];
+export const getInternalProjectById = (
+  state: GlobalState,
+  props: { projectId: string }
+) => getById(state)[props.projectId];
 
-export const getProjectsArray = (state: GlobalState) => {
-  // $FlowFixMe
-  return Object.values(state.projects.byId)
-    .map(project =>
-      // $FlowFixMe
-      prepareProjectForConsumption(state, project)
-    )
-    .sort((p1, p2) => (p1.createdAt < p2.createdAt ? 1 : -1));
-};
+export const getProjectsArray = createSelector(
+  [getById, getTasks, getDependencies, getPaths, getCommands],
+  (byId, tasks, dependencies, paths, commands) => {
+    return Object.keys(byId)
+      .map(projectId => {
+        const project = byId[projectId];
 
-export const getProjectById = (state: GlobalState, id: string) =>
-  prepareProjectForConsumption(state, state.projects.byId[id]);
+        return prepareProjectForConsumption(
+          project,
+          tasks[projectId],
+          dependencies[projectId],
+          paths[projectId],
+          commands[projectId]
+        );
+      })
+      .sort((p1, p2) => (p1.createdAt < p2.createdAt ? 1 : -1));
+  }
+);
 
-// TODO: check the perf cost of this selector, memoize if it's non-trivial.
+export const getProjectById = createSelector(
+  [
+    getInternalProjectById,
+    getTasksForProjectId,
+    getDependenciesForProjectId,
+    getPathForProjectId,
+    getCommandsForProjectId,
+  ],
+  (internalProject, tasks, dependencies, path, commands) => {
+    if (!internalProject) {
+      return null;
+    }
+
+    return prepareProjectForConsumption(
+      internalProject,
+      tasks,
+      dependencies,
+      path,
+      commands
+    );
+  }
+);
+
 export const getSelectedProject = (state: GlobalState) => {
   const selectedId = getSelectedProjectId(state);
 
@@ -252,13 +291,7 @@ export const getSelectedProject = (state: GlobalState) => {
     return null;
   }
 
-  const project = state.projects.byId[selectedId];
-
-  if (!project) {
-    return null;
-  }
-
-  return prepareProjectForConsumption(state, project);
+  return getProjectById(state, { projectId: selectedId });
 };
 
 export const getDependencyMapForSelectedProject = (state: GlobalState) => {
@@ -268,10 +301,5 @@ export const getDependencyMapForSelectedProject = (state: GlobalState) => {
     return [];
   }
 
-  const dependencies = getDependenciesForProjectId(state, projectId);
-
-  return dependencies.reduce((acc, dep) => {
-    acc[dep.name] = dep;
-    return acc;
-  }, {});
+  return getDependenciesForProjectId(state, { projectId });
 };

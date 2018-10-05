@@ -7,17 +7,14 @@ import { check } from 'react-icons-kit/feather/check';
 import { COLORS } from '../../constants';
 import createProject from '../../services/create-project.service';
 
-import ProgressBar from '../ProgressBar';
 import Spacer from '../Spacer';
+import WhimsicalInstaller from '../WhimsicalInstaller';
 import BuildStepProgress from './BuildStepProgress';
 
-import type { BuildStep } from './types';
-import type { SubmittedProject, ProjectInternal } from '../../types';
+import type { BuildStep, Status } from './types';
+import type { ProjectType, ProjectInternal } from '../../types';
 
 const BUILD_STEPS = {
-  creatingParentDirectory: {
-    copy: 'Creating parent directory',
-  },
   installingCliTool: {
     copy: 'Installing build tool',
     additionalCopy: 'This step may a while...',
@@ -37,32 +34,73 @@ const BUILD_STEPS = {
 const BUILD_STEP_KEYS: Array<BuildStep> = Object.keys(BUILD_STEPS);
 
 type Props = {
-  project: SubmittedProject,
+  projectName: string,
+  projectType: ?ProjectType,
+  projectIcon: ?string,
+  status: Status,
   projectHomePath: string,
   handleCompleteBuild: (project: ProjectInternal) => void,
 };
 
 type State = {
   currentBuildStep: BuildStep,
-  progress: number,
+  isCompleted: boolean,
+  runInstaller: boolean,
 };
 
 class BuildPane extends PureComponent<Props, State> {
+  timeoutId: ?number;
   state = {
     currentBuildStep: BUILD_STEPS[0],
-    completed: false,
-    progress: 0,
+    isCompleted: false,
+    runInstaller: false,
   };
 
-  componentDidMount() {
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.status === 'filling-in-form' &&
+      this.props.status === 'building-project'
+    ) {
+      // We want to wait a bit before starting the whimsy animation, because
+      // at this very moment, the pane is just beginning to unfold. We don't
+      // want to re-render mid-animation!
+      //
+      // Also, WhimsicalInstaller takes its bounding-box measurements when
+      // `runInstaller` becomes true, so we want it to be in its final position
+      // when this happens. Otherwise, clicking files in the air instantly
+      // "teleports" them a couple inches from the mouse :/
+      this.timeoutId = window.setTimeout(() => {
+        this.buildProject();
+
+        this.timeoutId = window.setTimeout(() => {
+          this.setState({ runInstaller: true });
+        }, 500);
+      }, 600);
+    }
+  }
+
+  buildProject = () => {
+    const { projectName, projectType, projectIcon } = this.props;
+
+    if (!projectName || !projectType || !projectIcon) {
+      console.error('Missing one of:', {
+        projectName,
+        projectType,
+        projectIcon,
+      });
+      throw new Error(
+        'Tried to build project with insufficient data. See console for more info'
+      );
+    }
+
     createProject(
-      this.props.project,
+      { projectName, projectType, projectIcon },
       this.props.projectHomePath,
       this.handleStatusUpdate,
       this.handleError,
       this.handleComplete
     );
-  }
+  };
 
   handleStatusUpdate = (output: any) => {
     // HACK: So, I need some way of translating the raw output from skpm
@@ -71,33 +109,18 @@ class BuildPane extends PureComponent<Props, State> {
     // but I don't have any better ideas.
     const message = output.toString();
 
-    if (message.match(/Created parent directory/i)) {
+    if (message.match(/Installing packages/i)) {
       this.setState({
         currentBuildStep: BUILD_STEP_KEYS[1],
-        progress: 0.1,
       });
     } else if (message.match(/Parsing `package.json` file/i)) {
       this.setState(state => ({
         currentBuildStep: BUILD_STEP_KEYS[3],
-        progress: 0.45,
       }));
     } else if (message.match(/Installing dependencies/i)) {
       this.setState({
         currentBuildStep: BUILD_STEP_KEYS[4],
-        progress: 0.5,
       });
-    } else if (message.match(/Extracting the template/i)) {
-      this.setState(state => ({
-        progress: 0.425,
-      }));
-    } else if (message.match(/Updating `name` within `package.json` file/i)) {
-      this.setState(state => ({
-        progress: 0.465,
-      }));
-    } else if (message.match(/Updating `title` within `manifest.json` file/i)) {
-      this.setState(state => ({
-        progress: 0.48,
-      }));
     }
   };
 
@@ -109,26 +132,26 @@ class BuildPane extends PureComponent<Props, State> {
       // Everything appears to work though, so I'm just going to treat this
       // as a success.
       this.setState({
-        currentBuildStep: BUILD_STEP_KEYS[2],
-        progress: 0.2,
+        currentBuildStep: BUILD_STEP_KEYS[1],
       });
     }
   };
 
   handleComplete = (project: ProjectInternal) => {
-    this.setState({ progress: 1 });
+    this.setState({ isCompleted: true });
 
     window.setTimeout(() => {
+      // Allow for the "Succeeded!" message to flash before closing the modal
       this.props.handleCompleteBuild(project);
     }, 2000);
   };
 
   render() {
-    const { currentBuildStep, progress } = this.state;
+    const { currentBuildStep, isCompleted, runInstaller } = this.state;
 
     return (
       <Wrapper>
-        <Finished isVisible={progress === 1}>
+        <Finished isVisible={isCompleted}>
           <FinishedInnerWrapper>
             <IconBase size={128} icon={check} />
             <Spacer size={20} />
@@ -136,14 +159,15 @@ class BuildPane extends PureComponent<Props, State> {
           </FinishedInnerWrapper>
         </Finished>
 
-        <ProgressBarWrapper>
-          <ProgressBar
-            progress={progress}
-            stiffness={progress === 1 ? 128 : 64}
-            damping={progress === 1 ? 22 : 32}
-          />
-        </ProgressBarWrapper>
         <Title>Building Plugin...</Title>
+
+        <WhimsicalWrapper>
+          {/*
+            NOTE: Hardcoding a width because the performance suffers if it's
+            computed dynamically
+          */}
+          <WhimsicalInstaller isRunning={runInstaller} width={420} />
+        </WhimsicalWrapper>
 
         <BuildSteps>
           {BUILD_STEP_KEYS.map(stepKey => {
@@ -151,7 +175,7 @@ class BuildPane extends PureComponent<Props, State> {
 
             let stepStatus;
 
-            if (progress === 1) {
+            if (isCompleted) {
               stepStatus = 'done';
             } else if (stepKey === currentBuildStep) {
               stepStatus = 'in-progress';
@@ -184,7 +208,6 @@ const Wrapper = styled.div`
   justify-content: space-around;
   align-items: center;
   height: 100%;
-  padding: 40px;
   background-image: linear-gradient(
     45deg,
     ${COLORS.orange[700]},
@@ -194,13 +217,7 @@ const Wrapper = styled.div`
   color: ${COLORS.white};
   box-shadow: 0px 6px 60px rgba(0, 0, 0, 0.1), 0px 2px 8px rgba(0, 0, 0, 0.05);
   border-radius: 0;
-`;
-
-const ProgressBarWrapper = styled.div`
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  right: 4px;
+  user-select: none;
 `;
 
 const BuildSteps = styled.div`
@@ -209,8 +226,17 @@ const BuildSteps = styled.div`
 `;
 
 const Title = styled.h1`
+  padding: 0 40px;
   font-size: 36px;
   text-align: center;
+  pointer-events: none;
+`;
+
+const WhimsicalWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  /* Make sure it sits below the "Finished" overlay, when completed */
+  z-index: 1;
 `;
 
 const Finished = styled.div`

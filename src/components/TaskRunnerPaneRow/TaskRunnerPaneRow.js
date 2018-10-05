@@ -22,6 +22,7 @@ type Props = {
   description: string,
   status: TaskStatus,
   processId?: number,
+  isDisabled: boolean,
   onToggleTask: (taskId: string) => void,
   onViewDetails: (taskId: string) => void,
 };
@@ -33,6 +34,7 @@ class TaskRunnerPaneRow extends PureComponent<Props> {
       description,
       status,
       processId,
+      isDisabled,
       onToggleTask,
       onViewDetails,
     } = this.props;
@@ -50,9 +52,11 @@ class TaskRunnerPaneRow extends PureComponent<Props> {
         </StatusColumn>
 
         <LinkColumn>
-          <StrokeButton size="small" onClick={() => onViewDetails(name)}>
-            View Details
-          </StrokeButton>
+          {name === 'eject' ? null : (
+            <StrokeButton size="small" onClick={() => onViewDetails(name)}>
+              View Details
+            </StrokeButton>
+          )}
         </LinkColumn>
 
         <ActionsColumn>
@@ -61,12 +65,14 @@ class TaskRunnerPaneRow extends PureComponent<Props> {
               width={40}
               height={34}
               isRunning={!!processId}
+              disabled={isDisabled}
               onClick={() => onToggleTask(name)}
             />
           ) : (
             <Toggle
               size={24}
               isToggled={!!processId}
+              isDisabled={isDisabled}
               onToggle={() => onToggleTask(name)}
             />
           )}

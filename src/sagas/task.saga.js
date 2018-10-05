@@ -30,7 +30,9 @@ import type { Task } from '../types';
 const chalk = new chalkRaw.constructor({ level: 3 });
 
 export function* launchDevServer({ task }: Action): Saga<void> {
-  const projectPath = yield select(getPathForProjectId, task.projectId);
+  const projectPath = yield select(getPathForProjectId, {
+    projectId: task.projectId,
+  });
 
   try {
     const { args, env } = yield call(getDevServerCommand, task);
@@ -121,8 +123,24 @@ export function* launchDevServer({ task }: Action): Saga<void> {
   }
 }
 
+export function waitForChildProcessToComplete(
+  installProcess: any
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    installProcess.on('exit', (code: number) => {
+      if (code === 0) {
+        resolve(undefined);
+      } else {
+        reject(new Error('Exit with error code: ' + code));
+      }
+    });
+  });
+}
+
 export function* taskRun({ task }: Action): Saga<void> {
-  const projectPath = yield select(getPathForProjectId, task.projectId);
+  const projectPath = yield select(getPathForProjectId, {
+    projectId: task.projectId,
+  });
   const { name } = task;
 
   const child = yield call(

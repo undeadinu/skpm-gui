@@ -11,6 +11,7 @@ import {
   displayTaskComplete,
   taskComplete,
   getDevServerCommand,
+  waitForChildProcessToComplete,
 } from './task.saga';
 import {
   attachTaskMetadata,
@@ -76,7 +77,7 @@ describe('task saga', () => {
 
     it('should find project and projectPath', () => {
       expect(saga.next().value).toEqual(
-        select(getPathForProjectId, task.projectId)
+        select(getPathForProjectId, { projectId: task.projectId })
       );
     });
 
@@ -221,7 +222,7 @@ describe('task saga', () => {
       );
     });
 
-    describe('running', () => {
+    describe('ejecting', () => {
       const task = { name: 'eject', projectId: 'pickled-tulip' };
       const saga = cloneableGenerator(taskRun)({ task });
 
@@ -252,11 +253,40 @@ describe('task saga', () => {
         );
       });
 
-      it('should complete on exit', () => {
+      it('should reinstall dependencies and complete on exit', () => {
         const timestamp = new Date();
 
         // `take` a log message
         saga.next();
+
+        // ejecting requires that dependencies are reinstalled
+        const installProcessDescription = call(
+          [childProcess, childProcess.spawn],
+          PACKAGE_MANAGER_CMD,
+          ['install'],
+          {
+            cwd: projectPath,
+            env: getBaseProjectEnvironment(projectPath),
+          }
+        );
+
+        expect(
+          saga.next({ channel: 'exit', timestamp, wasSuccessful: true }).value
+        ).toEqual(installProcessDescription);
+
+        expect(saga.next(installProcessDescription).value).toEqual(
+          call(waitForChildProcessToComplete, installProcessDescription)
+        );
+
+        // The next call is to `loadDependencyInfoFromDisk`, which is a thunk.
+        // Thunks produce anonymous functions, which means we can't easily
+        // test it. For now, just verify that it produces a function.
+        // TODO: remove `JSON.stringify` once `redux-thunk` is removed
+        expect(JSON.stringify(saga.next().value)).toEqual(
+          JSON.stringify(
+            put(loadDependencyInfoFromDisk(task.projectId, projectPath))
+          )
+        );
 
         expect(
           saga.next({ channel: 'exit', timestamp, wasSuccessful: true }).value
@@ -264,19 +294,6 @@ describe('task saga', () => {
 
         expect(saga.next().value).toEqual(
           put(completeTask(task, timestamp, true))
-        );
-      });
-
-      it('should reload dependencies after eject', () => {
-        // `loadDependencyInfoFromDisk` is a thunk, thus two copies
-        // constructed with identical arguments will return unique
-        // copies of the same anonymous function. As such, their JSON
-        // stringified representations are used for testing equality.
-        // TODO: remove `JSON.stringify` once `redux-thunk` is removed
-        expect(JSON.stringify(saga.next().value)).toEqual(
-          JSON.stringify(
-            put(loadDependencyInfoFromDisk(task.projectId, projectPath))
-          )
         );
       });
     });
@@ -352,7 +369,9 @@ describe('task saga', () => {
       const saga = taskComplete({ task });
       saga.next();
 
-      expect(saga.next().value).toEqual(select(getProjectById, task.projectId));
+      expect(saga.next().value).toEqual(
+        select(getProjectById, { projectId: task.projectId })
+      );
       // stringify to avoid deep equal inconsistencies from thunk
       // TODO: remove `JSON.stringify` once `redux-thunk` is removed
       expect(JSON.stringify(saga.next(project).value)).toEqual(
