@@ -252,8 +252,34 @@ export const isDevServerTask = (name: string) =>
   // Gatsby and create-react-app use different names for the same task.
   name === 'start' || name === 'develop';
 
-export const isLifeCycleHook = (name: string) =>
-  name.startsWith('pre') || name.startsWith('post');
+// https://docs.npmjs.com/misc/scripts
+const preExistingTasks = [
+  'install',
+  'publish',
+  'publishOnly',
+  'pack',
+  'uninstall',
+  'version',
+  'test',
+  'stop',
+  'start',
+  'restart',
+  'shrinkwrap',
+];
+
+export const isLifeCycleHook = (name: string, tasks: Array<Task>) => {
+  // a lifecycle hook  always start with `pre` or `post`
+  if (!name.startsWith('pre') && !name.startsWith('post')) {
+    return false;
+  }
+
+  const potentialTaskName = name.replace(/^(pre|post)/, '');
+
+  return (
+    tasks.some(task => task.name === potentialTaskName) ||
+    preExistingTasks.indexOf(potentialTaskName) !== -1
+  );
+};
 
 const getTaskType = name => {
   // We have two kinds of tasks:
@@ -331,7 +357,8 @@ export const getTasksInTaskListForProjectId = createSelector(
     Object.keys(tasks)
       .map(taskId => tasks[taskId])
       .filter(
-        task => !isDevServerTask(task.name) && !isLifeCycleHook(task.name)
+        (task, i, tasksArray) =>
+          !isDevServerTask(task.name) && !isLifeCycleHook(task.name, tasksArray)
       )
 );
 
