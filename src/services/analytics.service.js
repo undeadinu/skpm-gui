@@ -11,7 +11,7 @@ import uuid from 'uuid/v1';
 
 import electronStore from './electron-store.service';
 
-export const MIXPANEL_KEY = '5840a1a4b9bdcdb518471f0e0830baa2';
+export const MIXPANEL_KEY = '4dfe6ee4390ff7853d936d6209861ba3';
 const DISTINCT_ID_KEY = 'distinct-id';
 
 export type EventType =
