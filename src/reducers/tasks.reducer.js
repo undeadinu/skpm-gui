@@ -248,9 +248,7 @@ export const getTaskDescription = (name: string) => {
   }
 };
 
-export const isDevServerTask = (name: string) =>
-  // Gatsby and create-react-app use different names for the same task.
-  name === 'start' || name === 'develop';
+export const isDevServerTask = (name: string) => name === 'watch';
 
 // https://docs.npmjs.com/misc/scripts
 const preExistingTasks = [
