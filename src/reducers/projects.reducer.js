@@ -20,15 +20,12 @@ import {
   getDependenciesForProjectId,
 } from './dependencies.reducer';
 import { getPaths, getPathForProjectId } from './paths.reducer';
+import { getCommands, getCommandsForProjectId } from './commands.reducer';
+
+import { menuToMenu } from '../services/plugin-menu.service';
 
 import type { Action } from 'redux';
-import { getCommands, getCommandsForProjectId } from './commands.reducer';
-import type {
-  ProjectInternal,
-  Project,
-  PluginMenuItem,
-  Command,
-} from '../types';
+import type { ProjectInternal, Project } from '../types';
 
 type ById = {
   [key: string]: ProjectInternal,
@@ -171,24 +168,6 @@ export default combineReducers({
 // Selectors
 type GlobalState = { projects: State };
 
-function menuToMenu(
-  menuItem: PluginMenuItem<string>,
-  commands: Array<Command>
-): PluginMenuItem<Command | void> {
-  if (menuItem === '-') {
-    return '-';
-  }
-  if (typeof menuItem === 'string') {
-    return commands.find(c => c.identifier === menuItem);
-  }
-  return {
-    items: menuItem.items
-      .map(i => menuToMenu(i, commands))
-      .filter(i => typeof i !== 'undefined'),
-    title: menuItem.title,
-  };
-}
-
 const mapObjectToArray = <T>(obj: { [string]: T }): Array<T> => {
   return obj ? Object.keys(obj).map(key => obj[key]) : [];
 };
@@ -212,7 +191,7 @@ const prepareProjectForConsumption = (
   projectPath,
   commandsMap
 ): Project => {
-  const menu = (project.__skpm_manifest || {}).menu || {};
+  const menu = (project.__skpm_manifest || {}).menu;
   const commands = mapObjectToArray(commandsMap);
   return {
     id: project.name,
@@ -225,13 +204,15 @@ const prepareProjectForConsumption = (
     icon: project.__skpm_icon,
     createdAt: project.__skpm_createdAt,
     commands,
-    pluginMenu: {
-      title: menu.title || (project.skpm || {}).name || project.name,
-      isRoot: menu.isRoot,
-      items: menu.items
-        .map(i => menuToMenu(i, commands))
-        .filter(i => typeof i !== 'undefined'),
-    },
+    pluginMenu: menu
+      ? {
+          title: menu.title || (project.skpm || {}).name || project.name,
+          isRoot: menu.isRoot,
+          items: menu.items
+            .map(i => menuToMenu(i, commands))
+            .filter(i => typeof i !== 'undefined'),
+        }
+      : undefined,
   };
 };
 

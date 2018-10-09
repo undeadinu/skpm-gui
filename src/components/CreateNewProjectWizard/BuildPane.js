@@ -51,7 +51,7 @@ type State = {
 class BuildPane extends PureComponent<Props, State> {
   timeoutId: ?number;
   state = {
-    currentBuildStep: BUILD_STEPS[0],
+    currentBuildStep: BUILD_STEP_KEYS[0],
     isCompleted: false,
     runInstaller: false,
   };

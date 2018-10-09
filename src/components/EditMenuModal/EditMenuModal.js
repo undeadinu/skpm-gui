@@ -3,7 +3,8 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import SortableTree, {
+import {
+  SortableTreeWithoutDndContext as SortableTree,
   removeNodeAtPath,
   changeNodeAtPath,
 } from 'react-sortable-tree';
@@ -11,58 +12,62 @@ import 'react-sortable-tree/style.css';
 import fileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
 
 // import { savePluginMenu } from '../../actions';
+import {
+  rootMenuToTree,
+  treeToRootMenu,
+  separatorNode,
+  commandNode,
+  submenuNode,
+  rootNode,
+} from './menu-tree-translator';
 
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
 import Toggle from '../Toggle';
-import { StrokeButton } from '../Button';
+import { StrokeButton, FillButton } from '../Button';
+import Paragraph from '../Paragraph';
+import ExternalNodeComponent, { externalNodeType } from './ItemToAdd';
 
-import type { PluginMenuRoot, PluginMenuItem, Command } from '../../types';
+import { COLORS } from '../../constants';
+
+import type { PluginMenuRoot, Command } from '../../types';
+import type { Tree } from './types';
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 
 type Props = {
-  menu: PluginMenuRoot,
+  menu: PluginMenuRoot | void,
   commands: Command[],
   isVisible: boolean,
   onDismiss: () => void,
   // From Redux:
-  savePluginMenu: (menu: PluginMenuRoot) => any,
-};
-
-type Tree = {
-  title: '-' | string,
-  expanded: true,
-  children?: Tree[],
-  type: 'separator' | 'submenu' | 'root' | 'command',
+  savePluginMenu: (menu: PluginMenuRoot | void) => any,
 };
 
 type State = {
   isVisible: boolean,
+  displayMenu: boolean,
   tree: Tree[],
   isRoot: boolean,
 };
 
-function menuToTree(item: PluginMenuItem<Command | void>): Tree {
-  if (!item) {
-    return { expanded: true, title: '-- Separator --', type: 'separator' };
-  } else if (item === '-') {
-    return { expanded: true, title: '-- Separator --', type: 'separator' };
-  } else if (item.title) {
+function getStateFromProps(props: Props) {
+  const menu = props.menu;
+
+  if (!menu) {
     return {
-      expanded: true,
-      title: item.title,
-      children: item.items.map(i => menuToTree(i)),
-      type: 'submenu',
-    };
-  } else if (item.identifier) {
-    return {
-      expanded: true,
-      title: item.name,
-      type: 'command',
+      displayMenu: false,
+      isVisible: props.isVisible,
+      tree: [],
+      isRoot: false,
     };
   } else {
-    throw new Error('impossible');
+    return {
+      displayMenu: true,
+      isVisible: props.isVisible,
+      tree: rootMenuToTree(menu),
+      isRoot: !!menu.isRoot,
+    };
   }
 }
 
@@ -70,133 +75,34 @@ class EditMenuModal extends PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = {
-      isVisible: props.isVisible,
-      tree: props.menu.isRoot
-        ? props.menu.items.map(i => menuToTree(i))
-        : [
-            {
-              expanded: true,
-              title: props.menu.title,
-              children: props.menu.items.map(i => menuToTree(i)),
-              type: 'root',
-            },
-          ],
-      isRoot: !!props.menu.isRoot,
-    };
+    this.state = getStateFromProps(props);
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
     if (props.isVisible !== state.isVisible) {
-      return {
-        isVisible: props.isVisible,
-        tree: props.menu.isRoot
-          ? props.menu.items.map(i => menuToTree(i))
-          : [
-              {
-                expanded: true,
-                title: props.menu.title,
-                children: props.menu.items.map(i => menuToTree(i)),
-                type: 'root',
-              },
-            ],
-        isRoot: !!props.menu.isRoot,
-      };
+      return getStateFromProps(props);
     }
 
     return null;
   }
 
-  handleToggleRoot = (isRoot: boolean) =>
+  handleToggleDisplay = (displayMenu: boolean) =>
+    this.setState({ displayMenu });
+
+  handleToggleRoot = (isNested: boolean) =>
     this.setState(state => ({
-      isRoot,
-      tree: isRoot
+      isRoot: !isNested,
+      tree: !isNested
         ? state.tree[0].children
         : [
-            {
-              expanded: true,
-              title: this.props.menu.title,
-              children: state.tree,
-              type: 'root',
-            },
+            rootNode(
+              (this.props.menu || { title: 'My plugin' }).title,
+              state.tree
+            ),
           ],
     }));
 
   handleTreeChange = tree => this.setState({ tree });
-
-  addSubmenu = () =>
-    this.setState(state => ({
-      tree: state.isRoot
-        ? [
-            ...state.tree,
-            {
-              expanded: true,
-              title: 'Click to rename me',
-              children: [],
-              type: 'submenu',
-            },
-          ]
-        : [
-            {
-              ...state.tree[0],
-              children: [
-                ...(state.tree[0].children || []),
-                {
-                  expanded: true,
-                  title: 'Click to rename me',
-                  children: [],
-                  type: 'submenu',
-                },
-              ],
-            },
-          ],
-    }));
-
-  addSeparator = () =>
-    this.setState(state => ({
-      tree: state.isRoot
-        ? [
-            ...state.tree,
-            { expanded: true, title: '-- Separator --', type: 'separator' },
-          ]
-        : [
-            {
-              ...state.tree[0],
-              children: [
-                ...(state.tree[0].children || []),
-                { expanded: true, title: '-- Separator --', type: 'separator' },
-              ],
-            },
-          ],
-    }));
-
-  addCommand = () =>
-    this.setState(state => ({
-      tree: state.isRoot
-        ? [
-            ...state.tree,
-            {
-              expanded: true,
-              title: 'Click to rename me',
-              children: [],
-              type: 'submenu',
-            },
-          ]
-        : [
-            {
-              ...state.tree[0],
-              children: [
-                ...(state.tree[0].children || []),
-                {
-                  expanded: true,
-                  title: 'Click to rename me',
-                  children: [],
-                  type: 'submenu',
-                },
-              ],
-            },
-          ],
-    }));
 
   canDrag = e => e.node.type !== 'root';
 
@@ -234,8 +140,8 @@ class EditMenuModal extends PureComponent<Props, State> {
   };
 
   renderContents() {
-    const { isVisible } = this.props;
-    const { isRoot, tree } = this.state;
+    const { isVisible, commands, savePluginMenu } = this.props;
+    const { isRoot, tree, displayMenu } = this.state;
 
     if (!isVisible) {
       return null;
@@ -246,67 +152,147 @@ class EditMenuModal extends PureComponent<Props, State> {
         <ModalHeader
           title="Plugin Menu"
           action={
-            <Toggle
-              size={32}
-              isToggled={isRoot}
-              onToggle={this.handleToggleRoot}
-            />
+            <FillButton
+              onClick={() =>
+                savePluginMenu(
+                  displayMenu ? treeToRootMenu(tree, commands) : undefined
+                )
+              }
+              size="medium"
+              colors={[COLORS.green[700], COLORS.lightGreen[500]]}
+            >
+              Save Menu
+            </FillButton>
           }
         />
         <MainContent>
-          <SortableTree
-            treeData={tree}
-            onChange={this.handleTreeChange}
-            theme={fileExplorerTheme}
-            canDrag={this.canDrag}
-            canDrop={this.canDrop}
-            generateNodeProps={({ node, path }) => ({
-              buttons: [
-                node.type === 'submenu' ? (
-                  <StrokeButton
-                    size="xsmall"
-                    onClick={() => this.renameSubmenu({ node, path })}
-                  >
-                    Edit
-                  </StrokeButton>
-                ) : null,
-                node.type !== 'root' ? (
-                  <StrokeButton
-                    size="xsmall"
-                    onClick={() => this.removeItem({ node, path })}
-                  >
-                    Remove
-                  </StrokeButton>
-                ) : null,
-              ],
-            })}
-          />
-          <StrokeButton onClick={this.addSubmenu}>Add a submenu</StrokeButton>
-          <StrokeButton onClick={this.addSeparator}>
-            Add a separator
-          </StrokeButton>
-          <StrokeButton onClick={this.addCommand}>Add a command</StrokeButton>
+          <LeftPane>
+            <Paragraph>
+              Add items to the menu by dragging them to their position.
+            </Paragraph>
+            <Paragraph>
+              <strong>A line separator</strong>
+            </Paragraph>
+            <ExternalNodeComponent node={separatorNode()} />
+            <Paragraph>
+              <strong>A submenu</strong>
+            </Paragraph>
+            <ExternalNodeComponent
+              editable
+              node={submenuNode('Click to rename me', [])}
+            />
+            <Paragraph>
+              <strong>An item which triggers the command when clicked</strong>
+            </Paragraph>
+            {commands.map(command => (
+              <ExternalNodeComponent
+                key={command.identifier}
+                node={commandNode(command)}
+              />
+            ))}
+          </LeftPane>
+          <RightPane>
+            <Setting>
+              Display a menu in the "Plugins" menu of Sketch
+              <Toggle
+                size={16}
+                isToggled={displayMenu}
+                onToggle={this.handleToggleDisplay}
+              />
+            </Setting>
+            <Setting>
+              Keep the plugin menu in its own menu
+              <Toggle
+                size={16}
+                isToggled={!isRoot}
+                onToggle={this.handleToggleRoot}
+              />
+            </Setting>
+            <SortableTree
+              treeData={tree}
+              onChange={this.handleTreeChange}
+              dndType={externalNodeType}
+              theme={fileExplorerTheme}
+              canDrag={this.canDrag}
+              canDrop={this.canDrop}
+              generateNodeProps={({ node, path }) => ({
+                buttons: [
+                  // node.type === 'submenu' ? (
+                  //   <StrokeButton
+                  //     size="xsmall"
+                  //     onClick={() => this.renameSubmenu({ node, path })}
+                  //   >
+
+                  //   </StrokeButton>
+                  // ) : null,
+                  node.type !== 'root' ? (
+                    <StrokeButton
+                      title="Remove"
+                      size="xsmall"
+                      strokeColors={['#FFFFFF']}
+                      onClick={() => this.removeItem({ node, path })}
+                    >
+                      🗑
+                    </StrokeButton>
+                  ) : null,
+                ],
+              })}
+            />
+          </RightPane>
         </MainContent>
       </Fragment>
     );
   }
-
   render() {
     const { isVisible, onDismiss } = this.props;
 
     return (
-      <Modal width={620} isVisible={isVisible} onDismiss={onDismiss}>
+      <Modal width={680} isVisible={isVisible} onDismiss={onDismiss}>
         {this.renderContents()}
       </Modal>
     );
   }
 }
-
 const MainContent = styled.section`
   padding: 25px;
-  height: 400px;
+  height: 500px;
+  display: flex;
+  flex-direction: row;
 `;
 
+const LeftPane = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + 50px);
+  border-bottom-left-radius: 8px;
+  width: 280px;
+  margin-top: -25px;
+  margin-left: -25px;
+  padding: 25px;
+  color: ${COLORS.white};
+  background-image: linear-gradient(
+    70deg,
+    ${COLORS.orange[700]},
+    ${COLORS.yellow[500]}
+  );
+  overflow: scroll;
+`;
+
+const RightPane = styled.div`
+  height: calc(100% + 25px);
+  margin-right: -25px;
+  width: calc(100% - 230px);
+  margin-bottom: -25px;
+`;
+
+const Setting = styled.div`
+  display: flex;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  justify-content: space-between;
+`;
 export default connect(
   null
   // { savePluginMenu }

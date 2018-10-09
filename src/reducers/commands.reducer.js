@@ -18,10 +18,12 @@ import {
 import type { Action } from 'redux';
 import type { Command, ProjectInternal } from '../types';
 
+type CommandMap = {
+  [commandId: string]: Command,
+};
+
 type State = {
-  [projectId: string]: {
-    [commandId: string]: Command,
-  },
+  [projectId: string]: CommandMap,
 };
 
 const initialState = {};
@@ -232,15 +234,5 @@ export default (state: State = initialState, action: Action) => {
 export const getCommands = (state: any) => state.commands;
 export const getCommandsForProjectId = (
   state: any,
-  projectId: string
-): Array<Command> => {
-  const commandsForProject = state.commands[projectId];
-
-  if (!commandsForProject) {
-    return [];
-  }
-
-  return Object.keys(commandsForProject)
-    .sort()
-    .map(id => commandsForProject[id]);
-};
+  props: { projectId: string }
+): CommandMap => state.commands[props.projectId];

@@ -10623,7 +10623,7 @@ react-dnd-html5-backend@2.5.4:
   dependencies:
     lodash "^4.2.0"
 
-react-dnd-html5-backend@3.0.2:
+react-dnd-html5-backend@3.0.2, react-dnd-html5-backend@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-3.0.2.tgz#87172fd4be90e45353119b40e10f591ddf8661ed"
   integrity sha1-hxcv1L6Q5FNTEZtA4Q9ZHd+GYe0=
@@ -10656,7 +10656,7 @@ react-dnd@2.5.4:
     lodash "^4.2.0"
     prop-types "^15.5.10"
 
-react-dnd@3.0.2:
+react-dnd@3.0.2, react-dnd@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-3.0.2.tgz#b0c23d8d82969f5b7be34cbc4f84fa1ffc5c7ddc"
   integrity sha1-sMI9jYKWn1t740y8T4T6H/xcfdw=

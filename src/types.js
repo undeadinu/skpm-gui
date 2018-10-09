@@ -191,7 +191,7 @@ export type Project = {
   path: string,
   manifestPath: string,
   commands: Array<Command>,
-  pluginMenu: PluginMenuRoot,
+  pluginMenu: PluginMenuRoot | void,
 };
 
 export type ProjectsMap = { [id: string]: Project };

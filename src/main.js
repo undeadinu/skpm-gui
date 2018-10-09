@@ -16,7 +16,7 @@ const chalk = new chalkRaw.constructor({ level: 3 });
 // In production, we need to use `fixPath` to let Guppy use NPM.
 // For reasons unknown, the opposite is true in development; adding this breaks
 // everything.
-if (process.env.NODE_ENV !== 'development') {
+if (process.env.NODE_ENV === 'development') {
   fixPath();
 }
 
