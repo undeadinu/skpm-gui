@@ -44,12 +44,12 @@ describe('delete-project saga', () => {
       expect(saga.next().value).toEqual(
         call([electron.remote.dialog, electron.remote.dialog.showMessageBox], {
           type: 'warning',
-          buttons: ['Delete from Guppy', 'Delete from Disk', 'Cancel'],
+          buttons: ['Delete from Skpm', 'Delete from Disk', 'Cancel'],
           defaultId: 0,
           cancelId: 2,
           title: `Delete ${project.name}`,
           message: `Are you sure you want to delete ${project.name}?`,
-          detail: `Deleting from Guppy will remove ${
+          detail: `Deleting from Skpm will remove ${
             project.name
           } from the app, but doesn't remove it from your computer.\n\nIMPORTANT! Deleting from disk will send the project to trash!`,
         })

@@ -11,13 +11,15 @@ import {
   IMPORT_EXISTING_PROJECT_START,
   SAVE_PROJECT_SETTINGS_FINISH,
   SHOW_PROJECT_SETTINGS,
+  SHOW_PLUGIN_MENU,
+  SAVE_PLUGIN_MENU_FINISH,
   HIDE_MODAL,
   RESET_ALL_STATE,
 } from '../actions';
 
 import type { Action } from 'redux';
 
-type State = 'new-project-wizard' | 'project-settings' | null;
+type State = 'new-project-wizard' | 'project-settings' | 'plugin-menu' | null;
 
 const initialState = null;
 
@@ -29,10 +31,14 @@ export default (state: State = initialState, action: Action = {}) => {
     case SHOW_PROJECT_SETTINGS:
       return 'project-settings';
 
+    case SHOW_PLUGIN_MENU:
+      return 'plugin-menu';
+
     case CREATE_NEW_PROJECT_CANCEL:
     case CREATE_NEW_PROJECT_FINISH:
     case IMPORT_EXISTING_PROJECT_START:
     case SAVE_PROJECT_SETTINGS_FINISH:
+    case SAVE_PLUGIN_MENU_FINISH:
     case HIDE_MODAL:
       return null;
 

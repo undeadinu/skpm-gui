@@ -69,10 +69,11 @@ export default (state: State = initialState, action: Action = {}) => {
     }
 
     case SAVE_PROJECT_SETTINGS_FINISH: {
-      const { project, projectPath } = action;
+      const { oldId, id, projectPath } = action;
 
       return produce(state, draftState => {
-        draftState.byId[project.name] = projectPath;
+        delete draftState.byId[oldId];
+        draftState.byId[id] = projectPath;
       });
     }
 

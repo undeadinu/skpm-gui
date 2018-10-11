@@ -92,11 +92,11 @@ export type PluginMenu<T> = {|
 
 export type PluginMenuItem<T> = '-' | T | PluginMenu<T>;
 
-export type PluginMenuRootInternal = {|
+export type PluginMenuRootInternal = {
   title?: string,
-  items: PluginMenuItem<string>[],
+  items?: PluginMenuItem<string>[],
   isRoot?: boolean,
-|};
+};
 
 export type Command = {|
   identifier: string,
@@ -116,7 +116,7 @@ export type Command = {|
 
 export type PluginMenuRoot = {|
   title: string,
-  items: PluginMenuItem<Command | void>[],
+  items: PluginMenuItem<Command>[],
   isRoot?: boolean,
 |};
 
@@ -150,9 +150,9 @@ export type ProjectInternal = {
   __skpm_manifest?: {
     name?: string,
     appcast?: string,
-    bundleVersion: 1,
+    bundleVersion?: 1,
     disableCocoaScriptPreprocessor?: boolean,
-    commands: CommandInternal[],
+    commands?: CommandInternal[],
     menu?: PluginMenuRootInternal,
   },
   __skpm_icon?: string,

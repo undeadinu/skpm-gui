@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { remote } from 'electron';
 import * as fs from 'fs';
 
-import defaultPluginIconSrc from '../../assets/images/default-plugin-icon.png';
+import defaultPluginIcon from '../../assets/images/default-plugin-icon.png';
 
 import SelectableImage from '../SelectableImage';
 import { FillButton } from '../Button';
@@ -51,7 +51,7 @@ class ProjectIconSelection extends Component<Props> {
     return (
       <ProjectIconWrapper>
         <SelectableImage
-          src={icon ? `data:image/png;base64, ${icon}` : defaultPluginIconSrc}
+          src={`data:image/png;base64, ${icon ? icon : defaultPluginIcon}`}
           size={DEFAULT_ICON_SIZE}
           onClick={this.updateIcon}
           status="default"

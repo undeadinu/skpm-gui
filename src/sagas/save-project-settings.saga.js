@@ -5,6 +5,8 @@ import slug from 'slug';
 import {
   loadPackageJson,
   writePackageJson,
+  // loadManifestJson,
+  // writeManifestJson,
 } from '../services/read-from-disk.service';
 
 import * as fs from 'fs';
@@ -15,6 +17,8 @@ import {
   saveProjectSettingsFinish,
   SAVE_PROJECT_SETTINGS_START,
 } from '../actions';
+
+import defaultPluginIcon from '../assets/images/default-plugin-icon.png';
 
 const { dialog } = remote;
 const { showErrorBox } = dialog;
@@ -49,6 +53,16 @@ export function* handleProjectSaveError(err: Error): Saga<void> {
       break;
     }
 
+    case 'loading-manifestJson-failed': {
+      // EPERM: operation not permitted, open
+      yield call(
+        showErrorBox,
+        'Reading not permitted',
+        "Egad! Couldn't read manifest.json. Please check that you're having the permission to read the directory."
+      );
+      break;
+    }
+
     default: {
       yield call([console, console.error], err);
       yield call(
@@ -62,19 +76,31 @@ export function* handleProjectSaveError(err: Error): Saga<void> {
 
 export function* handleSaveSettings(action: any): Saga<void> {
   const { project, name, icon } = action;
-  const { path: projectPath, name: oldName } = project;
+  const { path: projectPath, name: oldName, id: oldId } = project;
   const newNameSlug = slug(name).toLowerCase();
   const parentPath = path.resolve(projectPath, '../');
   let newPath = projectPath;
 
-  let json;
+  let packageJson;
   try {
     // Let's load the basic project info for the path specified, if possible.
-    json = yield call(loadPackageJson, projectPath);
+    packageJson = yield call(loadPackageJson, projectPath);
   } catch (err) {
     yield call(handleProjectSaveError, new Error('loading-packageJson-failed'));
     return;
   }
+
+  // let manifestJson;
+  // try {
+  //   // Let's load the basic project info for the path specified, if possible.
+  //   manifestJson = yield call(loadManifestJson, projectPath, packageJson);
+  // } catch (err) {
+  //   yield call(
+  //     handleProjectSaveError,
+  //     new Error('loading-manifestJson-failed')
+  //   );
+  //   return;
+  // }
 
   try {
     // Check if name changed
@@ -105,19 +131,27 @@ export function* handleSaveSettings(action: any): Saga<void> {
     }
 
     // Apply changes to packageJSON
-    const newProject = yield call(writePackageJson, newPath, {
-      ...json,
+    yield call(writePackageJson, newPath, {
+      ...packageJson,
       name: newNameSlug,
-      guppy: {
-        ...(json && json.guppy),
-        // Don't override id here as it is a unique id that must not be changed.
+      skpm: {
+        ...(packageJson && packageJson.skpm),
         name,
-        icon,
       },
     });
 
+    if (project.icon !== icon) {
+      fs.writeFileSync(
+        path.join(projectPath, 'assets', 'icon.png'),
+        icon ? icon : defaultPluginIcon,
+        'base64'
+      );
+    }
+
     // Update state & close modal
-    yield put(saveProjectSettingsFinish(newProject, newPath));
+    yield put(
+      saveProjectSettingsFinish(oldId, newNameSlug, name, icon, newPath)
+    );
   } catch (err) {
     yield call(handleProjectSaveError, err);
   }

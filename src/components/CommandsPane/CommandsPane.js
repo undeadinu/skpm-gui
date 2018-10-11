@@ -2,30 +2,28 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { runTask, abortTask } from '../../actions';
+import * as actions from '../../actions';
 import { getSelectedProject } from '../../reducers/projects.reducer';
 
 import Module from '../Module';
 import CommandRunnerPaneRow from '../CommandRunnerPaneRow';
 import { StrokeButton } from '../Button';
-import EditMenuModal from '../EditMenuModal';
 import { SKPM_REPO_URL } from '../../constants';
 
 import type { Project } from '../../types';
 
 type Props = {
   project: Project,
+  showPluginMenu: () => void,
 };
 
 type State = {
   selectedCommandId: ?string,
-  editingMenu: boolean,
 };
 
 class CommandsPane extends Component<Props, State> {
   state = {
     selectedCommandId: null,
-    editingMenu: false,
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -51,24 +49,16 @@ class CommandsPane extends Component<Props, State> {
     this.setState({ selectedCommandId: null });
   };
 
-  handleEditMenu = () => {
-    this.setState({ editingMenu: true });
-  };
-
-  handleDismissEditMenu = () => {
-    this.setState({ editingMenu: false });
-  };
-
   render() {
-    const { project } = this.props;
-    const { selectedCommandId, editingMenu } = this.state;
+    const { project, showPluginMenu } = this.props;
+    const { selectedCommandId } = this.state;
 
     return (
       <Module
         title="Plugin Commands"
         moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#commands`}
         primaryActionChildren={
-          <StrokeButton onClick={this.handleEditMenu}>Edit menu</StrokeButton>
+          <StrokeButton onClick={showPluginMenu}>Edit menu</StrokeButton>
         }
       >
         {project.commands.map(command => (
@@ -81,13 +71,6 @@ class CommandsPane extends Component<Props, State> {
             onViewDetails={this.handleViewDetails}
           />
         ))}
-
-        <EditMenuModal
-          menu={project.pluginMenu}
-          commands={project.commands}
-          isVisible={!!editingMenu}
-          onDismiss={this.handleDismissEditMenu}
-        />
       </Module>
     );
   }
@@ -99,5 +82,9 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { runTask, abortTask }
+  {
+    runTask: actions.runTask,
+    abortTask: actions.abortTask,
+    showPluginMenu: actions.showPluginMenu,
+  }
 )(CommandsPane);

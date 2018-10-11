@@ -67,6 +67,7 @@
     "babel-plugin-named-asset-import": "1.0.0-next.66cc7a90",
     "babel-plugin-react-docgen": "2.0.0-babel7.0",
     "babel-preset-react-app": "4.0.0-next.66cc7a90",
+    "base64-inline-loader": "^1.1.1",
     "case-sensitive-paths-webpack-plugin": "2.1.1",
     "chalk": "2.4.1",
     "codecov": "3.1.0",

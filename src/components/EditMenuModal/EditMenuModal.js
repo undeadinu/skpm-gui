@@ -11,7 +11,8 @@ import {
 import 'react-sortable-tree/style.css';
 import fileExplorerTheme from 'react-sortable-tree-theme-full-node-drag';
 
-// import { savePluginMenu } from '../../actions';
+import * as actions from '../../actions';
+import { getSelectedProject } from '../../reducers/projects.reducer';
 import {
   rootMenuToTree,
   treeToRootMenu,
@@ -30,18 +31,16 @@ import ExternalNodeComponent, { externalNodeType } from './ItemToAdd';
 
 import { COLORS } from '../../constants';
 
-import type { PluginMenuRoot, Command } from '../../types';
+import type { PluginMenuRoot, Project } from '../../types';
 import type { Tree } from './types';
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 
 type Props = {
-  menu: PluginMenuRoot | void,
-  commands: Command[],
+  project: Project,
   isVisible: boolean,
-  onDismiss: () => void,
-  // From Redux:
-  savePluginMenu: (menu: PluginMenuRoot | void) => any,
+  hideModal: () => void,
+  savePluginMenu: (menu: PluginMenuRoot | void, project: Project) => any,
 };
 
 type State = {
@@ -52,7 +51,7 @@ type State = {
 };
 
 function getStateFromProps(props: Props) {
-  const menu = props.menu;
+  const menu = props.project.pluginMenu;
 
   if (!menu) {
     return {
@@ -96,7 +95,7 @@ class EditMenuModal extends PureComponent<Props, State> {
         ? state.tree[0].children
         : [
             rootNode(
-              (this.props.menu || { title: 'My plugin' }).title,
+              (this.props.project.pluginMenu || { title: 'My plugin' }).title,
               state.tree
             ),
           ],
@@ -140,7 +139,7 @@ class EditMenuModal extends PureComponent<Props, State> {
   };
 
   renderContents() {
-    const { isVisible, commands, savePluginMenu } = this.props;
+    const { isVisible, project, savePluginMenu } = this.props;
     const { isRoot, tree, displayMenu } = this.state;
 
     if (!isVisible) {
@@ -155,7 +154,10 @@ class EditMenuModal extends PureComponent<Props, State> {
             <FillButton
               onClick={() =>
                 savePluginMenu(
-                  displayMenu ? treeToRootMenu(tree, commands) : undefined
+                  displayMenu
+                    ? treeToRootMenu(tree, project.commands)
+                    : undefined,
+                  project
                 )
               }
               size="medium"
@@ -184,7 +186,7 @@ class EditMenuModal extends PureComponent<Props, State> {
             <Paragraph>
               <strong>An item which triggers the command when clicked</strong>
             </Paragraph>
-            {commands.map(command => (
+            {project.commands.map(command => (
               <ExternalNodeComponent
                 key={command.identifier}
                 node={commandNode(command)}
@@ -244,10 +246,10 @@ class EditMenuModal extends PureComponent<Props, State> {
     );
   }
   render() {
-    const { isVisible, onDismiss } = this.props;
+    const { isVisible, hideModal } = this.props;
 
     return (
-      <Modal width={680} isVisible={isVisible} onDismiss={onDismiss}>
+      <Modal width={680} isVisible={isVisible} onDismiss={hideModal}>
         {this.renderContents()}
       </Modal>
     );
@@ -293,7 +295,16 @@ const Setting = styled.div`
   padding-right: 15px;
   justify-content: space-between;
 `;
+
+const mapStateToProps = state => {
+  const project = getSelectedProject(state);
+
+  return {
+    project,
+    isVisible: state.modal === 'plugin-menu',
+  };
+};
 export default connect(
-  null
-  // { savePluginMenu }
+  mapStateToProps,
+  { savePluginMenu: actions.savePluginMenuStart, hideModal: actions.hideModal }
 )(EditMenuModal);

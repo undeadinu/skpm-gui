@@ -29,7 +29,7 @@ export const rootNode = (title: string, children: Tree[]): Tree => ({
   type: 'root',
 });
 
-function menuToTree(item: PluginMenuItem<Command | void>): Tree {
+function menuToTree(item: PluginMenuItem<Command>): Tree {
   if (!item) {
     return separatorNode();
   } else if (item === '-') {
@@ -46,15 +46,16 @@ function menuToTree(item: PluginMenuItem<Command | void>): Tree {
 function treeToMenu(
   tree: Tree,
   commands: Array<Command>
-): PluginMenuItem<Command | void> {
+): PluginMenuItem<Command> {
   if (tree.type === 'separator') {
     return '-';
   } else if (tree.type === 'submenu') {
     return {
       title: tree.title,
-      items: tree.items.map(treeToMenu),
+      items: tree.children.map(treeToMenu),
     };
   } else if (tree.type === 'command') {
+    // $FlowFixMe
     return commands.find(command => command.identifier === tree.identifier);
   } else {
     throw new Error('impossible');
@@ -80,6 +81,6 @@ export function treeToRootMenu(
       }
     : {
         title: tree[0].title,
-        items: tree[0].items.map(t => treeToMenu(t, commands)),
+        items: tree[0].children.map(t => treeToMenu(t, commands)),
       };
 }

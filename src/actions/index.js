@@ -11,6 +11,8 @@ import type {
   Task,
   Dependency,
   QueuedDependency,
+  PluginMenuRoot,
+  PluginMenuRootInternal,
 } from '../types';
 
 //
@@ -78,6 +80,11 @@ export const SHOW_PROJECT_SETTINGS = 'SHOW_PROJECT_SETTINGS';
 export const SAVE_PROJECT_SETTINGS_START = 'SAVE_PROJECT_SETTINGS_START';
 export const SAVE_PROJECT_SETTINGS_ERROR = 'SAVE_PROJECT_SETTINGS_ERROR';
 export const SAVE_PROJECT_SETTINGS_FINISH = 'SAVE_PROJECT_SETTINGS_FINISH';
+
+export const SHOW_PLUGIN_MENU = 'SHOW_PLUGIN_MENU';
+export const SAVE_PLUGIN_MENU_START = 'SAVE_PLUGIN_MENU_START';
+export const SAVE_PLUGIN_MENU_ERROR = 'SAVE_PLUGIN_MENU_ERROR';
+export const SAVE_PLUGIN_MENU_FINISH = 'SAVE_PLUGIN_MENU_FINISH';
 //
 //
 // Action Creators
@@ -364,12 +371,40 @@ export const saveProjectSettingsStart = (
 });
 
 export const saveProjectSettingsFinish = (
-  project: ProjectInternal,
+  oldId: string,
+  id: string,
+  name: string,
+  icon: string | void,
   projectPath: string
 ) => ({
   type: SAVE_PROJECT_SETTINGS_FINISH,
-  project,
+  oldId,
+  id,
+  name,
+  icon,
   projectPath,
+});
+
+export const showPluginMenu = () => ({
+  type: SHOW_PLUGIN_MENU,
+});
+
+export const savePluginMenuStart = (
+  menu: PluginMenuRoot | void,
+  project: Project
+) => ({
+  type: SAVE_PLUGIN_MENU_START,
+  menu,
+  project,
+});
+
+export const savePluginMenuFinish = (
+  menu: PluginMenuRootInternal | void,
+  project: Project
+) => ({
+  type: SAVE_PLUGIN_MENU_FINISH,
+  menu,
+  project,
 });
 
 export const finishDeletingProject = (projectId: string) => ({

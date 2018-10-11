@@ -104,15 +104,13 @@ export default (state: State = initialState, action: Action = {}) => {
     }
 
     case SAVE_PROJECT_SETTINGS_FINISH: {
-      const { project } = action;
-
-      const projectId = project.name;
+      const { id, oldId } = action;
 
       return produce(state, draftState => {
-        Object.keys(project.scripts).forEach(name => {
-          const command = project.scripts[name];
-
-          draftState[projectId][name] = buildNewTask(projectId, name, command);
+        delete draftState[oldId];
+        draftState[id] = state[oldId];
+        Object.keys(state[oldId]).forEach(taskName => {
+          draftState[id][taskName].projectId = id;
         });
       });
     }

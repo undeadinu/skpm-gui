@@ -14,6 +14,7 @@ import ProjectPage from '../ProjectPage';
 import CreateNewProjectWizard from '../CreateNewProjectWizard';
 import ProjectConfigurationModal from '../ProjectConfigurationModal';
 import Initialization from '../Initialization';
+import EditMenuModal from '../EditMenuModal';
 
 import type { Project } from '../../types';
 
@@ -44,6 +45,7 @@ class App extends PureComponent<Props> {
 
               <CreateNewProjectWizard />
               <ProjectConfigurationModal />
+              <EditMenuModal />
             </Fragment>
           )
         }

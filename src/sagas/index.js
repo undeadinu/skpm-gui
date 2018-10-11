@@ -2,6 +2,7 @@ import { all } from 'redux-saga/effects';
 
 import refreshProjectsSaga from './refresh-projects.saga';
 import saveProjectSettingsSaga from './save-project-settings.saga';
+import savePluginMenuSaga from './save-plugin-menu.saga';
 import deleteProjectSaga from './delete-project.saga';
 import dependencySaga from './dependency.saga';
 import importProjectSaga from './import-project.saga';
@@ -18,6 +19,7 @@ export default function*() {
     importProjectSaga(),
     taskSaga(),
     saveProjectSettingsSaga(),
+    savePluginMenuSaga(),
     developmentSaga(),
     queueSaga(),
     analyticsSaga(),

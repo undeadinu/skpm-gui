@@ -13,6 +13,7 @@ import {
   ADD_COMMAND_START,
   ADD_COMMAND_ERROR,
   ADD_COMMAND_FINISH,
+  SAVE_PROJECT_SETTINGS_FINISH,
 } from '../actions';
 
 import type { Action } from 'redux';
@@ -45,7 +46,7 @@ export default (state: State = initialState, action: Action) => {
             draftState[projectId] = {};
           }
 
-          const commands = (project.__skpm_manifest || {}).commands;
+          const commands = (project.__skpm_manifest || {}).commands || [];
 
           // remove the commands that don't exist anymore
           Object.keys(draftState[projectId]).forEach(identifier => {
@@ -219,6 +220,15 @@ export default (state: State = initialState, action: Action) => {
 
       return produce(state, draftState => {
         delete draftState[projectId][identifier];
+      });
+    }
+
+    case SAVE_PROJECT_SETTINGS_FINISH: {
+      const { id, oldId } = action;
+
+      return produce(state, draftState => {
+        delete draftState[oldId];
+        draftState[id] = state[oldId];
       });
     }
 

@@ -11,6 +11,7 @@ import {
   INSTALL_DEPENDENCIES_FINISH,
   REFRESH_PROJECTS_FINISH,
   SAVE_PROJECT_SETTINGS_FINISH,
+  SAVE_PLUGIN_MENU_FINISH,
   SELECT_PROJECT,
   RESET_ALL_STATE,
 } from '../actions';
@@ -22,7 +23,7 @@ import {
 import { getPaths, getPathForProjectId } from './paths.reducer';
 import { getCommands, getCommandsForProjectId } from './commands.reducer';
 
-import { menuToMenu } from '../services/plugin-menu.service';
+import { internalMenuToMenu } from '../services/plugin-menu.service';
 
 import type { Action } from 'redux';
 import type { ProjectInternal, Project } from '../types';
@@ -80,13 +81,29 @@ const byIdReducer = (state: ById = initialState.byId, action: Action = {}) => {
     }
 
     case SAVE_PROJECT_SETTINGS_FINISH: {
-      const { project } = action;
-      const {
-        guppy: { id },
-      } = project;
+      const { oldId, id, name, icon } = action;
 
       return produce(state, draftState => {
-        draftState[id] = project;
+        delete draftState[oldId];
+        draftState[id] = state[oldId];
+        draftState[id].name = id;
+        if (!draftState[id].skpm) {
+          draftState[id].skpm = {};
+        }
+        draftState[id].skpm.name = name;
+        draftState[id].__skpm_icon = icon;
+      });
+    }
+
+    case SAVE_PLUGIN_MENU_FINISH: {
+      const { menu, project } = action;
+      const { id } = project;
+
+      return produce(state, draftState => {
+        if (!draftState[id].__skpm_manifest) {
+          draftState[id].__skpm_manifest = {};
+        }
+        draftState[id].__skpm_manifest.menu = menu;
       });
     }
 
@@ -132,7 +149,7 @@ const selectedIdReducer = (
     }
 
     case SAVE_PROJECT_SETTINGS_FINISH: {
-      return action.project.name;
+      return action.id;
     }
 
     case SELECT_PROJECT: {
@@ -185,13 +202,12 @@ const mapObjectToArray = <T>(obj: { [string]: T }): Array<T> => {
 //  - Serve a minimal subset of the `project` fields, avoiding the weirdness
 //    with multiple names, and all the raw unnecessary package.json data.
 const prepareProjectForConsumption = (
-  project,
+  project: ProjectInternal,
   tasks,
   dependencies,
   projectPath,
   commandsMap
 ): Project => {
-  const menu = (project.__skpm_manifest || {}).menu;
   const commands = mapObjectToArray(commandsMap);
   return {
     id: project.name,
@@ -204,15 +220,7 @@ const prepareProjectForConsumption = (
     icon: project.__skpm_icon,
     createdAt: project.__skpm_createdAt,
     commands,
-    pluginMenu: menu
-      ? {
-          title: menu.title || (project.skpm || {}).name || project.name,
-          isRoot: menu.isRoot,
-          items: menu.items
-            .map(i => menuToMenu(i, commands))
-            .filter(i => typeof i !== 'undefined'),
-        }
-      : undefined,
+    pluginMenu: internalMenuToMenu(project, commands),
   };
 };
 

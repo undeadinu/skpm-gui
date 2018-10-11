@@ -22,7 +22,7 @@ class AddDependencyInitialScreen extends Component<Props> {
           Search by package name, description, keyword, or author.
         </InstructionsParagraph>
         <PoweredByWrapper>
-          <ExternalLink href="https://www.algolia.com/?utm_source=guppy&amp;utm_medium=website&amp;utm_content=localhost&amp;utm_campaign=poweredby">
+          <ExternalLink href="https://www.algolia.com/?utm_source=skpm&amp;utm_medium=website&amp;utm_content=localhost&amp;utm_campaign=poweredby">
             <LinkText>
               <AlgoliaLogo />
             </LinkText>

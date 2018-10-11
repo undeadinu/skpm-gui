@@ -103,6 +103,28 @@ export const writePackageJson = (projectPath: string, json: any) => {
   });
 };
 
+export const writeManifestJson = (
+  projectPath: string,
+  packageJson: { [key: string]: any },
+  json: any
+) => {
+  const prettyPrintedManifestJson = JSON.stringify(json, null, 2);
+
+  return new Promise((resolve, reject) => {
+    fs.writeFile(
+      path.join(projectPath, packageJson.skpm.manifest),
+      prettyPrintedManifestJson,
+      err => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(json);
+      }
+    );
+  });
+};
+
 export const loadProject = (projectPath: string): Promise<ProjectInternal> => {
   return loadPackageJson(projectPath).then(json =>
     Promise.all([

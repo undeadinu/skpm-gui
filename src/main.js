@@ -199,10 +199,10 @@ const manageApplicationLocation = () => {
           } catch (err) {
             dialog.showErrorBox(
               'Error',
-              'Could not move Guppy to the Applications folder'
+              'Could not move Skpm to the Applications folder'
             );
             console.error(
-              'Could not move Guppy to the Applications folder',
+              'Could not move Skpm to the Applications folder',
               err
             );
           }
