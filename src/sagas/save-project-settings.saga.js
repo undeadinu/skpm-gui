@@ -1,6 +1,7 @@
 // @flow
 import { call, put, takeEvery } from 'redux-saga/effects';
 import type { Saga } from 'redux-saga';
+import type { Action } from 'redux';
 import slug from 'slug';
 import {
   loadPackageJson,
@@ -74,7 +75,7 @@ export function* handleProjectSaveError(err: Error): Saga<void> {
   }
 }
 
-export function* handleSaveSettings(action: any): Saga<void> {
+export function* handleSaveSettings(action: Action): Saga<void> {
   const { project, name, icon } = action;
   const { path: projectPath, name: oldName, id: oldId } = project;
   const newNameSlug = slug(name).toLowerCase();

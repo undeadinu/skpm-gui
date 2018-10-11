@@ -3,6 +3,7 @@ import uuid from 'uuid/v1';
 
 import { loadAllProjectDependencies } from '../services/read-from-disk.service';
 
+import type { Dispatch } from 'redux';
 import type {
   Project,
   ProjectInternal,
@@ -128,7 +129,7 @@ export const loadDependencyInfoFromDisk = (
   projectId: string,
   projectPath: string
 ) => {
-  return (dispatch: any, getState: Function) => {
+  return (dispatch: Dispatch) => {
     loadAllProjectDependencies(projectPath).then(dependencies => {
       dispatch({
         type: LOAD_DEPENDENCY_INFO_FROM_DISK,

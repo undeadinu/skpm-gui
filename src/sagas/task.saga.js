@@ -26,6 +26,7 @@ import {
 import type { Action } from 'redux';
 import type { Saga } from 'redux-saga';
 import type { Task } from '../types';
+import type { ChildProcess } from 'child_process';
 
 const chalk = new chalkRaw.constructor({ level: 3 });
 
@@ -124,7 +125,7 @@ export function* launchDevServer({ task }: Action): Saga<void> {
 }
 
 export function waitForChildProcessToComplete(
-  installProcess: any
+  installProcess: ChildProcess
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     installProcess.on('exit', (code: number) => {
@@ -246,11 +247,17 @@ export function* taskComplete({ task }: Action): Saga<void> {
 }
 
 const createStdioChannel = (
-  child: any,
+  child: ChildProcess,
   handlers: {
-    stdout: (emitter: any) => (data: string) => void,
-    stderr: (emitter: any) => (data: string) => void,
-    exit: (emitter: any) => (code: number) => void,
+    stdout: (
+      emitter: (input: { channel: string } | typeof END) => void
+    ) => (data: string) => void,
+    stderr: (
+      emitter: (input: { channel: string } | typeof END) => void
+    ) => (data: string) => void,
+    exit: (
+      emitter: (input: { channel: string } | typeof END) => void
+    ) => (code: number) => void,
   }
 ) => {
   return eventChannel(emitter => {
@@ -288,7 +295,7 @@ export const stripUnusableControlCharacters = (text: string) =>
   // up in the output as "G".
   text.replace(/\[1G/g, '');
 
-export const sendCommandToProcess = (child: any, command: string) => {
+export const sendCommandToProcess = (child: ChildProcess, command: string) => {
   // Commands have to be suffixed with '\n' to signal that the command is
   // ready to be sent. Same as a regular command + hitting the enter key.
   child.stdin.write(`${command}\n`);

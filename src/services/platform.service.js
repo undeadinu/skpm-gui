@@ -53,7 +53,7 @@ export const PACKAGE_MANAGER_CMD = path.join(
  */
 export const getBaseProjectEnvironment = (
   projectPath: string,
-  currentEnvironment: Object = window.process.env
+  currentEnvironment: { PATH: string } = window.process.env
 ) => ({
   ...currentEnvironment,
   // NOTE: this option adds control characters to the output.

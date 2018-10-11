@@ -1,6 +1,7 @@
 // @flow
 import { call, put, takeEvery } from 'redux-saga/effects';
 import type { Saga } from 'redux-saga';
+import type { Action } from 'redux';
 import {
   loadPackageJson,
   loadManifestJson,
@@ -50,7 +51,7 @@ export function* handleProjectSaveError(err: Error): Saga<void> {
   }
 }
 
-export function* handleSavePluginManu(action: any): Saga<void> {
+export function* handleSavePluginManu(action: Action): Saga<void> {
   const { project, menu } = action;
   const internalMenu = menuToInternalMenu(menu);
   const { path: projectPath } = project;
