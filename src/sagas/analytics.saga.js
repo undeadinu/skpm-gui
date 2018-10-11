@@ -36,7 +36,7 @@ import type { EventType } from '../services/analytics.service';
 
 type LoggableAction = {
   name: EventType,
-  getMetadata: (payload: Object) => Object,
+  getMetadata: (payload: Action) => {},
 };
 
 type LoggableActionsMap = {
