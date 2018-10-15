@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
-type Status = 'default' | 'highlighted' | 'faded';
+export type Status = 'default' | 'highlighted' | 'faded';
 
-type Props = {
+export type Props = {
   size: number,
   colors: Array<string>,
   status: Status,

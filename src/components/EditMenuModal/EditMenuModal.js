@@ -37,7 +37,7 @@ import type { Tree } from './types';
 const getNodeKey = ({ treeIndex }) => treeIndex;
 
 type Props = {
-  project: Project,
+  project?: Project,
   isVisible: boolean,
   hideModal: () => void,
   savePluginMenu: (menu: PluginMenuRoot | void, project: Project) => any,
@@ -51,6 +51,14 @@ type State = {
 };
 
 function getStateFromProps(props: Props) {
+  if (!props.project) {
+    return {
+      displayMenu: false,
+      isVisible: props.isVisible,
+      tree: [],
+      isRoot: false,
+    };
+  }
   const menu = props.project.pluginMenu;
 
   if (!menu) {
@@ -88,18 +96,23 @@ class EditMenuModal extends PureComponent<Props, State> {
   handleToggleDisplay = (displayMenu: boolean) =>
     this.setState({ displayMenu });
 
-  handleToggleRoot = (isNested: boolean) =>
+  handleToggleRoot = (isNested: boolean) => {
+    const { project } = this.props;
+    if (!project) {
+      return;
+    }
     this.setState(state => ({
       isRoot: !isNested,
       tree: !isNested
         ? state.tree[0].children
         : [
             rootNode(
-              (this.props.project.pluginMenu || { title: 'My plugin' }).title,
+              (project.pluginMenu || { title: 'My plugin' }).title,
               state.tree
             ),
           ],
     }));
+  };
 
   handleTreeChange = tree => this.setState({ tree });
 
@@ -142,7 +155,7 @@ class EditMenuModal extends PureComponent<Props, State> {
     const { isVisible, project, savePluginMenu } = this.props;
     const { isRoot, tree, displayMenu } = this.state;
 
-    if (!isVisible) {
+    if (!isVisible || !project) {
       return null;
     }
 

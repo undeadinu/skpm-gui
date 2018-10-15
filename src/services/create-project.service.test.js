@@ -1,3 +1,4 @@
+/* eslint-disable flowtype/require-valid-file-annotation */
 import { getBuildInstructions } from './create-project.service';
 
 jest.mock('os', () => ({

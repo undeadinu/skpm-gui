@@ -11,5 +11,7 @@ module.exports = {
         annotationStyle: 'line',
       },
     ],
+    'flowtype/space-after-type-colon': 0,
+    'flowtype/generic-spacing': 0,
   },
 };
