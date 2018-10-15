@@ -16,7 +16,7 @@ Skpm GUI is a free-to-use desktop application designed to make it easier to get 
 - Managing metadata (commands, menu)
 - Managing dependencies (adding, updating, searching)
 
-Guppy is made for beginners - folks who are just starting out with plugin development. We hope that it's powerful enough for advanced users as well, but we'll always prioritize the new-developer experience. We'll never charge money for Skpm, it'll always be free-to-use.
+Skpm is made for beginners - folks who are just starting out with plugin development. We hope that it's powerful enough for advanced users as well, but we'll always prioritize the new-developer experience. We'll never charge money for Skpm, it'll always be free-to-use.
 
 > **NOTE**: This is _super early pre-release alpha_. Truthfully it's probably not ready for beginner usage yet (there may be some frustrating bugs). The goal is to build a community of folks to work on this and create something truly useful and wonderful for beginners.
 
