@@ -177,6 +177,8 @@ export type Project = {
   id: string,
   // `name` is the friendly name, with full UTF-8 character access.
   name: string,
+  description?: string,
+  homepage?: string,
   icon?: string,
   createdAt: number,
   // `dependencies` is a "souped-up" version of the internal copy, with some

@@ -362,12 +362,16 @@ export const hideModal = () => ({
 // project settings related actions
 export const saveProjectSettingsStart = (
   name: string,
-  icon: string,
+  metadata: {
+    projectIcon: string,
+    homepage: string,
+    description: string,
+  },
   project: Project
 ) => ({
   type: SAVE_PROJECT_SETTINGS_START,
   name,
-  icon,
+  metadata,
   project,
 });
 
@@ -375,14 +379,18 @@ export const saveProjectSettingsFinish = (
   oldId: string,
   id: string,
   name: string,
-  icon: string | void,
+  metadata: {
+    projectIcon: string | void,
+    homepage: string,
+    description: string,
+  },
   projectPath: string
 ) => ({
   type: SAVE_PROJECT_SETTINGS_FINISH,
   oldId,
   id,
   name,
-  icon,
+  metadata,
   projectPath,
 });
 

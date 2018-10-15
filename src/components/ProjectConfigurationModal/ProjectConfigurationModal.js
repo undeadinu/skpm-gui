@@ -23,19 +23,23 @@ type Props = {
   project: Project | null,
   isVisible: boolean,
   dependenciesChangingForProject: boolean,
-  hideModal: () => void,
-  saveProjectSettings: (string, string, Project) => void,
+  hideModal: typeof actions.hideModal,
+  saveProjectSettings: typeof actions.saveProjectSettingsStart,
 };
 
 type State = {
   newName: string,
   projectIcon: string,
+  description: string,
+  homepage: string,
   activeField: string,
 };
 
 class ProjectConfigurationModal extends PureComponent<Props, State> {
   state = {
     newName: '',
+    description: '',
+    homepage: '',
     projectIcon: '',
     activeField: 'projectName',
   };
@@ -46,6 +50,8 @@ class ProjectConfigurationModal extends PureComponent<Props, State> {
     }
     this.setState({
       newName: nextProps.project.name,
+      description: nextProps.project.description,
+      homepage: nextProps.project.homepage,
       projectIcon: nextProps.project.icon,
     });
   }
@@ -57,14 +63,16 @@ class ProjectConfigurationModal extends PureComponent<Props, State> {
     if (!project) {
       return;
     }
-    const { newName, projectIcon } = this.state;
+    const { newName, ...metadata } = this.state;
 
-    saveProjectSettings(newName, projectIcon, project);
+    saveProjectSettings(newName, metadata, project);
   };
 
-  changeProjectName = (ev: SyntheticKeyboardEvent<*>) => {
+  changeMetadata = (metadata: 'newName' | 'description' | 'homepage') => (
+    ev: SyntheticKeyboardEvent<*>
+  ) => {
     this.setState({
-      newName: ev.currentTarget.value,
+      [metadata]: ev.currentTarget.value,
     });
   };
 
@@ -99,17 +107,43 @@ class ProjectConfigurationModal extends PureComponent<Props, State> {
 
     return (
       <Modal isVisible={isVisible} onDismiss={hideModal}>
-        <ModalHeader title="Project settings" />
+        <ModalHeader title="Plugin settings" />
 
         <MainContent>
           <form onSubmit={this.saveSettings}>
-            <FormField label="Project name" focusOnClick={false}>
+            <FormField label="Plugin name" focusOnClick={false}>
               <TextInput
                 onFocus={() => this.setActive('projectName')}
-                onChange={this.changeProjectName}
+                onChange={this.changeMetadata('newName')}
                 onKeyPress={this.handleKeyPress}
                 value={this.state.newName}
                 isFocused={activeField === 'projectName'}
+                autoFocus
+              />
+            </FormField>
+
+            <Spacer size={10} />
+
+            <FormField label="Description" focusOnClick={false}>
+              <TextInput
+                onFocus={() => this.setActive('projectDescription')}
+                onChange={this.changeMetadata('description')}
+                onKeyPress={this.handleKeyPress}
+                value={this.state.description}
+                isFocused={activeField === 'projectDescription'}
+                autoFocus
+              />
+            </FormField>
+
+            <Spacer size={10} />
+
+            <FormField label="Homage" focusOnClick={false}>
+              <TextInput
+                onFocus={() => this.setActive('homage')}
+                onChange={this.changeMetadata('homepage')}
+                onKeyPress={this.handleKeyPress}
+                value={this.state.homepage}
+                isFocused={activeField === 'homage'}
                 autoFocus
               />
             </FormField>

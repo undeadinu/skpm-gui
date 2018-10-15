@@ -81,17 +81,19 @@ const byIdReducer = (state: ById = initialState.byId, action: Action = {}) => {
     }
 
     case SAVE_PROJECT_SETTINGS_FINISH: {
-      const { oldId, id, name, icon } = action;
+      const { oldId, id, name, metadata } = action;
 
       return produce(state, draftState => {
         delete draftState[oldId];
         draftState[id] = state[oldId];
         draftState[id].name = id;
+        draftState[id].description = metadata.description;
+        draftState[id].homepage = metadata.homepage;
         if (!draftState[id].skpm) {
           draftState[id].skpm = {};
         }
         draftState[id].skpm.name = name;
-        draftState[id].__skpm_icon = icon;
+        draftState[id].__skpm_icon = metadata.projectIcon;
       });
     }
 
@@ -212,6 +214,8 @@ const prepareProjectForConsumption = (
   return {
     id: project.name,
     name: (project.skpm || {}).name || project.name,
+    description: project.description,
+    homepage: project.homepage,
     // prettier-ignore
     tasks: mapObjectToArray(tasks),
     dependencies: mapObjectToArray(dependencies),

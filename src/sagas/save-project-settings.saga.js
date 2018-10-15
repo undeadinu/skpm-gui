@@ -76,7 +76,7 @@ export function* handleProjectSaveError(err: Error): Saga<void> {
 }
 
 export function* handleSaveSettings(action: Action): Saga<void> {
-  const { project, name, icon } = action;
+  const { project, name, metadata } = action;
   const { path: projectPath, name: oldName, id: oldId } = project;
   const newNameSlug = slug(name).toLowerCase();
   const parentPath = path.resolve(projectPath, '../');
@@ -135,23 +135,25 @@ export function* handleSaveSettings(action: Action): Saga<void> {
     yield call(writePackageJson, newPath, {
       ...packageJson,
       name: newNameSlug,
+      description: metadata.description,
+      homepage: metadata.homepage,
       skpm: {
         ...(packageJson && packageJson.skpm),
         name,
       },
     });
 
-    if (project.icon !== icon) {
+    if (project.icon !== metadata.projectIcon) {
       fs.writeFileSync(
         path.join(projectPath, 'assets', 'icon.png'),
-        icon ? icon : defaultPluginIcon,
+        metadata.projectIcon ? metadata.projectIcon : defaultPluginIcon,
         'base64'
       );
     }
 
     // Update state & close modal
     yield put(
-      saveProjectSettingsFinish(oldId, newNameSlug, name, icon, newPath)
+      saveProjectSettingsFinish(oldId, newNameSlug, name, metadata, newPath)
     );
   } catch (err) {
     yield call(handleProjectSaveError, err);
