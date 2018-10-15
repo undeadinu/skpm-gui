@@ -144,7 +144,7 @@ class ApplicationMenu extends Component<Props> {
           {
             label: isMac ? 'Getting Started' : 'Getting started',
             click: () =>
-              this.openGithubLink('blob/master/docs/getting-started.md'),
+              this.openGithubLink('blob/skpm/docs/getting-started.md'),
           },
           {
             label: isMac ? 'Report an Issue' : 'Report an issue',
@@ -152,7 +152,7 @@ class ApplicationMenu extends Component<Props> {
           },
           {
             label: isMac ? 'Privacy Policy' : 'Privacy policy',
-            click: () => this.openGithubLink('blob/master/PRIVACY.md'),
+            click: () => this.openGithubLink('blob/skpm/PRIVACY.md'),
           },
         ],
       },

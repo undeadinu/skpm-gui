@@ -56,7 +56,7 @@ class CommandsPane extends Component<Props, State> {
     return (
       <Module
         title="Plugin Commands"
-        moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#commands`}
+        moreInfoHref={`${SKPM_REPO_URL}/blob/skpm/docs/getting-started.md#commands`}
         primaryActionChildren={
           <StrokeButton onClick={showPluginMenu}>Edit menu</StrokeButton>
         }

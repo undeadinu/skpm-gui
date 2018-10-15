@@ -89,7 +89,7 @@ class TaskRunnerPane extends Component<Props, State> {
     return (
       <Module
         title="Tasks"
-        moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#tasks`}
+        moreInfoHref={`${SKPM_REPO_URL}/blob/skpm/docs/getting-started.md#tasks`}
       >
         {tasks.map(task => (
           <TaskRunnerPaneRow

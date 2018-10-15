@@ -78,7 +78,7 @@ class DevelopmentServerPane extends PureComponent<Props> {
     return (
       <Module
         title="Development Mode"
-        moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#development-server`}
+        moreInfoHref={`${SKPM_REPO_URL}/blob/skpm/docs/getting-started.md#development-server`}
         primaryActionChildren={
           <Toggle isToggled={isRunning} onToggle={this.handleToggle} />
         }

@@ -45,7 +45,7 @@ class DependencyDetailsTable extends Component<Props> {
                 Location
                 <HelpButton
                   size={16}
-                  href={`${SKPM_REPO_URL}/blob/master/docs/understanding-package.json.md#dependencies-vs-devdependencies`}
+                  href={`${SKPM_REPO_URL}/blob/skpm/docs/understanding-package.json.md#dependencies-vs-devdependencies`}
                 />
               </Label>
             </FirstCell>

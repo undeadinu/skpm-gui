@@ -149,7 +149,7 @@ class DependencyManagementPane extends PureComponent<Props, State> {
     return (
       <Module
         title="Dependencies"
-        moreInfoHref={`${SKPM_REPO_URL}/blob/master/docs/getting-started.md#dependencies`}
+        moreInfoHref={`${SKPM_REPO_URL}/blob/skpm/docs/getting-started.md#dependencies`}
       >
         <Wrapper>
           <DependencyList>
