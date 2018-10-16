@@ -19,7 +19,7 @@ import {
   SAVE_PROJECT_SETTINGS_START,
 } from '../actions';
 
-import defaultPluginIcon from '../assets/images/default-plugin-icon.png';
+import { DEFAULT_PLUGIN_ICON } from '../config/app';
 
 const { dialog } = remote;
 const { showErrorBox } = dialog;
@@ -146,7 +146,7 @@ export function* handleSaveSettings(action: Action): Saga<void> {
     if (project.icon !== metadata.projectIcon) {
       fs.writeFileSync(
         path.join(projectPath, 'assets', 'icon.png'),
-        metadata.projectIcon ? metadata.projectIcon : defaultPluginIcon,
+        metadata.projectIcon ? metadata.projectIcon : DEFAULT_PLUGIN_ICON,
         'base64'
       );
     }
