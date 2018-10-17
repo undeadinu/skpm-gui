@@ -21,7 +21,7 @@ type Props = {
   name: string,
   status: CommandStatus,
   processId?: number,
-  onToggleTask: (commandId: string) => void,
+  onToggleCommand: (commandId: string) => void,
   onViewDetails: (commandId: string) => void,
 };
 
@@ -32,7 +32,7 @@ class CommandRunnerPaneRow extends PureComponent<Props> {
       name,
       status,
       processId,
-      onToggleTask,
+      onToggleCommand,
       onViewDetails,
     } = this.props;
 
@@ -57,7 +57,7 @@ class CommandRunnerPaneRow extends PureComponent<Props> {
           <Toggle
             size={24}
             isToggled={!!processId}
-            onToggle={() => onToggleTask(identifier)}
+            onToggle={() => onToggleCommand(identifier)}
           />
         </ActionsColumn>
       </TaskCard>

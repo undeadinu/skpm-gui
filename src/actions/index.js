@@ -426,3 +426,9 @@ export const showResetStatePrompt = () => ({
 });
 
 export const resetAllState = () => ({ type: RESET_ALL_STATE });
+
+export const addCommand = (projectId: string, commandName: string) => ({
+  type: ADD_COMMAND_START,
+  projectId,
+  commandName,
+});

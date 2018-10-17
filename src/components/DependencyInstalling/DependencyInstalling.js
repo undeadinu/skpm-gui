@@ -2,7 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 
-import guppyLoaderSrc from '../../assets/images/guppy-loader.gif';
+import loaderSrc from '../../assets/images/loader.gif';
 import { COLORS } from '../../constants';
 
 import Heading from '../Heading';
@@ -23,7 +23,7 @@ class DependencyInstalling extends Component<Props> {
     return (
       <Wrapper>
         <InnerWrapper>
-          <GuppyImage src={guppyLoaderSrc} />
+          <Loader src={loaderSrc} />
           <Spacer size={50} />
           <Heading size="small">
             {queued ? (
@@ -51,7 +51,7 @@ const InnerWrapper = styled.div`
   text-align: center;
 `;
 
-const GuppyImage = styled.img`
+const Loader = styled.img`
   width: 148px;
 `;
 
