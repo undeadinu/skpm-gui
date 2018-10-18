@@ -30,7 +30,7 @@ export type CommandStatus =
   | 'pending'
   | 'success'
   | 'failed'
-  | 'installing'
+  | 'creating'
   | 'updating'
   | 'deleting';
 export type QueueAction = 'install' | 'uninstall';

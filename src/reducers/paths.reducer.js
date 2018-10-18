@@ -22,7 +22,7 @@ import {
   CHANGE_PROJECT_HOME_PATH,
 } from '../actions';
 import { windowsHomeDir, isWin } from '../services/platform.service';
-import { getProjectNameSlug } from '../services/create-project.service';
+import { getSlug } from '../utils';
 
 import type { Action } from 'redux';
 
@@ -50,7 +50,7 @@ export default (state: State = initialState, action: Action = {}) => {
     case ADD_PROJECT: {
       const { project } = action;
 
-      const projectNameSlug = getProjectNameSlug(project.name);
+      const projectNameSlug = getSlug(project.name);
 
       return produce(state, draftState => {
         draftState.byId[project.name] = formatProjectPath(

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import * as actions from '../../actions';
 import { COLORS } from '../../constants';
+import { getSlug } from '../../utils';
 
 import Modal from '../Modal';
 import ModalHeader from '../ModalHeader';
@@ -24,6 +25,8 @@ type Props = {
 
 type State = {
   name: string,
+  identifier: string,
+  isCommandNameTaken: boolean,
   activeField: string,
   shortcut: string | null,
 };
@@ -31,35 +34,58 @@ type State = {
 class AddCommandModal extends Component<Props, State> {
   state = {
     name: '',
+    identifier: '',
     activeField: 'name',
+    isCommandNameTaken: false,
     shortcut: null,
   };
 
   addCommand = (ev: SyntheticEvent<*>) => {
     ev.preventDefault();
 
-    const { addCommand, project } = this.props;
+    const { addCommand, project, onDismiss } = this.props;
 
-    const { name } = this.state;
+    const { name, shortcut, identifier } = this.state;
 
-    addCommand(project.id, name);
+    addCommand(project, identifier, name, shortcut);
+    onDismiss();
   };
 
   changeMetadata = (metadata: 'name') => (ev: SyntheticKeyboardEvent<*>) => {
+    const { value } = ev.currentTarget;
     this.setState({
-      [metadata]: ev.currentTarget.value,
+      [metadata]: value,
     });
+    if (metadata === 'name') {
+      this.verifyCommandNameUniqueness(value);
+    }
+  };
+
+  verifyCommandNameUniqueness = (name: string) => {
+    const { commands } = this.props.project;
+
+    const slug = getSlug(name);
+    this.setState({
+      identifier: slug,
+    });
+
+    // Check to see if this name is already taken
+    const isAlreadyTaken = !!commands.some(
+      command => command.identifier === slug
+    );
+
+    if (isAlreadyTaken) {
+      this.setState({ isCommandNameTaken: true });
+      return;
+    }
+
+    // If this update fixes the problem, unset the error status
+    if (!isAlreadyTaken && this.state.isCommandNameTaken) {
+      this.setState({ isCommandNameTaken: false });
+    }
   };
 
   handleKeyDown = (ev: SyntheticKeyboardEvent<*>) => {
-    console.log(
-      ev.key,
-      ev.which,
-      ev.metaKey,
-      ev.ctrlKey,
-      ev.altKey,
-      ev.shiftKey
-    );
     if (this.state.activeField === 'shortcut') {
       if (ev.key === 'Backspace') {
         this.setState({ shortcut: null });
@@ -104,7 +130,6 @@ class AddCommandModal extends Component<Props, State> {
   };
 
   handleKeyPress = (ev: SyntheticKeyboardEvent<*>) => {
-    console.log(ev.key, ev.metaKey, ev.ctrlKey, ev.altKey, ev.shiftKey);
     // When pressing the "enter" key, we want to submit the form.
     // This doesn't happen automatically because we're using buttons for the
     // project icons, and so it delegates the keypress to the first icon,
@@ -123,7 +148,7 @@ class AddCommandModal extends Component<Props, State> {
 
   render() {
     const { isVisible, onDismiss } = this.props;
-    const { activeField, name, shortcut } = this.state;
+    const { activeField, name, shortcut, isCommandNameTaken } = this.state;
 
     return (
       <Modal
@@ -137,7 +162,11 @@ class AddCommandModal extends Component<Props, State> {
 
           <MainContent>
             <form onSubmit={this.addCommand}>
-              <FormField label="Command name" focusOnClick={false}>
+              <FormField
+                label="Command name"
+                focusOnClick={false}
+                hasError={isCommandNameTaken}
+              >
                 <TextInput
                   onFocus={() => this.setActive('name')}
                   onChange={this.changeMetadata('name')}
@@ -145,7 +174,13 @@ class AddCommandModal extends Component<Props, State> {
                   value={name}
                   isFocused={activeField === 'name'}
                   autoFocus
+                  hasError={isCommandNameTaken}
                 />
+                {isCommandNameTaken && (
+                  <ErrorMessage>
+                    Sorry, a command with this name already exists.
+                  </ErrorMessage>
+                )}
               </FormField>
 
               <Spacer size={10} />
@@ -167,7 +202,7 @@ class AddCommandModal extends Component<Props, State> {
                   colors={[COLORS.green[700], COLORS.lightGreen[500]]}
                   disabled={!name}
                 >
-                  Save Project
+                  Create Command
                 </FillButton>
               </Actions>
             </form>
@@ -191,6 +226,11 @@ const MainContent = styled.section`
 const Actions = styled.div`
   text-align: center;
   padding-bottom: 16px;
+`;
+
+const ErrorMessage = styled.div`
+  margin-top: 6px;
+  color: ${COLORS.pink[700]};
 `;
 
 const mapDispatchToProps = { addCommand: actions.addCommand };

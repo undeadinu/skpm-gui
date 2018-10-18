@@ -1,5 +1,4 @@
 // @flow
-import slug from 'slug';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -8,6 +7,7 @@ import { loadProject } from './read-from-disk.service';
 import { enableDevMode } from './dev-mode.service';
 
 import { formatCommandForPlatform } from './platform.service';
+import { getSlug } from '../utils';
 
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
@@ -63,7 +63,7 @@ export default (
 
   onStatusUpdate('Created parent directory');
 
-  const projectDirectoryName = getProjectNameSlug(projectName);
+  const projectDirectoryName = getSlug(projectName);
 
   // For Windows Support
   // To support cross platform with slashes and escapes
@@ -118,9 +118,6 @@ export default (
 //
 // Helpers
 //
-
-export const getProjectNameSlug = (projectName: string) =>
-  slug(projectName).toLowerCase();
 
 export const getBuildInstructions = (
   projectType: ProjectType,

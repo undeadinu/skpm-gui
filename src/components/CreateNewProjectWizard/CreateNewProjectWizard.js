@@ -8,7 +8,7 @@ import * as actions from '../../actions';
 import { getById } from '../../reducers/projects.reducer';
 import { getProjectHomePath } from '../../reducers/paths.reducer';
 import { getOnboardingCompleted } from '../../reducers/onboarding-status.reducer';
-import { getProjectNameSlug } from '../../services/create-project.service';
+import { getSlug } from '../../utils';
 import { checkIfProjectExists } from '../../services/create-project.service';
 
 import TwoPaneModal from '../TwoPaneModal';
@@ -83,7 +83,7 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
     const { projects } = this.props;
 
     // Check to see if this name is already taken
-    const slug = getProjectNameSlug(name);
+    const slug = getSlug(name);
     const isAlreadyTaken = !!Object.keys(this.props.projects).some(
       id => projects[id].name === slug
     );
@@ -101,7 +101,7 @@ class CreateNewProjectWizard extends PureComponent<Props, State> {
 
   checkProjectLocationUsage = () => {
     return new Promise((resolve, reject) => {
-      const projectName = getProjectNameSlug(this.state.projectName);
+      const projectName = getSlug(this.state.projectName);
       if (checkIfProjectExists(this.props.projectHomePath, projectName)) {
         // show warning that the project folder already exists & stop creation
         dialog.showMessageBox(

@@ -110,15 +110,15 @@ export default (state: State = initialState, action: Action) => {
     }
 
     case ADD_COMMAND_START: {
-      const { projectId, identifier, name, shortcut, script } = action;
+      const { project, identifier, name, shortcut, script } = action;
 
       return produce(state, draftState => {
-        draftState[projectId][identifier] = {
+        draftState[project.id][identifier] = {
           identifier,
           shortcut,
           script,
           name,
-          status: 'installing',
+          status: 'creating',
           timeSinceStatusChange: null,
           logs: [],
         };
@@ -126,20 +126,20 @@ export default (state: State = initialState, action: Action) => {
     }
 
     case ADD_COMMAND_ERROR: {
-      const { projectId, identifier } = action;
+      const { project, identifier } = action;
 
       return produce(state, draftState => {
         // If the command couldn't be added, we should remove it from
         // state.
-        delete draftState[projectId][identifier];
+        delete draftState[project.id][identifier];
       });
     }
 
     case ADD_COMMAND_FINISH: {
-      const { projectId, identifier } = action;
+      const { project, identifier } = action;
 
       return produce(state, draftState => {
-        draftState[projectId][identifier].status = 'idle';
+        draftState[project.id][identifier].status = 'idle';
       });
     }
 

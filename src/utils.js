@@ -1,5 +1,6 @@
 // @flow
 import Color from 'color';
+import slug from 'slug';
 
 // TODO: Modernize
 export const range = function(start: number, end: number, step: number = 1) {
@@ -288,3 +289,5 @@ export const contrastingColor = (
     return '#fff';
   }
 };
+
+export const getSlug = (name: string) => slug(name).toLowerCase();

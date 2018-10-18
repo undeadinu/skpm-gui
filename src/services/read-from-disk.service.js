@@ -323,3 +323,31 @@ export function loadAllProjectDependencies(projectPath: string) {
       })
   );
 }
+
+export const createCommandJs = (
+  projectPath: string,
+  packageJson: { [key: string]: any },
+  commandPath: string
+) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(
+      path.resolve(
+        path.dirname(path.join(projectPath, packageJson.skpm.manifest)),
+        commandPath
+      ),
+      `import sketch from 'sketch'
+// documentation: https://developer.sketchapp.com/reference/api/
+
+export default function() {
+  sketch.UI.message("It's alive 🙌")
+}
+`,
+      err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      }
+    );
+  });
+};

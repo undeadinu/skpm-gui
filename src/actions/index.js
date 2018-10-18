@@ -427,8 +427,27 @@ export const showResetStatePrompt = () => ({
 
 export const resetAllState = () => ({ type: RESET_ALL_STATE });
 
-export const addCommand = (projectId: string, commandName: string) => ({
+export const addCommand = (
+  project: Project,
+  identifier: string,
+  name: string,
+  shortcut: string | null
+) => ({
   type: ADD_COMMAND_START,
-  projectId,
-  commandName,
+  project,
+  identifier,
+  name,
+  shortcut,
+});
+
+export const addCommandError = (project: Project, identifier: string) => ({
+  type: ADD_COMMAND_ERROR,
+  project,
+  identifier,
+});
+
+export const addCommandFinish = (project: Project, identifier: string) => ({
+  type: ADD_COMMAND_FINISH,
+  project,
+  identifier,
 });

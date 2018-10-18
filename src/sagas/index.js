@@ -11,6 +11,7 @@ import taskSaga from './task.saga';
 import developmentSaga from './development.saga';
 import queueSaga from './queue.saga';
 import analyticsSaga from './analytics.saga';
+import createPluginCommandSaga from './create-plugin-command.saga';
 
 // $FlowFixMe
 export default function*() {
@@ -35,5 +36,7 @@ export default function*() {
     queueSaga(),
     // $FlowFixMe
     analyticsSaga(),
+    // $FlowFixMe
+    createPluginCommandSaga(),
   ]);
 }

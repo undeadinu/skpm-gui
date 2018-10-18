@@ -67,6 +67,9 @@ class CommandRunnerPaneRow extends PureComponent<Props> {
 
 const getIconForStatus = (status: CommandStatus) => {
   switch (status) {
+    case 'deleting':
+    case 'updating':
+    case 'creating':
     case 'pending':
       return <Spinner size={18} />;
     case 'success':

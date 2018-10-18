@@ -8,7 +8,7 @@ import styled from 'styled-components';
 
 import { changeProjectHomePath } from '../../actions';
 import { getProjectHomePath } from '../../reducers/paths.reducer';
-import { getProjectNameSlug } from '../../services/create-project.service';
+import { getSlug } from '../../utils';
 import { COLORS } from '../../constants';
 
 import TextButton from '../TextButton';
@@ -43,7 +43,7 @@ class ProjectPath extends PureComponent<Props> {
   render() {
     const { projectHome, projectName } = this.props;
 
-    const projectNameSlug = getProjectNameSlug(projectName);
+    const projectNameSlug = getSlug(projectName);
 
     // Join the projectHome with the prospective project ID
     // Hide the leading forward-slash, on Mac/Linux
