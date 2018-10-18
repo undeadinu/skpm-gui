@@ -208,7 +208,7 @@ class ApplicationMenu extends Component<Props> {
       // If this project has no devServerTask, there are no logs to clear.
       if (devServerTask) {
         submenu.push({
-          label: isMac ? 'Clear Server Logs' : 'Clear server logs',
+          label: isMac ? 'Clear Plugin Logs' : 'Clear plugin logs',
           click: () => clearConsole(devServerTask),
           accelerator: 'CmdOrCtrl+K',
         });
