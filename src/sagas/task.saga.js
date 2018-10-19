@@ -22,11 +22,12 @@ import {
   getBaseProjectEnvironment,
   PACKAGE_MANAGER_CMD,
 } from '../services/platform.service';
+import { processLogger } from '../services/process-logger.service';
 
 import type { Action } from 'redux';
 import type { Saga } from 'redux-saga';
-import type { Task } from '../types';
 import type { ChildProcess } from 'child_process';
+import type { Task } from '../types';
 
 const chalk = new chalkRaw.constructor({ level: 3 });
 
@@ -47,6 +48,8 @@ export function* launchDevServer({ task }: Action): Saga<void> {
         env: { ...getBaseProjectEnvironment(projectPath), ...env },
       }
     );
+
+    processLogger(child, 'DEVSERVER');
 
     // Now that we have a port/processId for the server, attach it to
     // the task. The port is used for opening the app, the pid is used
@@ -154,6 +157,8 @@ export function* taskRun({ task }: Action): Saga<void> {
     }
   );
 
+  processLogger(child, 'TASK');
+
   // TODO: Does the renderer process still need to know about the child
   // processId?
   yield put(attachTaskMetadata(task, child.pid));
@@ -170,7 +175,17 @@ export function* taskRun({ task }: Action): Saga<void> {
     stderr: emitter => data => {
       const text = stripUnusableControlCharacters(data.toString());
 
-      emitter({ channel: 'stderr', text });
+      // When trying to eject, there will be an error from CRA if git state
+      // isn't clean. We can use this.
+      const uncleanRepo = text.includes(
+        'git repository has untracked files or uncommitted changes'
+      );
+
+      emitter({
+        channel: uncleanRepo ? 'exit' : 'stderr',
+        text,
+        uncleanRepo,
+      });
     },
     exit: emitter => code => {
       const timestamp = new Date();

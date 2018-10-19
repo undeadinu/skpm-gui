@@ -147,14 +147,6 @@ export default (state: State = initialState, action: Action = {}) => {
       const { task, timestamp, wasSuccessful } = action;
 
       return produce(state, draftState => {
-        // For the eject task, we simply want to delete this task altogether.
-        // TODO: We should probably do this in `REFRESH_PROJECTS_FINISH`, which
-        // is called right after the eject task succeeds!
-        if (task.name === 'eject') {
-          delete draftState[task.projectId][task.name];
-          return;
-        }
-
         // For short-term tasks like building for production, we want to show
         // either a success or failed status.
         // For long-running tasks, though, once a task is completed, it goes

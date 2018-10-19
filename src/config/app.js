@@ -6,4 +6,6 @@ module.exports = {
     'data:image/png;charset=utf-8;base64,',
     ''
   ),
+  // Enable logging, if enabled all terminal responses are visible in the console (useful for debugging)
+  LOGGING: false,
 };
