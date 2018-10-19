@@ -14,6 +14,11 @@ import {
   ADD_COMMAND_ERROR,
   ADD_COMMAND_FINISH,
   SAVE_PROJECT_SETTINGS_FINISH,
+  RUN_COMMAND,
+  RECEIVE_DATA_FROM_COMMAND_EXECUTION,
+  ATTACH_COMMAND_METADATA,
+  COMPLETE_COMMAND,
+  CLEAR_CONSOLE,
 } from '../actions';
 
 import type { Action } from 'redux';
@@ -225,6 +230,90 @@ export default (state: State = initialState, action: Action) => {
 
       return produce(state, draftState => {
         delete draftState[projectId][identifier];
+      });
+    }
+
+    case RUN_COMMAND: {
+      const { command, timestamp } = action;
+
+      return produce(state, draftState => {
+        // If this is a long-running task, it's considered successful as long
+        // as it doesn't have an failed.
+        // For periodic tasks, though, this is a 'pending' state.
+        const nextStatus =
+          command.type === 'short-term' ? 'pending' : 'success';
+
+        draftState[command.projectId][command.identifier].status = nextStatus;
+        draftState[command.projectId][
+          command.identifier
+        ].timeSinceStatusChange = timestamp;
+      });
+    }
+
+    case CLEAR_CONSOLE: {
+      const { command } = action;
+
+      if (!command) {
+        return state;
+      }
+
+      return produce(state, draftState => {
+        draftState[command.projectId][command.identifier].logs = [];
+      });
+    }
+
+    case COMPLETE_COMMAND: {
+      const { command, timestamp, wasSuccessful } = action;
+
+      return produce(state, draftState => {
+        // For short-term tasks like building for production, we want to show
+        // either a success or failed status.
+        // For long-running tasks, though, once a task is completed, it goes
+        // back to being "idle" regardless of whether it was successful or not.
+        // Long-running tasks reserve "failed" for cases where the task is
+        // still running, it's just hit an error.
+        //
+        // TODO: Come up with a better model for all of this :/
+        let nextStatus;
+        if (command.type === 'short-term') {
+          nextStatus = wasSuccessful ? 'success' : 'failed';
+        } else {
+          nextStatus = 'idle';
+        }
+
+        draftState[command.projectId][command.identifier].status = nextStatus;
+        draftState[command.projectId][
+          command.identifier
+        ].timeSinceStatusChange = timestamp;
+        delete draftState[command.projectId][command.identifier].processId;
+      });
+    }
+
+    case ATTACH_COMMAND_METADATA: {
+      const { command, processId } = action;
+
+      return produce(state, draftState => {
+        draftState[command.projectId][command.identifier].processId = processId;
+      });
+    }
+
+    case RECEIVE_DATA_FROM_COMMAND_EXECUTION: {
+      const { command, text, isError, logId } = action;
+
+      return produce(state, draftState => {
+        draftState[command.projectId][command.identifier].logs.push({
+          id: logId,
+          text,
+        });
+
+        // Either set or reset a failed status, based on the data received.
+        const nextStatus = isError
+          ? 'failed'
+          : command.type === 'short-term'
+            ? 'pending'
+            : 'success';
+
+        draftState[command.projectId][command.identifier].status = nextStatus;
       });
     }
 

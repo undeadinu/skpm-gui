@@ -3,7 +3,7 @@ import Color from 'color';
 
 import { COLORS } from '../../constants';
 
-import type { TaskStatus } from '../../types';
+import type { TaskStatus, CommandStatus } from '../../types';
 
 export type ColorData = {
   base: string,
@@ -14,7 +14,9 @@ export type ColorData = {
   shadowDark: string,
 };
 
-export const getColorsForStatus = (status: TaskStatus): ColorData => {
+export const getColorsForStatus = (
+  status: TaskStatus | CommandStatus
+): ColorData => {
   switch (status) {
     case 'success': {
       return {

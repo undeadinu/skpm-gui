@@ -12,6 +12,7 @@ import { StrokeButton } from '../Button';
 import AddNewButton from '../AddNewButton';
 import OnlyOn from '../OnlyOn';
 import AddCommandModal from '../AddCommandModal';
+import CommandDetailsModal from '../CommandDetailsModal';
 
 import type { Project, Dispatch } from '../../types';
 
@@ -60,7 +61,7 @@ class CommandsPane extends Component<Props, State> {
     this.setState({ selectedCommandId: commandId });
   };
 
-  handleDismissTaskDetails = () => {
+  handleDismissCommandDetails = () => {
     this.setState({ selectedCommandId: null });
   };
 
@@ -119,6 +120,19 @@ class CommandsPane extends Component<Props, State> {
           project={project}
           isVisible={addingNewCommand}
           onDismiss={this.closeAddNewCommandModal}
+        />
+
+        <CommandDetailsModal
+          project={project}
+          command={
+            selectedCommandId
+              ? project.commands.find(
+                  command => command.identifier === selectedCommandId
+                )
+              : undefined
+          }
+          isVisible={!!selectedCommandId}
+          onDismiss={this.handleDismissCommandDetails}
         />
       </Module>
     );

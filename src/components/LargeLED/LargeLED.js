@@ -5,7 +5,7 @@ import { Spring } from 'react-spring';
 
 import { getColorsForStatus } from './LargeLED.helpers';
 
-import type { TaskStatus } from '../../types';
+import type { TaskStatus, CommandStatus } from '../../types';
 import type { ColorData } from './LargeLED.helpers';
 
 // TODO: The statuses in this component are based on the TaskStatus.
@@ -19,7 +19,7 @@ import type { ColorData } from './LargeLED.helpers';
 
 type Props = {
   size: number,
-  status: TaskStatus,
+  status: TaskStatus | CommandStatus,
 };
 
 type State = {

@@ -133,6 +133,10 @@ export default (state: State = initialState, action: Action = {}) => {
     case CLEAR_CONSOLE: {
       const { task } = action;
 
+      if (!task) {
+        return state;
+      }
+
       return produce(state, draftState => {
         draftState[task.projectId][task.name].logs = [];
       });
