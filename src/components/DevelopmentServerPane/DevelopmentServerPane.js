@@ -91,7 +91,11 @@ class DevelopmentServerPane extends PureComponent<Props> {
               {docLink}
             </InfoWrapper>
             <TerminalWrapper>
-              <TerminalOutput height={300} title="Plugin Logs" task={task} />
+              <TerminalOutput
+                height={300}
+                title="Plugin Logs"
+                executable={task}
+              />
             </TerminalWrapper>
           </Wrapper>
         </OnlyOn>
@@ -106,7 +110,7 @@ class DevelopmentServerPane extends PureComponent<Props> {
               </SmallInfoWrapper>
             </InfoWrapper>
             <TerminalWrapper>
-              <TerminalOutput height={300} task={task} />
+              <TerminalOutput height={300} executable={task} />
             </TerminalWrapper>
           </Wrapper>
         </OnlyOn>

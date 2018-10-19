@@ -179,7 +179,7 @@ class TaskDetailsModal extends PureComponent<Props> {
               <TerminalOutput
                 height={height - APPROXIMATE_NON_TERMINAL_HEIGHT}
                 title="Output"
-                task={task}
+                executable={task}
               />
             )}
           </WindowDimensions>

@@ -15,6 +15,7 @@ import type {
   QueuedDependency,
   PluginMenuRoot,
   PluginMenuRootInternal,
+  Executable,
 } from '../types';
 
 //
@@ -220,9 +221,9 @@ export const launchDevServer = (task: Task, timestamp: Date) => ({
   timestamp,
 });
 
-export const clearConsole = (task: Task) => ({
+export const clearConsole = (executable: Executable) => ({
   type: CLEAR_CONSOLE,
-  task,
+  executable,
 });
 
 export const addDependency = (projectId: string, dependencyName: string) => ({

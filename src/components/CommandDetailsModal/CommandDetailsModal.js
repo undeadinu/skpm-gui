@@ -172,7 +172,7 @@ class CommandDetailsModal extends PureComponent<Props> {
               <TerminalOutput
                 height={height - APPROXIMATE_NON_TERMINAL_HEIGHT}
                 title="Output"
-                task={command}
+                executable={command}
               />
             )}
           </WindowDimensions>

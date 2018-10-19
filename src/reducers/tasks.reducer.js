@@ -131,14 +131,15 @@ export default (state: State = initialState, action: Action = {}) => {
     }
 
     case CLEAR_CONSOLE: {
-      const { task } = action;
+      const { executable } = action;
 
-      if (!task) {
+      // check if it's a command
+      if (executable.identifier) {
         return state;
       }
 
       return produce(state, draftState => {
-        draftState[task.projectId][task.name].logs = [];
+        draftState[executable.projectId][executable.name].logs = [];
       });
     }
 

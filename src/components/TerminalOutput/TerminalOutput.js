@@ -10,7 +10,7 @@ import { FillButton } from '../Button';
 import Heading from '../Heading';
 import PixelShifter from '../PixelShifter';
 
-import type { Task } from '../../types';
+import type { Executable, Dispatch } from '../../types';
 
 var Convert = require('ansi-to-html');
 var convert = new Convert();
@@ -19,8 +19,8 @@ type Props = {
   width?: number,
   height?: number,
   title: string,
-  task: Task,
-  clearConsole: (task: Task) => void,
+  executable: Executable,
+  clearConsole: Dispatch<typeof actions.clearConsole>,
 };
 
 class TerminalOutput extends PureComponent<Props> {
@@ -53,17 +53,17 @@ class TerminalOutput extends PureComponent<Props> {
   };
 
   handleClear = () => {
-    const { task, clearConsole } = this.props;
+    const { executable, clearConsole } = this.props;
 
-    if (!task) {
+    if (!executable) {
       return;
     }
 
-    clearConsole(task);
+    clearConsole(executable);
   };
 
   render() {
-    const { width, height, title, task } = this.props;
+    const { width, height, title, executable } = this.props;
 
     return (
       <Fragment>
@@ -93,7 +93,7 @@ class TerminalOutput extends PureComponent<Props> {
         >
           <TableWrapper height={height}>
             <LogWrapper>
-              {task.logs.map(log => (
+              {executable.logs.map(log => (
                 <LogRow
                   key={log.id}
                   dangerouslySetInnerHTML={{

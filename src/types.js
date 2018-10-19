@@ -40,18 +40,22 @@ export type QueuedDependency = {
   updating?: boolean,
 };
 
-export type Task = {
+export type Executable = {|
   projectId: string,
+  logs: Array<Log>,
+  timeSinceStatusChange: ?Date,
+  processId?: number,
+|};
+
+export type Task = {|
+  ...Executable,
   name: string,
   description: string,
   type: TaskType,
   status: TaskStatus,
-  processId?: number,
   port?: number,
   command: string,
-  timeSinceStatusChange: ?Date,
-  logs: Array<Log>,
-};
+|};
 
 export type Repository = {
   type: string,
@@ -99,20 +103,17 @@ export type PluginMenuRootInternal = {
 };
 
 export type Command = {|
-  projectId: string,
+  ...Executable,
   identifier: string,
   name: string,
   script: string,
   status: CommandStatus,
   shortcut?: string,
   status: CommandStatus,
-  processId?: number,
   handler?: string,
   handlers?: {
     [action: string]: string,
   },
-  timeSinceStatusChange: ?Date,
-  logs: Array<Log>,
 |};
 
 export type PluginMenuRoot = {|
