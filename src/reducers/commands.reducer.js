@@ -73,6 +73,7 @@ export default (state: State = initialState, action: Action) => {
             }
 
             draftState[projectId][command.identifier] = {
+              projectId,
               script: command.script,
               identifier: command.identifier,
               shortcut: command.shortcut,
@@ -98,6 +99,7 @@ export default (state: State = initialState, action: Action) => {
         const commands = (project.__skpm_manifest || {}).commands;
         commands.forEach(command => {
           draftState[projectId][command.identifier] = {
+            projectId,
             identifier: command.identifier,
             shortcut: command.shortcut,
             name: command.name,
@@ -114,6 +116,7 @@ export default (state: State = initialState, action: Action) => {
 
       return produce(state, draftState => {
         draftState[project.id][identifier] = {
+          projectId: project.id,
           identifier,
           shortcut,
           script,
@@ -173,6 +176,7 @@ export default (state: State = initialState, action: Action) => {
         if (previousId !== identifier) {
           delete draftState[projectId][previousId];
           draftState[projectId][identifier] = {
+            projectId,
             identifier,
             script,
             shortcut,
@@ -187,6 +191,7 @@ export default (state: State = initialState, action: Action) => {
           draftState[projectId][identifier].script = script;
         } else {
           draftState[projectId][identifier] = {
+            projectId,
             script,
             identifier,
             shortcut,

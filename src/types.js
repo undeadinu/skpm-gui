@@ -99,6 +99,7 @@ export type PluginMenuRootInternal = {
 };
 
 export type Command = {|
+  projectId: string,
   identifier: string,
   name: string,
   script: string,
@@ -194,6 +195,7 @@ export type Project = {
   manifestPath: string,
   commands: Array<Command>,
   pluginMenu: PluginMenuRoot | void,
+  pluginPath: string,
 };
 
 export type ProjectsMap = { [id: string]: Project };

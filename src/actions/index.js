@@ -5,6 +5,7 @@ import { loadAllProjectDependencies } from '../services/read-from-disk.service';
 
 import type { Dispatch } from 'redux';
 import type {
+  Command,
   Project,
   ProjectInternal,
   ProjectType,
@@ -75,6 +76,12 @@ export const UPDATE_COMMAND_FINISH = 'UPDATE_COMMAND_FINISH';
 export const ADD_COMMAND_START = 'ADD_COMMAND_START';
 export const ADD_COMMAND_ERROR = 'ADD_COMMAND_ERROR';
 export const ADD_COMMAND_FINISH = 'ADD_COMMAND_FINISH';
+export const RUN_COMMAND = 'RUN_COMMAND';
+export const ATTACH_COMMAND_METADATA = 'ATTACH_COMMAND_METADATA';
+export const ABORT_COMMAND = 'ABORT_COMMAND';
+export const COMPLETE_COMMAND = 'COMPLETE_COMMAND';
+export const RECEIVE_DATA_FROM_COMMAND_EXECUTION =
+  'RECEIVE_DATA_FROM_COMMAND_EXECUTION';
 
 // project config related actions
 export const SHOW_PROJECT_SETTINGS = 'SHOW_PROJECT_SETTINGS';
@@ -450,4 +457,50 @@ export const addCommandFinish = (project: Project, identifier: string) => ({
   type: ADD_COMMAND_FINISH,
   project,
   identifier,
+});
+
+export const runCommand = (
+  project: Project,
+  command: Command,
+  timestamp: Date
+) => ({
+  type: RUN_COMMAND,
+  project,
+  command,
+  timestamp,
+});
+
+export const attachCommandMetadata = (command: Command, processId: number) => ({
+  type: ATTACH_COMMAND_METADATA,
+  command,
+  processId,
+});
+
+export const abortCommand = (command: Command, timestamp: Date) => ({
+  type: ABORT_COMMAND,
+  command,
+  timestamp,
+});
+
+export const completeCommand = (
+  command: Command,
+  timestamp: Date,
+  wasSuccessful: boolean
+) => ({
+  type: COMPLETE_COMMAND,
+  command,
+  timestamp,
+  wasSuccessful,
+});
+
+export const receiveDataFromCommandExecution = (
+  command: Command,
+  text: string,
+  isError?: boolean
+) => ({
+  type: RECEIVE_DATA_FROM_COMMAND_EXECUTION,
+  command,
+  text,
+  isError,
+  logId: uuid(),
 });

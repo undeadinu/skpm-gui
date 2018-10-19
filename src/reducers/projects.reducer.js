@@ -225,6 +225,7 @@ const prepareProjectForConsumption = (
     createdAt: project.__skpm_createdAt,
     commands,
     pluginMenu: internalMenuToMenu(project, commands),
+    pluginPath: path.join(projectPath, (project.skpm || {}).main || ''),
   };
 };
 

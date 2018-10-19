@@ -13,13 +13,13 @@ import AddNewButton from '../AddNewButton';
 import OnlyOn from '../OnlyOn';
 import AddCommandModal from '../AddCommandModal';
 
-import type { Project, Command } from '../../types';
+import type { Project, Dispatch } from '../../types';
 
 type Props = {
   project: Project,
-  showPluginMenu: () => void,
-  runCommand: (command: Command, timestamp: Date) => void,
-  abortCommand: (command: Command, timestamp: Date) => void,
+  showPluginMenu: Dispatch<typeof actions.showPluginMenu>,
+  runCommand: Dispatch<typeof actions.runCommand>,
+  abortCommand: Dispatch<typeof actions.abortCommand>,
 };
 
 type State = {
@@ -64,12 +64,12 @@ class CommandsPane extends Component<Props, State> {
     this.setState({ selectedCommandId: null });
   };
 
-  handleToggleCommand = (commandName: string) => {
+  handleToggleCommand = (identifier: string) => {
     const { project, runCommand, abortCommand } = this.props;
     const { commands } = project;
 
     // eslint-disable-next-line no-shadow
-    const command = commands.find(command => command.name === commandName);
+    const command = commands.find(command => command.identifier === identifier);
 
     // Should be impossible, this is for Flow.
     if (!command) {
@@ -82,7 +82,7 @@ class CommandsPane extends Component<Props, State> {
 
     isRunning
       ? abortCommand(command, timestamp)
-      : runCommand(command, timestamp);
+      : runCommand(project, command, timestamp);
   };
 
   render() {
@@ -132,8 +132,8 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   {
-    runTask: actions.runTask,
-    abortTask: actions.abortTask,
+    runCommand: actions.runCommand,
+    abortCommand: actions.abortCommand,
     showPluginMenu: actions.showPluginMenu,
   }
 )(CommandsPane);
