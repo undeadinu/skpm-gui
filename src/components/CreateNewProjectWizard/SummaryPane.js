@@ -158,7 +158,7 @@ class SummaryPane extends PureComponent<Props> {
         return (
           <Fragment>
             <FadeIn key="s2t">
-              <StepTitle>Project Type</StepTitle>
+              <StepTitle>Plugin Template</StepTitle>
               {details}
             </FadeIn>
           </Fragment>

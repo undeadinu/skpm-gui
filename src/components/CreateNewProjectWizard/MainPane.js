@@ -76,7 +76,7 @@ class MainPane extends PureComponent<Props> {
               {currentStepIndex > 0 && (
                 <FadeIn>
                   <FormField
-                    label="Plugin Type"
+                    label="Plugin Template"
                     isFocused={activeField === 'projectType'}
                   >
                     <ProjectTypeTogglesWrapper>
