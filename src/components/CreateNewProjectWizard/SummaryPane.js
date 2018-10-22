@@ -69,8 +69,8 @@ class SummaryPane extends PureComponent<Props> {
           default: {
             details = (
               <Paragraph>
-                Skpm can create plugins of different types. Click a type to
-                learn more about it.
+                Skpm can create plugins from different templates to get you
+                started quicker. Click a template to learn more about it.
               </Paragraph>
             );
             break;
@@ -82,22 +82,20 @@ class SummaryPane extends PureComponent<Props> {
                   <strong>Empty</strong>
                 </Paragraph>
                 <Paragraph>
-                  Vanilla React projects use create-react-app, an official
-                  command-line tool built by Facebook for bootstrapping React
-                  applications.
+                  A barebone boilerplate to get you started.
                 </Paragraph>
                 <Paragraph>
-                  It's a fantastic general-purpose tool, and is the recommended
-                  approach if you're looking to become a skilled React
-                  developer.
+                  One command sitting in the plugin menu and printing a message
+                  when triggered. That's the "Hello World" of Sketch plugin
+                  development.
                 </Paragraph>
                 <Paragraph>
                   <ExternalLink
                     color={COLORS.white}
                     hoverColor={COLORS.white}
-                    href="https://github.com/facebook/create-react-app"
+                    href="https://github.com/skpm/skpm"
                   >
-                    <strong>Learn more about create-react-app.</strong>
+                    <strong>Learn more about skpm.</strong>
                   </ExternalLink>
                 </Paragraph>
               </Fragment>
@@ -110,21 +108,46 @@ class SummaryPane extends PureComponent<Props> {
                 <Paragraph>
                   <strong>Webview</strong>
                 </Paragraph>
+                <Paragraph>A webview is panel displaying a web page.</Paragraph>
                 <Paragraph>
-                  Gatsby is a blazing fast static site generator for React.
-                </Paragraph>
-                <Paragraph>
-                  It's great for building blogs and personal websites, and
-                  provides amazing performance out-of-the-box. A great choice
-                  for quickly getting products built.
+                  Some plugins need to display a UI to the user. A webview is
+                  the perfect candidate to easily display custom UIs. Use web
+                  technologies to create rich controls for your Sketch plugin.
                 </Paragraph>
                 <Paragraph>
                   <ExternalLink
                     color={COLORS.white}
                     hoverColor={COLORS.white}
-                    href="https://www.gatsbyjs.org/"
+                    href="https://github.com/skpm/sketch-module-web-view"
                   >
-                    <strong>Learn more about Gatsby.</strong>
+                    <strong>Learn more about webviews.</strong>
+                  </ExternalLink>
+                </Paragraph>
+              </Fragment>
+            );
+            break;
+          }
+          case 'datasupplier': {
+            details = (
+              <Fragment>
+                <Paragraph>
+                  <strong>Data Supplier</strong>
+                </Paragraph>
+                <Paragraph>
+                  A Data Supplier is a source for the Data feature introduced in
+                  Sketch 52.
+                </Paragraph>
+                <Paragraph>
+                  It's great for providing data from a custom dataset or an API
+                  to allow designers to design with real data.
+                </Paragraph>
+                <Paragraph>
+                  <ExternalLink
+                    color={COLORS.white}
+                    hoverColor={COLORS.white}
+                    href="https://blog.sketchapp.com/do-more-with-data-2b765e870e4f"
+                  >
+                    <strong>Learn more about Data Suppliers.</strong>
                   </ExternalLink>
                 </Paragraph>
               </Fragment>

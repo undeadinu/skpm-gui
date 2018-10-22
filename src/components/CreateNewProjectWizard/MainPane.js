@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import emptyIconSrc from '../../assets/images/empty.svg';
 import webviewIconSrc from '../../assets/images/webview.svg';
+import datasupplierIconSrc from '../../assets/images/datasupplier.svg';
 
 import FormField from '../FormField';
 import ProjectIconSelection from '../ProjectIconSelection';
@@ -93,6 +94,14 @@ class MainPane extends PureComponent<Props> {
                         onClick={() => this.updateProjectType('webview')}
                       >
                         Webview
+                      </ButtonWithIcon>
+                      <Spacer inline size={10} />
+                      <ButtonWithIcon
+                        showStroke={projectType === 'datasupplier'}
+                        icon={<Icon src={datasupplierIconSrc} />}
+                        onClick={() => this.updateProjectType('datasupplier')}
+                      >
+                        Data Supplier
                       </ButtonWithIcon>
                     </ProjectTypeTogglesWrapper>
                   </FormField>

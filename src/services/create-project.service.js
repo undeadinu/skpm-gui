@@ -129,14 +129,22 @@ export const getBuildInstructions = (
   const command = formatCommandForPlatform('npx');
   switch (projectType) {
     case 'empty':
-      return [command, 'create-sketch-plugin@1.1.5', id, '--name=' + name];
+      return [command, 'create-sketch-plugin', id, '--name=' + name];
     case 'webview':
       return [
         command,
-        'create-sketch-plugin@1.1.5',
+        'create-sketch-plugin',
         id,
         '--name=' + name,
         '--template=skpm/with-webview',
+      ];
+    case 'datasupplier':
+      return [
+        command,
+        'create-sketch-plugin',
+        id,
+        '--name=' + name,
+        '--template=skpm/with-datasupplier',
       ];
     default:
       throw new Error('Unrecognized project type: ' + projectType);

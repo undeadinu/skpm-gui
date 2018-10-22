@@ -1,5 +1,5 @@
 // @flow
-export type ProjectType = 'empty' | 'webview';
+export type ProjectType = 'empty' | 'webview' | 'datasupplier';
 
 export type SubmittedProject = {
   projectName: string,

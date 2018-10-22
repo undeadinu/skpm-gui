@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "src/main.js",
-  "homepage": "./",
+  "homepage": "https://skpm.io/",
   "repository": {
     "type": "git",
     "url": "https://github.com/skpm/skpm-gui.git"
@@ -40,7 +40,7 @@
     ]
   },
   "dependencies": {
-    "create-sketch-plugin": "^1.1.5",
+    "create-sketch-plugin": "^1.1.9",
     "electron-debug": "2.0.0",
     "electron-devtools-installer": "2.2.4",
     "electron-store": "2.0.0",
