@@ -40,15 +40,11 @@ export type QueuedDependency = {
   updating?: boolean,
 };
 
-export type Executable = {|
+export type Task = {|
   projectId: string,
   logs: Array<Log>,
   timeSinceStatusChange: ?Date,
   processId?: number,
-|};
-
-export type Task = {|
-  ...Executable,
   name: string,
   description: string,
   type: TaskType,
@@ -103,7 +99,10 @@ export type PluginMenuRootInternal = {
 };
 
 export type Command = {|
-  ...Executable,
+  projectId: string,
+  logs: Array<Log>,
+  timeSinceStatusChange: ?Date,
+  processId?: number,
   identifier: string,
   name: string,
   script: string,
@@ -115,6 +114,8 @@ export type Command = {|
     [action: string]: string,
   },
 |};
+
+export type Executable = Task | Command;
 
 export type PluginMenuRoot = {|
   title: string,
@@ -199,18 +200,4 @@ export type Project = {
   pluginPath: string,
 };
 
-export type ProjectsMap = { [id: string]: Project };
-
-/* eslint-disable no-redeclare */
-declare function arguments(() => any): [];
-declare function arguments<A>((A) => any): [A];
-declare function arguments<A, B>((A, B) => any): [A, B];
-declare function arguments<A, B, C>((A, B, C) => any): [A, B, C];
-declare function arguments<A, B, C, D>((A, B, C, D) => any): [A, B, C, D];
-declare function arguments<A, B, C, D, E>(
-  (A, B, C, D, E) => any
-): [A, B, C, D, E];
-/* eslint-enable */
-
-export type Arguments<T> = $Call<typeof arguments, T>;
-export type Dispatch<T> = (...args: Arguments<T>) => void;
+export type ProjectInternalsMap = { [id: string]: ProjectInternal };

@@ -14,7 +14,8 @@ import { FillButton } from '../Button';
 import FormField from '../FormField';
 import TextInput from '../TextInput';
 
-import type { Dispatch, Project } from '../../types';
+import type { Project } from '../../types';
+import type { Dispatch } from '../../actions/types';
 
 type Props = {
   isVisible: boolean,

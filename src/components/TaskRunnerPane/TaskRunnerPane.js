@@ -16,12 +16,13 @@ import TaskRunnerPaneRow from '../TaskRunnerPaneRow';
 import TaskDetailsModal from '../TaskDetailsModal';
 
 import type { Task } from '../../types';
+import type { Dispatch } from '../../actions/types';
 
 type Props = {
   projectId: string,
   tasks: Array<Task>,
-  runTask: Function,
-  abortTask: Function,
+  runTask: Dispatch<typeof actions.runTask>,
+  abortTask: Dispatch<typeof actions.abortTask>,
   dependenciesChangingForProject: boolean,
 };
 

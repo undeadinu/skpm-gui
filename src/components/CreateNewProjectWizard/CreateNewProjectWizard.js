@@ -21,6 +21,7 @@ import BuildPane from './BuildPane';
 import type { Field, Status, Step } from './types';
 
 import type { ProjectType, ProjectInternal } from '../../types';
+import type { Dispatch } from '../../actions/types';
 
 const FORM_STEPS: Array<Field> = ['projectName', 'projectType', 'projectIcon'];
 const { dialog } = remote;
@@ -30,13 +31,9 @@ type Props = {
   projectHomePath: string,
   isVisible: boolean,
   isOnboardingCompleted: boolean,
-  addProject: (
-    project: ProjectInternal,
-    projectType: ProjectType,
-    isOnboardingCompleted: boolean
-  ) => void,
-  createNewProjectCancel: () => void,
-  createNewProjectFinish: () => void,
+  addProject: Dispatch<typeof actions.addProject>,
+  createNewProjectCancel: Dispatch<typeof actions.createNewProjectCancel>,
+  createNewProjectFinish: Dispatch<typeof actions.createNewProjectFinish>,
 };
 
 type State = {

@@ -92,6 +92,7 @@ const loggableActions: LoggableActionsMap = {
   },
 };
 
+// $FlowFixMe
 export function* handleAction({ type, ...payload }: Action): Saga<void> {
   if (loggableActions[type]) {
     const { name, getMetadata } = loggableActions[type];

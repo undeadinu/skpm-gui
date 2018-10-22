@@ -21,8 +21,8 @@ import SidebarProjectIcon from './SidebarProjectIcon';
 import AddProjectButton from './AddProjectButton';
 import IntroductionBlurb from './IntroductionBlurb';
 
-import type { Action } from 'redux';
 import type { Project } from '../../types';
+import type { Dispatch } from '../../actions/types';
 import type { State as OnboardingStatus } from '../../reducers/onboarding-status.reducer';
 
 type Props = {
@@ -30,8 +30,8 @@ type Props = {
   selectedProjectId: ?string,
   onboardingStatus: OnboardingStatus,
   isVisible: boolean,
-  createNewProjectStart: () => void,
-  selectProject: (projectId: string) => Action,
+  createNewProjectStart: Dispatch<typeof actions.createNewProjectStart>,
+  selectProject: Dispatch<typeof actions.selectProject>,
 };
 
 type State = {

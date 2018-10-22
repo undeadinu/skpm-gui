@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { runTask, abortTask } from '../../actions';
 import { getSelectedProject } from '../../reducers/projects.reducer';
 import { COLORS, SKPM_REPO_URL } from '../../constants';
 
@@ -283,9 +282,4 @@ const mapStateToProps = state => ({
   project: getSelectedProject(state),
 });
 
-const mapDispatchToProps = { runTask, abortTask };
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DependencyManagementPane);
+export default connect(mapStateToProps)(DependencyManagementPane);

@@ -23,8 +23,24 @@ export const range = function(start: number, end: number, step: number = 1) {
   return range;
 };
 
+export const shuffle = <T>(arr: Array<T>): Array<T> => {
+  var shuffled = arr.slice(0),
+    i = arr.length,
+    temp,
+    index;
+  while (i--) {
+    index = Math.floor((i + 1) * Math.random());
+    temp = shuffled[index];
+    shuffled[index] = shuffled[i];
+    shuffled[i] = temp;
+  }
+  return shuffled;
+};
+
 export const sample = <T>(arr: Array<T>): T =>
   arr[Math.floor(Math.random() * arr.length)];
+export const sampleMany = <T>(arr: Array<T>, size: number): Array<T> =>
+  shuffle(arr).slice(0, size);
 
 export const random = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min)) + min;
@@ -144,11 +160,11 @@ export const findRight = <T>(
     .find(predicate);
 
 export function requestAnimationFramePromise() {
-  return new Promise(resolve => window.requestAnimationFrame(resolve));
+  return new Promise<void>(resolve => window.requestAnimationFrame(resolve));
 }
 
 export function setTimeoutPromise(duration?: number) {
-  return new Promise(resolve => window.setTimeout(resolve, duration));
+  return new Promise<void>(resolve => window.setTimeout(resolve, duration));
 }
 
 export const capitalize = (str: string) => str[0].toUpperCase() + str.slice(1);
@@ -174,9 +190,6 @@ export const convertHexToRGBA = (hex: string, alpha: number = 1) => {
 
 export const hyphenate = (str: string) =>
   str.replace(/([A-Z])/g, '-$1').toLowerCase();
-
-export const delay = (duration?: number) =>
-  new Promise(resolve => window.setTimeout(resolve, duration));
 
 export const getTimeOfDay = () => {
   const now = new Date();

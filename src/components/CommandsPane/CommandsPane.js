@@ -14,7 +14,8 @@ import OnlyOn from '../OnlyOn';
 import AddCommandModal from '../AddCommandModal';
 import CommandDetailsModal from '../CommandDetailsModal';
 
-import type { Project, Dispatch } from '../../types';
+import type { Project } from '../../types';
+import type { Dispatch } from '../../actions/types';
 
 type Props = {
   project: Project,

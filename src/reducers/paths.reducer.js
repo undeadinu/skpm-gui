@@ -24,7 +24,7 @@ import {
 import { windowsHomeDir, isWin } from '../services/platform.service';
 import { getSlug } from '../utils';
 
-import type { Action } from 'redux';
+import type { Action } from '../actions/types';
 
 type State = {
   homePath: string,

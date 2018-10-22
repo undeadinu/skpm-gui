@@ -23,6 +23,7 @@ import {
 import { getDevServerTaskForProjectId } from '../../reducers/tasks.reducer';
 
 import type { Project, Task } from '../../types';
+import type { Dispatch } from '../../actions/types';
 
 const { app, process, Menu } = remote;
 
@@ -30,13 +31,15 @@ type Props = {
   projects: Array<Project>,
   selectedProject: ?Project,
   devServerTask: ?Task,
-  createNewProjectStart: () => any,
-  showImportExistingProjectPrompt: () => any,
-  clearConsole: (task: Task) => any,
-  showDeleteProjectPrompt: (project: any) => any,
-  showResetStatePrompt: () => any,
-  showProjectSettings: () => any,
-  selectProject: (projectId: string) => any,
+  createNewProjectStart: Dispatch<typeof actions.createNewProjectStart>,
+  showImportExistingProjectPrompt: Dispatch<
+    typeof actions.showImportExistingProjectPrompt
+  >,
+  clearConsole: Dispatch<typeof actions.clearConsole>,
+  showDeleteProjectPrompt: Dispatch<typeof actions.showDeleteProjectPrompt>,
+  showResetStatePrompt: Dispatch<typeof actions.showResetStatePrompt>,
+  showProjectSettings: Dispatch<typeof actions.showProjectSettings>,
+  selectProject: Dispatch<typeof actions.selectProject>,
 };
 
 class ApplicationMenu extends Component<Props> {

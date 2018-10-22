@@ -5,17 +5,21 @@ import * as path from 'path';
 
 import { pick } from '../utils';
 
+import type { Stats } from 'fs';
 import type {
   QueuedDependency,
   DependencyLocation,
+  Dependency,
   ProjectInternal,
 } from '../types';
+
+type JSONObject = { [key: string]: any };
 
 /**
  * Load createdAt time
  */
 export const loadProjectFSStat = (projectPath: string) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<Stats>((resolve, reject) => {
     return fs.stat(projectPath, (err, data) => {
       if (err) {
         return reject(err);
@@ -29,7 +33,7 @@ export const loadProjectFSStat = (projectPath: string) => {
  * Load a project's package.json
  */
 export const loadPackageJson = (projectPath: string) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<JSONObject>((resolve, reject) => {
     return fs.readFile(
       path.join(projectPath, 'package.json'),
       'utf8',
@@ -48,9 +52,9 @@ export const loadPackageJson = (projectPath: string) => {
  */
 export const loadManifestJson = (
   projectPath: string,
-  packageJson: { [key: string]: any }
+  packageJson: JSONObject
 ) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<JSONObject>((resolve, reject) => {
     return fs.readFile(
       path.join(projectPath, packageJson.skpm.manifest),
       'utf8',
@@ -68,7 +72,7 @@ export const loadManifestJson = (
  * Load a project's icon.png
  */
 export const loadIcon = (projectPath: string) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     return fs.readFile(
       path.join(projectPath, 'assets', 'icon.png'),
       'base64',
@@ -88,7 +92,7 @@ export const loadIcon = (projectPath: string) => {
 export const writePackageJson = (projectPath: string, json: any) => {
   const prettyPrintedPackageJson = JSON.stringify(json, null, 2);
 
-  return new Promise((resolve, reject) => {
+  return new Promise<JSONObject>((resolve, reject) => {
     fs.writeFile(
       path.join(projectPath, 'package.json'),
       prettyPrintedPackageJson,
@@ -105,12 +109,12 @@ export const writePackageJson = (projectPath: string, json: any) => {
 
 export const writeManifestJson = (
   projectPath: string,
-  packageJson: { [key: string]: any },
-  json: any
+  packageJson: JSONObject,
+  json: JSONObject
 ) => {
   const prettyPrintedManifestJson = JSON.stringify(json, null, 2);
 
-  return new Promise((resolve, reject) => {
+  return new Promise<JSONObject>((resolve, reject) => {
     fs.writeFile(
       path.join(projectPath, packageJson.skpm.manifest),
       prettyPrintedManifestJson,
@@ -144,7 +148,7 @@ export const loadProject = (projectPath: string): Promise<ProjectInternal> => {
  * Given an array of paths, load each one as a distinct project.
  */
 export const loadProjects = (projectPaths: Array<string>) =>
-  new Promise((resolve, reject) => {
+  new Promise<{ [projectId: string]: ProjectInternal }>((resolve, reject) => {
     // Each project in a Guppy directory should have a package.json.
     // We'll read all the project info we need from this file.
     // TODO: Maybe use asyncReduce to handle the output format in 1 neat step?
@@ -216,7 +220,7 @@ export function loadProjectDependency(
   // prettier-ignore
   const dependencyPath = path.join(projectPath, 'node_modules', dependencyName, 'package.json');
 
-  return new Promise((resolve, reject) => {
+  return new Promise<Dependency | null>((resolve, reject) => {
     fs.readFile(dependencyPath, 'utf8', (err, data) => {
       if (err) {
         if (err.code === 'ENOENT') {
@@ -250,6 +254,7 @@ export function loadProjectDependency(
         location: dependencyLocation,
       };
 
+      // $FlowFixMe
       return resolve(dependency);
     });
   });
@@ -263,7 +268,7 @@ export function loadProjectDependencies(
   projectPath: string,
   dependencies: Array<QueuedDependency>
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise<Array<Dependency>>((resolve, reject) => {
     asyncMap(
       dependencies,
       function({ name, location }, callback) {
@@ -326,10 +331,10 @@ export function loadAllProjectDependencies(projectPath: string) {
 
 export const createCommandJs = (
   projectPath: string,
-  packageJson: { [key: string]: any },
+  packageJson: JSONObject,
   commandPath: string
 ) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     fs.writeFile(
       path.resolve(
         path.dirname(path.join(projectPath, packageJson.skpm.manifest)),

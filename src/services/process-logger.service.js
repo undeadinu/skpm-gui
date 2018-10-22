@@ -1,5 +1,6 @@
 // @flow
 import { LOGGING } from '../config/app';
+
 import type { ChildProcess } from 'child_process';
 
 export const processLogger = (child: ChildProcess, label: string) => {

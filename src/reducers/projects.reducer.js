@@ -25,7 +25,7 @@ import { getCommands, getCommandsForProjectId } from './commands.reducer';
 
 import { internalMenuToMenu } from '../services/plugin-menu.service';
 
-import type { Action } from 'redux';
+import type { Action } from '../actions/types';
 import type { ProjectInternal, Project } from '../types';
 
 type ById = {
