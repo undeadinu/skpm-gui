@@ -34,7 +34,7 @@ To use Skpm, you'll first need to have a modern version of Node (a Javascript ru
 
 Once Node is installed, you can [download Skpm](https://github.com/skpm/skpm-gui/releases).
 
-Double-click the downloaded executable to open Guppy. Mac users may need to right-click and select "Open" if MacOS complains about the fact that this was downloaded from the internet.
+Double-click the downloaded executable to open Skpm. Mac users may need to right-click and select "Open" if MacOS complains about the fact that this was downloaded from the internet.
 
 > Note: In future stable releases, I hope to remove the need to download Node by using the Node runtime that comes with Skpm GUI (see [#44](https://github.com/joshwcomeau/guppy/issues/44)). I also plan to create a proper installer so that it's easy to copy Skpm to the Applications folder (see [#26](https://github.com/joshwcomeau/guppy/issues/26)). Contributions welcome!
 
@@ -54,7 +54,7 @@ In the meantime, some folks have started translating the docs into different lan
 
 Skpm GUI is an electron application that secretly runs terminal commands for you in the background. It uses the **skpm** CLI.
 
-Skpm reads from your manifest.json to get the commands and plugin menu if any. It also reads from `package.json` to figure out the current dependencies, and see which tasks are available (via `scripts`).
+Skpm reads from your `manifest.json` to get the commands and plugin menu if any. It also reads from `package.json` to figure out the current dependencies, and see which tasks are available (via `scripts`).
 
 Skpm has intelligent modules built around task types. For example, the dev mode is no ordinary task, it's one that ought to be running throughout your time working on the project, and so it's given its own module at the top of the page.
 

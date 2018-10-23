@@ -40,7 +40,7 @@ class Initialization extends PureComponent<Props, State> {
         'It looks like Node.js isn\'t installed. Node is required to use Skpm.\nWhen you click "OK", you\'ll be directed to instructions to download and install Node.'
       );
       shell.openExternal(
-        'https://github.com/skpm/guppy/blob/master/README.md#installation'
+        'https://github.com/skpm/skpm-gui/blob/master/README.md#installation'
       );
     }
 

@@ -165,7 +165,7 @@ class ApplicationMenu extends Component<Props> {
     // options:
     if (process.platform === 'darwin') {
       template.unshift({
-        id: 'guppy',
+        id: 'skpm',
         label: app.getName(),
         submenu: [
           { role: 'about' },
