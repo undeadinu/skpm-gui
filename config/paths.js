@@ -1,4 +1,3 @@
-/* eslint-disable flowtype/require-valid-file-annotation */
 const path = require('path');
 const fs = require('fs');
 const url = require('url');
