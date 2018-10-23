@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "src/main.js",
-  "homepage": "https://skpm.io/",
+  "homepage": "./",
   "repository": {
     "type": "git",
     "url": "https://github.com/skpm/skpm-gui.git"
