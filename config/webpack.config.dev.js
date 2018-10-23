@@ -1,3 +1,4 @@
+/* eslint-disable flowtype/require-valid-file-annotation */
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');

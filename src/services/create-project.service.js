@@ -6,8 +6,11 @@ import * as path from 'path';
 import { loadProject } from './read-from-disk.service';
 import { enableDevMode } from './dev-mode.service';
 
-import { formatCommandForPlatform } from './platform.service';
 import { getSlug } from '../utils';
+import {
+  formatCommandForPlatform,
+  getBaseProjectEnvironment,
+} from './platform.service';
 
 import { FAKE_CRA_PROJECT } from './create-project.fixtures';
 
@@ -77,9 +80,10 @@ export default (
   const child = childProcess.spawn(instruction, args, {
     cwd: projectHomePath,
     env: {
-      ...window.process.env,
+      ...getBaseProjectEnvironment(projectPath),
       CI: true,
     },
+    shell: true,
   });
 
   let hasError = false;

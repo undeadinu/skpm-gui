@@ -1,3 +1,4 @@
+/* eslint-disable flowtype/require-valid-file-annotation */
 const fs = require('fs');
 const path = require('path');
 const paths = require('./paths');

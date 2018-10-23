@@ -26,6 +26,7 @@ import { getPathForProjectId } from '../reducers/paths.reducer';
 import {
   getBaseProjectEnvironment,
   PACKAGE_MANAGER_CMD,
+  isWin,
 } from '../services/platform.service';
 import { ipcRenderer } from 'electron';
 
@@ -105,6 +106,7 @@ describe('task saga', () => {
         call([childProcess, childProcess.spawn], PACKAGE_MANAGER_CMD, args, {
           cwd: projectPath,
           env: { ...getBaseProjectEnvironment(projectPath), ...env },
+          shell: true,
         })
       );
     });
@@ -180,6 +182,7 @@ describe('task saga', () => {
           {
             cwd: projectPath,
             env: getBaseProjectEnvironment(projectPath),
+            shell: true,
           }
         )
       );
@@ -199,6 +202,7 @@ describe('task saga', () => {
           {
             cwd: projectPath,
             env: getBaseProjectEnvironment(projectPath),
+            shell: true,
           }
         )
       );
@@ -218,6 +222,7 @@ describe('task saga', () => {
           {
             cwd: projectPath,
             env: getBaseProjectEnvironment(projectPath),
+            shell: true,
           }
         )
       );
@@ -397,8 +402,9 @@ describe('task saga', () => {
         '.bin'
       );
       const generatedEnv = getBaseProjectEnvironment(projectPath);
+      const pathKey = isWin ? 'Path' : 'PATH';
 
-      expect(generatedEnv.PATH).toContain(projectBinDirectory);
+      expect(generatedEnv[pathKey]).toContain(projectBinDirectory);
     });
   });
 });
