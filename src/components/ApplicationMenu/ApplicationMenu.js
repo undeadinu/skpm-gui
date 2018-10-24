@@ -218,7 +218,7 @@ class ApplicationMenu extends Component<Props> {
       }
 
       submenu.push({
-        label: isMac ? 'Delete Project' : 'Delete project',
+        label: isMac ? 'Delete Plugin' : 'Delete plugin',
         click: () => showDeleteProjectPrompt(selectedProject),
       });
 
@@ -226,7 +226,7 @@ class ApplicationMenu extends Component<Props> {
 
       // Checking projects length not needed as we're having more than one project if the Current Project menu is available
       submenu.push({
-        label: isMac ? 'Select Project' : 'Select project',
+        label: isMac ? 'Select Plugin' : 'Select plugin',
         id: 'select-project',
         submenu: createProjectSelectionSubmenu(
           projects,
@@ -237,7 +237,7 @@ class ApplicationMenu extends Component<Props> {
 
       template.splice(editMenuIndex, 0, {
         id: 'current-project',
-        label: isMac ? 'Current Project' : 'Current &project',
+        label: isMac ? 'Current Plugin' : 'Current &plugin',
         submenu,
       });
     }

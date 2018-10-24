@@ -116,7 +116,7 @@ class AddDependencySearchResult extends PureComponent<Props> {
         textColor={COLORS.green[700]}
         onClick={() => addDependency(projectId, hit.name, hit.version)}
       >
-        Add To Project
+        Add To Plugin
       </StrokeButton>
     );
   }
