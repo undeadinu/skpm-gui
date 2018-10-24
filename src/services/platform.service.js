@@ -77,7 +77,7 @@ export const getBaseProjectEnvironment = (
 // 'fix-path' is supposed to do this for us, but it doesn't work, for unknown
 // reasons.
 export const initializePath = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     childProcess.exec(
       'which node',
       { env: window.process.env },
@@ -87,20 +87,24 @@ export const initializePath = () => {
           // /usr/local/bin
           // For users using NVM, the path to Node will be added to `.bashrc`.
           // Add both to the PATH.
-          try {
-            childProcess.exec(
-              'source ~/.bashrc && echo $PATH',
-              (err, updatedPath) => {
-                if (updatedPath) {
-                  window.process.env.PATH = `/usr/local/bin:${updatedPath}`;
-                }
-
-                resolve();
+          childProcess.exec(
+            'echo $PATH',
+            { shell: true, encoding: 'utf8' },
+            (err, updatedPath, sdterr) => {
+              if (err) {
+                console.error(sdterr);
+                return reject(err);
               }
-            );
-          } catch (e) {
-            reject(e);
-          }
+
+              if (updatedPath) {
+                window.process.env.PATH = `/usr/local/bin:${updatedPath.toString()}`;
+              }
+
+              resolve();
+            }
+          );
+        } else {
+          resolve();
         }
       }
     );
