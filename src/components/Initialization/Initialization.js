@@ -34,23 +34,40 @@ class Initialization extends PureComponent<Props, State> {
   };
 
   async componentDidMount() {
-    const nodeVersion = await getNodeJsVersion();
+    try {
+      await initializePath();
 
-    if (!nodeVersion) {
-      dialog.showErrorBox(
-        'Node missing',
-        'It looks like Node.js isn\'t installed. Node is required to use Skpm.\nWhen you click "OK", you\'ll be directed to instructions to download and install Node.'
-      );
-      shell.openExternal(`${SKPM_REPO_URL}/blob/skpm/README.md#installation`);
+      const nodeVersion = await getNodeJsVersion();
+
+      if (!nodeVersion) {
+        throw new Error('node-not-found');
+      }
+
+      this.setState({ wasSuccessfullyInitialized: !!nodeVersion });
+
+      logger.logEvent('load-application', {
+        node_version: nodeVersion,
+      });
+
+      ipcRenderer.on('app-will-close', this.appWillClose);
+    } catch (e) {
+      switch (e) {
+        case 'node-not-found': {
+          dialog.showErrorBox(
+            'Node missing',
+            'It looks like Node.js isn\'t installed. Node is required to use Guppy.\nWhen you click "OK", you\'ll be directed to instructions to download and install Node.'
+          );
+          shell.openExternal(
+            `${SKPM_REPO_URL}/blob/skpm/README.md#installation`
+          );
+          break;
+        }
+        default: {
+          // Path initialization can reject if no valid Node version is found.
+          // This isn't really an error, though, so we can swallow it.
+        }
+      }
     }
-
-    initializePath();
-    this.setState({ wasSuccessfullyInitialized: !!nodeVersion });
-    logger.logEvent('load-application', {
-      node_version: nodeVersion,
-    });
-
-    ipcRenderer.on('app-will-close', this.appWillClose);
   }
 
   appWillClose = () => {
