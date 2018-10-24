@@ -9,6 +9,8 @@ import { getAppLoaded } from '../../reducers/app-loaded.reducer';
 import { getProjectsArray } from '../../reducers/projects.reducer';
 import { initializePath } from '../../services/platform.service';
 
+import { SKPM_REPO_URL } from '../../constants';
+
 import type { Project } from '../../types';
 import type { State as Queue, QueueEntry } from '../../reducers/queue.reducer';
 
@@ -39,9 +41,7 @@ class Initialization extends PureComponent<Props, State> {
         'Node missing',
         'It looks like Node.js isn\'t installed. Node is required to use Skpm.\nWhen you click "OK", you\'ll be directed to instructions to download and install Node.'
       );
-      shell.openExternal(
-        'https://github.com/skpm/skpm-gui/blob/master/README.md#installation'
-      );
+      shell.openExternal(`${SKPM_REPO_URL}/blob/skpm/README.md#installation`);
     }
 
     initializePath();
