@@ -22,7 +22,7 @@ In addition, we use the following libraries and tools:
 
 Some of these tools, like Electron and Flow, might be intimidating if you haven't used them before. Don't worry too much about this, though; we're a helpful bunch, and we're glad to answer any questions you have, or point you in the right direction in pull requests.
 
-You can learn a bit more about how we use these tools in our [style guide](https://github.com/joshwcomeau/guppy/blob/master/docs/dev-info/style-guide.md).
+You can learn a bit more about how we use these tools in our [style guide](https://github.com/skpm/skpm-gui/blob/skpm/docs/dev-info/style-guide.md).
 
 ### Bundling and Electron
 
@@ -30,13 +30,13 @@ In many ways, Guppy is very similar to a standard web app; this project was boot
 
 There are a few things that make it different though.
 
-The first is that there's an entry file that runs in Node.js. This file is [main.js](https://github.com/joshwcomeau/guppy/blob/master/src/main.js), and it handles opening the Guppy window, tackles killing processes before the app quits, stuff like that.
+The first is that there's an entry file that runs in Node.js. This file is [main.js](https://github.com/skpm/skpm-gui/blob/skpm/src/main.js), and it handles opening the Guppy window, tackles killing processes before the app quits, stuff like that.
 
-Also, Electron fuses the Chrome JS environment with a Node environment, which means some of the code in [`src/services`](https://github.com/joshwcomeau/guppy/blob/master/src/services) use native Node modules, like `child_process` to manage processes, and `fs` to access the file-system.
+Also, Electron fuses the Chrome JS environment with a Node environment, which means some of the code in [`src/services`](https://github.com/skpm/skpm-gui/blob/skpm/src/services) use native Node modules, like `child_process` to manage processes, and `fs` to access the file-system.
 
 ### File structure
 
-All app code lives in [`src`](https://github.com/joshwcomeau/guppy/blob/master/src/).
+All app code lives in [`src`](https://github.com/skpm/skpm-gui/blob/skpm/src/).
 
 Files are grouped by type. This means that there is a directory for components, reducers, services, etc.
 
@@ -52,7 +52,7 @@ components
     └── index.js
 ```
 
-Occasionally, files won't fit neatly into this structure. For example, there are stories that are not component-specific, like [colors](https://github.com/joshwcomeau/guppy/blob/master/src/stories/colors.stories.js). In these cases, we have folders for them; `src/stories` holds all non-specific stories, for example.
+Occasionally, files won't fit neatly into this structure. For example, there are stories that are not component-specific, like [colors](https://github.com/skpm/skpm-gui/blob/skpm/src/stories/colors.stories.js). In these cases, we have folders for them; `src/stories` holds all non-specific stories, for example.
 
 In general, though, we prefer to colocate stories and tests with the associated components.
 
@@ -60,9 +60,9 @@ In general, though, we prefer to colocate stories and tests with the associated 
 
 Something a little bit different is the idea of "services" in this application.
 
-A service is just a collection of helper functions, grouped around a domain task. For example, we have a number of functions related to reading and writing to disk, and so there's a [read-from-disk](https://github.com/joshwcomeau/guppy/blob/master/src/services/read-from-disk.service.js) service that groups them.
+A service is just a collection of helper functions, grouped around a domain task. For example, we have a number of functions related to reading and writing to disk, and so there's a [read-from-disk](https://github.com/skpm/skpm-gui/blob/skpm/src/services/read-from-disk.service.js) service that groups them.
 
-There is also a [`utils.js`](https://github.com/joshwcomeau/guppy/blob/master/src/utils.js/). This file is meant to hold generic, not-domain-specific utility functions. Essentially this does lodash-type things.
+There is also a [`utils.js`](https://github.com/skpm/skpm-gui/blob/skpm/src/utils.js/). This file is meant to hold generic, not-domain-specific utility functions. Essentially this does lodash-type things.
 
 To understand the distinction between "utils" and "services", think of it this way: Is this the kind of function I might want to bring with me to a totally different project? If so, it probably goes in utils. Otherwise, it's likely a service.
 

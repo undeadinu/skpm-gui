@@ -8,7 +8,7 @@
 
 ## Installation
 
-Installation instructions in the [README](https://github.com/joshwcomeau/guppy/blob/master/README.md#installation).
+Installation instructions in the [README](https://github.com/skpm/skpm-gui/blob/skpm/README.md#installation).
 
 ## Your First Project
 

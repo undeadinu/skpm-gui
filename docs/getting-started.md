@@ -8,7 +8,7 @@
 
 ## Installation
 
-Installation instructions in the [README](https://github.com/skpm/skpm-gui/blob/master/README.md#installation).
+Installation instructions in the [README](https://github.com/skpm/skpm-gui/blob/skpm/README.md#installation).
 
 ## Adding your first plugin
 
@@ -18,7 +18,7 @@ The wizard will guide you through selecting a name, icon, and plugin template.
 
 If you already have a plugin that you'd like to use with Skpm, you can opt to import an existing plugin instead. _Please be advised that this feature hasn't been rigorously tested!_ It will only work with projects created with the skpm cli, and in the worst case it could potentially mess up your plugin's `manifest.json` file. To play it safe, make sure that your project is managed with source-control, so that you can easily reset it if anything goes wrong.
 
-For more information on the plugin-creation process, please see our [Adding a Plugin](https://github.com/skpm/skpm-gui/blob/master/docs/adding-a-project.md) doc.
+For more information on the plugin-creation process, please see our [Adding a Plugin](https://github.com/skpm/skpm-gui/blob/skpm/docs/adding-a-project.md) doc.
 
 ## Managing your plugin
 
@@ -42,7 +42,7 @@ A few years ago, creating and managing a local development environment was a big
 
 To turn the Development Mode on, click the toggle in the top-right of the module:
 
-![Development mode module](https://github.com/skpm/skpm-gui/raw/master/docs/images/dev-server-toggle.png)
+![Development mode module](https://github.com/skpm/skpm-gui/raw/skpm/docs/images/dev-server-toggle.png)
 
 You'll see two things happen:
 
@@ -72,11 +72,11 @@ Each task gets its own row, which tells you:
 
 Run a task by clicking the toggle on the right side of each task:
 
-![Development server module](https://github.com/skpm/skpm-gui/raw/master/docs/images/task-row-toggle.png)
+![Development server module](https://github.com/skpm/skpm-gui/raw/skpm/docs/images/task-row-toggle.png)
 
 You can also run tasks from within the "View Details" panel:
 
-![Development server module](https://github.com/skpm/skpm-gui/raw/master/docs/images/task-details-toggle.png)
+![Development server module](https://github.com/skpm/skpm-gui/raw/skpm/docs/images/task-details-toggle.png)
 
 When you toggle a task on, the status will switch to "pending". If you're curious to see what it's doing, you can click "View Details" to get a terminal output screen, much like the one the Development Mode module has.
 
@@ -98,11 +98,11 @@ Let's say you've realized that your plugin needs to change some colors. It would
 
 Click the "Add New Dependency" button to search for a new dependency:
 
-![Development server module](https://github.com/skpm/skpm-gui/raw/master/docs/images/add-dep-button.png)
+![Development server module](https://github.com/skpm/skpm-gui/raw/skpm/docs/images/add-dep-button.png)
 
 If you search for "color", you'll see a few options come up:
 
-![Development server module](https://github.com/skpm/skpm-gui/raw/master/docs/images/search-deps.png)
+![Development server module](https://github.com/skpm/skpm-gui/raw/skpm/docs/images/search-deps.png)
 
 You can click the names of these packages to learn more about them, and decide if they solve the problem you need. You can also use the data included in the search results to inform your decision:
 
