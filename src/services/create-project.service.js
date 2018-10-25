@@ -133,13 +133,13 @@ export const getBuildInstructions = (
   const command = formatCommandForPlatform('npx');
   switch (projectType) {
     case 'empty':
-      return [command, 'create-sketch-plugin', id, '--name=' + name];
+      return [command, 'create-sketch-plugin', id, `--name="${name}"`];
     case 'webview':
       return [
         command,
         'create-sketch-plugin',
         id,
-        '--name=' + name,
+        `--name="${name}"`,
         '--template=skpm/with-webview',
       ];
     case 'datasupplier':
@@ -147,7 +147,7 @@ export const getBuildInstructions = (
         command,
         'create-sketch-plugin',
         id,
-        '--name=' + name,
+        `--name="${name}"`,
         '--template=skpm/with-datasupplier',
       ];
     default:
