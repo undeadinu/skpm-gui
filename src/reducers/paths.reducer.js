@@ -10,7 +10,6 @@
  * paths on different computers!).
  */
 import * as path from 'path';
-import * as os from 'os';
 import produce from 'immer';
 
 import {
@@ -19,29 +18,19 @@ import {
   FINISH_DELETING_PROJECT,
   SAVE_PROJECT_SETTINGS_FINISH,
   RESET_ALL_STATE,
-  CHANGE_PROJECT_HOME_PATH,
 } from '../actions';
-import { windowsHomeDir, isWin } from '../services/platform.service';
 import { getSlug } from '../utils';
 
 import type { Action } from '../actions/types';
 
 type State = {
-  homePath: string,
   byId: {
     [projectId: string]: string,
   },
 };
 
-const homedir = isWin ? windowsHomeDir : os.homedir();
-// Noticing some weird quirks when I try to use a dev project on the compiled
-// "production" app, so separating their home paths should help.
-
 export const initialState = {
-  homePath:
-    process.env.NODE_ENV === 'development'
-      ? path.join(homedir, 'sketch-plugins-dev')
-      : path.join(homedir, 'sketch-plugins'),
+  homePath: '',
   byId: {},
 };
 
@@ -49,12 +38,12 @@ export default (state: State = initialState, action: Action = {}) => {
   switch (action.type) {
     case ADD_PROJECT: {
       const { project } = action;
-
+      const defaultProjectPath = action.projectHomePath;
       const projectNameSlug = getSlug(project.name);
 
       return produce(state, draftState => {
         draftState.byId[project.name] = formatProjectPath(
-          state.homePath,
+          defaultProjectPath,
           projectNameSlug
         );
       });
@@ -74,13 +63,6 @@ export default (state: State = initialState, action: Action = {}) => {
       return produce(state, draftState => {
         delete draftState.byId[oldId];
         draftState.byId[id] = projectPath;
-      });
-    }
-
-    case CHANGE_PROJECT_HOME_PATH: {
-      const { homePath } = action;
-      return produce(state, draftState => {
-        draftState.homePath = homePath;
       });
     }
 
@@ -111,7 +93,6 @@ const formatProjectPath = (homePath, projectId) =>
 //
 // Selectors
 export const getPaths = (state: any) => state.paths.byId;
-export const getProjectHomePath = (state: any) => state.paths.homePath;
 export const getPathsArray = (state: any) => Object.values(getPaths(state));
 
 export const getPathForProjectId = (state: any, props: { projectId: string }) =>

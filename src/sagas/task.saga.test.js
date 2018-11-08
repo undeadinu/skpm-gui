@@ -313,7 +313,10 @@ describe('task saga', () => {
   describe('taskAbort saga', () => {
     it('should kill process and notify renderer', () => {
       const processId = 12345;
-      const saga = taskAbort({ task: { name: 'start', processId } });
+      const saga = taskAbort({
+        task: { name: 'start', processId },
+        projectType: 'create-react-app',
+      });
 
       expect(saga.next().value).toEqual(call(killProcessId, processId));
       expect(saga.next().value).toEqual(
@@ -323,7 +326,7 @@ describe('task saga', () => {
 
     it('should display correct message for dev server task', () => {
       const task = { name: 'start', processId: 12345 }; // react
-      let saga = taskAbort({ task });
+      let saga = taskAbort({ task, projectType: 'create-react-app' });
       saga.next();
       saga.next();
 
@@ -334,7 +337,18 @@ describe('task saga', () => {
       );
 
       task.name = 'develop'; // gatsby
-      saga = taskAbort({ task });
+      saga = taskAbort({ task, projectType: 'gatsby' });
+      saga.next();
+      saga.next();
+
+      expect(saga.next().value).toEqual(
+        put(
+          receiveDataFromTaskExecution(task, chalk.bold.red('Server stopped'))
+        )
+      );
+
+      task.name = 'dev'; // nextjs
+      saga = taskAbort({ task, projectType: 'nextjs' });
       saga.next();
       saga.next();
 
@@ -347,7 +361,7 @@ describe('task saga', () => {
 
     it('should display correct message for non dev server task', () => {
       const task = { name: 'test', processId: 12345 };
-      const saga = taskAbort({ task });
+      const saga = taskAbort({ task, projectType: 'create-react-app' });
       saga.next();
       saga.next();
 

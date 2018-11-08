@@ -43,7 +43,7 @@ class DevelopmentServerPane extends PureComponent<Props> {
     if (isToggled) {
       launchDevServer(task, timestamp);
     } else {
-      abortTask(task, timestamp);
+      abortTask(task, 'empty', timestamp);
     }
   };
 
@@ -183,6 +183,7 @@ const mapStateToProps = state => {
     project: selectedProject,
     task: getDevServerTaskForProjectId(state, {
       projectId: selectedProject.id,
+      projectType: 'empty',
     }),
   };
 };

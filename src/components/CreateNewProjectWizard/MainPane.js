@@ -3,14 +3,9 @@ import React, { PureComponent, Fragment } from 'react';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
 
-import emptyIconSrc from '../../assets/images/empty.svg';
-import webviewIconSrc from '../../assets/images/webview.svg';
-import datasupplierIconSrc from '../../assets/images/datasupplier.svg';
-
 import FormField from '../FormField';
 import ProjectIconSelection from '../ProjectIconSelection';
-import ButtonWithIcon from '../ButtonWithIcon';
-import Spacer from '../Spacer';
+import ProjectTypeSelection from '../ProjectTypeSelection';
 import FadeIn from '../FadeIn';
 
 import ProjectName from './ProjectName';
@@ -79,31 +74,10 @@ class MainPane extends PureComponent<Props> {
                     label="Plugin Template"
                     isFocused={activeField === 'projectType'}
                   >
-                    <ProjectTypeTogglesWrapper>
-                      <ButtonWithIcon
-                        showStroke={projectType === 'empty'}
-                        icon={<EmptyIcon src={emptyIconSrc} />}
-                        onClick={() => this.updateProjectType('empty')}
-                      >
-                        Empty
-                      </ButtonWithIcon>
-                      <Spacer inline size={10} />
-                      <ButtonWithIcon
-                        showStroke={projectType === 'webview'}
-                        icon={<Icon src={webviewIconSrc} />}
-                        onClick={() => this.updateProjectType('webview')}
-                      >
-                        Webview
-                      </ButtonWithIcon>
-                      <Spacer inline size={10} />
-                      <ButtonWithIcon
-                        showStroke={projectType === 'datasupplier'}
-                        icon={<Icon src={datasupplierIconSrc} />}
-                        onClick={() => this.updateProjectType('datasupplier')}
-                      >
-                        Data Supplier
-                      </ButtonWithIcon>
-                    </ProjectTypeTogglesWrapper>
+                    <ProjectTypeSelection
+                      projectType={projectType}
+                      onSelectProjectType={this.updateProjectType}
+                    />
                   </FormField>
                 </FadeIn>
               )}

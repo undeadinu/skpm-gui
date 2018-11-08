@@ -17,6 +17,7 @@ import {
   runTask,
   abortTask,
 } from '../actions';
+import projectConfigs from '../config/project-types';
 import { getPathForProjectId } from '../reducers/paths.reducer';
 import { isDevServerTask } from '../reducers/tasks.reducer';
 import killProcessId from '../services/kill-process-id.service';
@@ -29,8 +30,11 @@ import { processLogger } from '../services/process-logger.service';
 
 import type { Saga } from 'redux-saga';
 import type { ChildProcess } from 'child_process';
-import type { Task } from '../types';
+import type { Task, ProjectType } from '../types';
 import type { ReturnType } from '../actions/types';
+
+// Mapping type for config template variables '$port'
+export type VariableMap = {};
 
 const chalk = new chalkRaw.constructor({ level: 3 });
 
@@ -42,7 +46,7 @@ export function* handleLaunchDevServer({
   });
 
   try {
-    const { args, env } = yield call(getDevServerCommand, task);
+    const { args, env } = yield call(getDevServerCommand, 'empty');
 
     const child = yield call(
       [childProcess, childProcess.spawn],
@@ -225,7 +229,10 @@ export function* taskRun({ task }: ReturnType<typeof runTask>): Saga<void> {
   }
 }
 
-export function* taskAbort({ task }: ReturnType<typeof abortTask>): Saga<void> {
+export function* taskAbort({
+  task,
+  projectType,
+}: ReturnType<typeof abortTask>): Saga<void> {
   const { processId, name } = task;
 
   yield call(killProcessId, processId);
@@ -237,7 +244,7 @@ export function* taskAbort({ task }: ReturnType<typeof abortTask>): Saga<void> {
   // but given that we're treating `start` as its own special thing,
   // I'm realizing that it should vary depending on the task type.
   // TODO: Find a better place for this to live.
-  const abortMessage = isDevServerTask(name)
+  const abortMessage = isDevServerTask(name, projectType)
     ? 'Dev mode stopped'
     : 'Task aborted';
 
@@ -306,10 +313,58 @@ const createStdioChannel = (
   });
 };
 
-export const getDevServerCommand = (task: Task) => {
+// We're using "template" variables inside the project type configuration file (config/project-types.js)
+// so with the following function we can replace the string $port with the real port number e.g. 3000
+// (see type VariableMap for used mapping strings)
+export const substituteConfigVariables = (
+  configObject: any,
+  variableMap: VariableMap
+) => {
+  // e.g. $port inside args will be replaced with variable reference from variabeMap obj. {$port: port}
+  return Object.keys(configObject).reduce(
+    (config, key) => {
+      if (config[key] instanceof Array) {
+        // replace $port inside args array
+        config[key] = config[key].map(arg => variableMap[arg] || arg);
+      } else {
+        // check config[key] e.g. is {env: { PORT: '$port'} }
+        if (config[key] instanceof Object) {
+          // config[key] = {PORT: '$port'}, key = 'env'
+          config[key] = Object.keys(config[key]).reduce(
+            (newObj, nestedKey) => {
+              // use replacement value if available
+              newObj[nestedKey] =
+                variableMap[newObj[nestedKey]] || newObj[nestedKey];
+              return newObj;
+            },
+            { ...config[key] }
+          );
+        }
+      }
+      // todo: add top level substitution - not used yet but maybe needed later e.g. { env: $port } won't be replaced.
+      //       Bad example but just to have it as reminder.
+      return config;
+    },
+    { ...configObject }
+  );
+};
+
+export const getDevServerCommand = (projectType: ProjectType) => {
+  const config = projectConfigs[projectType];
+
+  if (!config) {
+    throw new Error('Unrecognized project type: ' + projectType);
+  }
+
+  // Substitution is needed as we'd like to have $port as args or in env
+  // we can use it in either position and it will be subsituted with the port value here
+  const devServer = substituteConfigVariables(config.devServer, {
+    // pass every value that is needed in the commands here
+  });
+
   return {
-    args: ['run', task.name],
-    env: {},
+    args: devServer.args,
+    env: devServer.env || {},
   };
 };
 

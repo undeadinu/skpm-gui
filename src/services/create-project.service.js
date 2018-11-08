@@ -2,6 +2,9 @@
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as uuid from 'uuid/v1';
+import projectConfigs from '../config/project-types';
+import { processLogger } from './process-logger.service';
 
 import { loadProject } from './read-from-disk.service';
 import { enableDevMode } from './dev-mode.service';
@@ -86,6 +89,7 @@ export default (
     shell: true,
   });
 
+  processLogger(child, 'CREATE_PROJECT');
   let hasError = false;
 
   child.stdout.on('data', onStatusUpdate);
@@ -131,26 +135,9 @@ export const getBuildInstructions = (
   // Windows tries to run command as a script rather than on a cmd
   // To force it we add *.cmd to the commands
   const command = formatCommandForPlatform('npx');
-  switch (projectType) {
-    case 'empty':
-      return [command, 'create-sketch-plugin', id, `--name="${name}"`];
-    case 'webview':
-      return [
-        command,
-        'create-sketch-plugin',
-        id,
-        `--name="${name}"`,
-        '--template=skpm/with-webview',
-      ];
-    case 'datasupplier':
-      return [
-        command,
-        'create-sketch-plugin',
-        id,
-        `--name="${name}"`,
-        '--template=skpm/with-datasupplier',
-      ];
-    default:
-      throw new Error('Unrecognized project type: ' + projectType);
+  if (!projectConfigs.hasOwnProperty(projectType)) {
+    throw new Error('Unrecognized project type: ' + projectType);
   }
+
+  return [command, ...projectConfigs[projectType].create.args(id, name)];
 };

@@ -13,6 +13,7 @@ import {
   SHOW_PROJECT_SETTINGS,
   SHOW_PLUGIN_MENU,
   SAVE_PLUGIN_MENU_FINISH,
+  SHOW_APP_SETTINGS,
   HIDE_MODAL,
   RESET_ALL_STATE,
 } from '../actions';
@@ -21,7 +22,7 @@ import type { Action } from '../actions/types';
 
 type State = 'new-project-wizard' | 'project-settings' | 'plugin-menu' | null;
 
-const initialState = null;
+export const initialState = null;
 
 export default (state: State = initialState, action: Action = {}) => {
   switch (action.type) {
@@ -33,6 +34,9 @@ export default (state: State = initialState, action: Action = {}) => {
 
     case SHOW_PLUGIN_MENU:
       return 'plugin-menu';
+
+    case SHOW_APP_SETTINGS:
+      return 'app-settings';
 
     case CREATE_NEW_PROJECT_CANCEL:
     case CREATE_NEW_PROJECT_FINISH:

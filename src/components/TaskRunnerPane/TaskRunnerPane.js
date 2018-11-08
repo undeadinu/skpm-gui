@@ -4,7 +4,10 @@ import { connect } from 'react-redux';
 
 import * as actions from '../../actions';
 import { SKPM_REPO_URL } from '../../constants';
-import { getSelectedProjectId } from '../../reducers/projects.reducer';
+import {
+  getSelectedProjectId,
+  getSelectedProject,
+} from '../../reducers/projects.reducer';
 import {
   getTasksInTaskListForProjectId,
   isTaskDisabled,
@@ -15,11 +18,12 @@ import Module from '../Module';
 import TaskRunnerPaneRow from '../TaskRunnerPaneRow';
 import TaskDetailsModal from '../TaskDetailsModal';
 
-import type { Task } from '../../types';
+import type { Task, Project } from '../../types';
 import type { Dispatch } from '../../actions/types';
 
 type Props = {
   projectId: string,
+  project: Project,
   tasks: Array<Task>,
   runTask: Dispatch<typeof actions.runTask>,
   abortTask: Dispatch<typeof actions.abortTask>,
@@ -63,7 +67,7 @@ class TaskRunnerPane extends Component<Props, State> {
 
     const timestamp = new Date();
 
-    isRunning ? abortTask(task, timestamp) : runTask(task, timestamp);
+    isRunning ? abortTask(task, 'empty', timestamp) : runTask(task, timestamp);
   };
 
   handleViewDetails = (taskName: string) => {
@@ -117,6 +121,8 @@ class TaskRunnerPane extends Component<Props, State> {
 }
 
 const mapStateToProps = state => {
+  const selectedProject = getSelectedProject(state);
+
   const projectId = getSelectedProjectId(state);
 
   const dependenciesChangingForProject =
@@ -126,7 +132,7 @@ const mapStateToProps = state => {
     ? getTasksInTaskListForProjectId(state, { projectId })
     : [];
 
-  return { tasks, dependenciesChangingForProject };
+  return { tasks, dependenciesChangingForProject, project: selectedProject };
 };
 
 export default connect(

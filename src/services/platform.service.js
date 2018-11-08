@@ -77,25 +77,31 @@ export const getBaseProjectEnvironment = (
 // 'fix-path' is supposed to do this for us, but it doesn't work, for unknown
 // reasons.
 export const initializePath = () => {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(resolve => {
+    if (!isMac) {
+      return resolve();
+    }
+
+    // Check if we need to fix the Path (Mac only)
     childProcess.exec(
       'which node',
       { env: window.process.env },
-      (_, version) => {
-        if (!version && isMac) {
-          // For users with a standard Node installation, node will be in
-          // /usr/local/bin
-          // For users using NVM, the path to Node will be added to `.bashrc`.
-          // Add both to the PATH.
+      (_, nodePath) => {
+        if (nodePath) {
+          // Node found
+          return resolve();
+        }
+
+        // For users with a standard Node installation, node will be in
+        // /usr/local/bin
+        // For users using NVM, the path to Node will be added to `.bashrc`.
+        // Add both to the PATH.
+        try {
           childProcess.exec(
             'echo $PATH',
+            // $FlowFixMe
             { shell: true, encoding: 'utf8' },
-            (err, updatedPath, sdterr) => {
-              if (err) {
-                console.error(sdterr);
-                return reject(err);
-              }
-
+            (err, updatedPath) => {
               if (updatedPath) {
                 window.process.env.PATH = `/usr/local/bin:${updatedPath.toString()}`;
               }
@@ -103,8 +109,8 @@ export const initializePath = () => {
               resolve();
             }
           );
-        } else {
-          resolve();
+        } catch (e) {
+          resolve(e);
         }
       }
     );

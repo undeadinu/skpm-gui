@@ -13,6 +13,7 @@ import ApplicationMenu from '../ApplicationMenu';
 import ProjectPage from '../ProjectPage';
 import CreateNewProjectWizard from '../CreateNewProjectWizard';
 import ProjectConfigurationModal from '../ProjectConfigurationModal';
+import AppSettingsModal from '../AppSettingsModal';
 import Initialization from '../Initialization';
 import EditMenuModal from '../EditMenuModal';
 import LoadingScreen from '../LoadingScreen';
@@ -43,6 +44,7 @@ class App extends PureComponent<Props> {
               <CreateNewProjectWizard />
               <ProjectConfigurationModal />
               <EditMenuModal />
+              <AppSettingsModal />
             </Fragment>
           )
         }
