@@ -21,7 +21,6 @@ import PixelShifter from '../PixelShifter';
 import DirectoryPicker from '../DirectoryPicker';
 import ProjectTypeSelection from '../ProjectTypeSelection';
 import Heading from '../Heading';
-import FadeIn from '../FadeIn';
 
 import type { AppSettings } from '../../types';
 
@@ -111,23 +110,21 @@ class AppSettingsModal extends PureComponent<Props, State> {
                   isFocused={activeField === 'directoryPicker'}
                 />
               </FormField>
-              <FadeIn>
-                <FormField
-                  label="Default Project Type"
-                  isFocused={activeField === 'projectType'}
-                >
-                  <ProjectTypeSelection
-                    projectType={newSettings.general.defaultProjectType}
-                    onSelectProjectType={projectType => {
-                      this.setActive('projectType');
-                      this.updateSetting(
-                        'general.defaultProjectType',
-                        projectType
-                      );
-                    }}
-                  />
-                </FormField>
-              </FadeIn>
+              <FormField
+                label="Default Project Type"
+                isFocused={activeField === 'projectType'}
+              >
+                <ProjectTypeSelection
+                  projectType={newSettings.general.defaultProjectType}
+                  onSelectProjectType={projectType => {
+                    this.setActive('projectType');
+                    this.updateSetting(
+                      'general.defaultProjectType',
+                      projectType
+                    );
+                  }}
+                />
+              </FormField>
             </PixelShifter>
             <SectionTitle>Privacy</SectionTitle>
             <PixelShifter x={5} reason="Slightly intend in section">

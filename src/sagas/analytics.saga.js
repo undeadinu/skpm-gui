@@ -93,7 +93,6 @@ const loggableActions: LoggableActionsMap = {
   },
 };
 
-// $FlowFixMe
 export function* handleAction({ type, ...payload }: Action): Saga<void> {
   const { enableUsageTracking } = yield select(getPrivacySettings);
   if (loggableActions[type] && enableUsageTracking) {

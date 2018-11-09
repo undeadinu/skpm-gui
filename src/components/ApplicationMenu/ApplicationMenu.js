@@ -169,7 +169,7 @@ class ApplicationMenu extends Component<Props> {
         // Linux & Windows only
         label: '&Preferences...',
         click: showAppSettings,
-        accelerator: 'Ctrl+,',
+        accelerator: 'CmdOrCtrl+,',
       });
     }
 

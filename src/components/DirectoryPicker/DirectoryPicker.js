@@ -13,7 +13,7 @@ import TextInput from '../TextInput';
 type Props = {
   path: string,
   pathToSelectMessage: ?string,
-  inputEditable: ?boolean,
+  inputEditable?: boolean,
   isFocused?: boolean,
   onFocus: string => void,
   onSelect: string => void,

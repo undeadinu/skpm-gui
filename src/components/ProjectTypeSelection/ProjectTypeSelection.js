@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import styled from 'styled-components';
 
 import emptyIconSrc from '../../assets/images/empty.svg';
@@ -12,7 +12,7 @@ import Spacer from '../Spacer';
 import type { ProjectType } from '../../types';
 type Props = {
   projectType: ?ProjectType,
-  onSelectProjectType: (type: ProjectType) => void,
+  onSelectProjectType: (projectType: ProjectType) => void,
 };
 
 class ProjectTypeSelection extends PureComponent<Props> {
@@ -25,30 +25,22 @@ class ProjectTypeSelection extends PureComponent<Props> {
     const { projectType } = this.props;
     return (
       <ProjectTypeTogglesWrapper>
-        {/* Todo: Make it easier to add new flows - e.g. map over an array to generate the UI*/}
-        <ButtonWithIcon
-          showStroke={projectType === 'empty'}
-          icon={<EmptyIcon src={emptyIconSrc} />}
-          onClick={(ev: SyntheticEvent<*>) => this.select(ev, 'empty')}
-        >
-          Empty
-        </ButtonWithIcon>
-        <Spacer inline size={10} />
-        <ButtonWithIcon
-          showStroke={projectType === 'webview'}
-          icon={<Icon src={webviewIconSrc} />}
-          onClick={(ev: SyntheticEvent<*>) => this.select(ev, 'webview')}
-        >
-          Webview
-        </ButtonWithIcon>
-        <Spacer inline size={10} />
-        <ButtonWithIcon
-          showStroke={projectType === 'datasupplier'}
-          icon={<Icon src={datasupplierIconSrc} />}
-          onClick={(ev: SyntheticEvent<*>) => this.select(ev, 'datasupplier')}
-        >
-          Data Supplier
-        </ButtonWithIcon>
+        {mapProjectTypeToComponent.map((curProjectType, index) => (
+          <Fragment key={curProjectType.type}>
+            <ButtonWithIcon
+              showStroke={projectType === curProjectType.type}
+              icon={curProjectType.Component}
+              onClick={(ev: SyntheticEvent<*>) =>
+                this.select(ev, curProjectType.type)
+              }
+            >
+              {curProjectType.caption}
+            </ButtonWithIcon>
+            {index < mapProjectTypeToComponent.length - 1 ? (
+              <Spacer inline size={10} />
+            ) : null}
+          </Fragment>
+        ))}
       </ProjectTypeTogglesWrapper>
     );
   }
@@ -68,5 +60,23 @@ const ProjectTypeTogglesWrapper = styled.div`
   margin-top: 8px;
   margin-left: -8px;
 `;
+
+const mapProjectTypeToComponent = [
+  {
+    type: 'empty',
+    Component: <EmptyIcon src={emptyIconSrc} />,
+    caption: 'Vanilla React',
+  },
+  {
+    type: 'webview',
+    Component: <Icon src={webviewIconSrc} />,
+    caption: 'WebView',
+  },
+  {
+    type: 'datasupplier',
+    Component: <Icon src={datasupplierIconSrc} />,
+    caption: 'Data Supplier',
+  },
+];
 
 export default ProjectTypeSelection;

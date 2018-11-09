@@ -16,7 +16,7 @@ import {
   createNewProjectStart,
   startDeletingProject,
   deleteProjectError,
-  loadDependencyInfoFromDisk,
+  loadDependencyInfoFromDiskStart,
 } from '../actions';
 import { getProjectsArray } from '../reducers/projects.reducer';
 
@@ -200,7 +200,7 @@ describe('delete-project saga', () => {
 
       expect(JSON.stringify(saga.next().value)).toEqual(
         JSON.stringify(
-          put(loadDependencyInfoFromDisk(project.id, project.path))
+          put(loadDependencyInfoFromDiskStart(project.id, project.path))
         )
       );
 

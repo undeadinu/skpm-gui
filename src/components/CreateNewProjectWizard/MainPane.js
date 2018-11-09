@@ -4,13 +4,13 @@ import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
 
 import FormField from '../FormField';
-import ProjectIconSelection from '../ProjectIconSelection';
-import ProjectTypeSelection from '../ProjectTypeSelection';
 import FadeIn from '../FadeIn';
 
 import ProjectName from './ProjectName';
 import ProjectPath from './ProjectPath';
 import SubmitButton from './SubmitButton';
+import ProjectIconSelection from '../ProjectIconSelection';
+import ProjectTypeSelection from '../ProjectTypeSelection';
 
 import type { Field, Status } from './types';
 import type { ProjectType } from '../../types';
@@ -119,21 +119,6 @@ class MainPane extends PureComponent<Props> {
 const Wrapper = styled.div`
   height: 500px;
   will-change: transform;
-`;
-
-const Icon = styled.img`
-  width: 22px;
-  height: 22px;
-`;
-
-const EmptyIcon = styled.img`
-  width: 18px;
-  height: 18px;
-`;
-
-const ProjectTypeTogglesWrapper = styled.div`
-  margin-top: 8px;
-  margin-left: -8px;
 `;
 
 const SubmitButtonWrapper = styled.div`

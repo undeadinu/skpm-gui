@@ -201,7 +201,6 @@ export type Project = {
 };
 
 export type ProjectInternalsMap = { [id: string]: ProjectInternal };
-export type ProjectsMap = { [id: string]: Project };
 
 export type AppSettings = {
   general: {

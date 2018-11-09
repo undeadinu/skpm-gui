@@ -8,7 +8,7 @@
 import type { ProjectType } from '../types';
 
 const config: {
-  [key: ProjectType]: {
+  [projectType: ProjectType]: {
     devServer: {
       taskName: string,
       args: Array<string>,
